@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   MapPin,
   Calendar,
@@ -89,9 +90,11 @@ export function ReportCard({ report, onUpvote }: ReportCardProps) {
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors line-clamp-1 mb-2 font-heading">
-          {report.title}
-        </h3>
+        <Link href={`/reports/${report.id}`} className="block">
+          <h3 className="text-lg font-bold text-white group-hover:text-blue-300 transition-colors line-clamp-1 mb-2 font-heading">
+            {report.title}
+          </h3>
+        </Link>
 
         {/* Description */}
         <p className="text-sm text-slate-300 line-clamp-2 leading-relaxed mb-4">
