@@ -2,6 +2,7 @@
 
 import React, { use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Navbar } from "@/components/navigation/Navbar";
 import {
   ArrowLeft,
@@ -16,6 +17,7 @@ import {
   Share2,
   ShieldCheck,
   FileCheck,
+  Camera,
 } from "lucide-react";
 
 interface TimelineEvent {
@@ -38,6 +40,7 @@ interface DetailedReport {
   date: string;
   upvotes: number;
   assignedDepartment: string;
+  imageUrl?: string;
   timeline: TimelineEvent[];
 }
 
@@ -294,6 +297,36 @@ export default function ReportDetailPage({
           <p className="text-sm sm:text-base text-slate-200 leading-relaxed mb-6">
             {report.description}
           </p>
+
+          {/* Photo Evidence Section */}
+          <div className="mb-6 p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="flex items-center justify-between mb-3 text-xs">
+              <div className="flex items-center gap-1.5 font-semibold text-slate-300">
+                <Camera className="w-4 h-4 text-blue-400" />
+                <span>Patunay na Larawan (Photo Evidence)</span>
+              </div>
+              <span className="text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1">
+                <FileCheck className="w-3 h-3" />
+                Beripikadong File
+              </span>
+            </div>
+
+            {report.imageUrl ? (
+              <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden border border-white/10">
+                <Image
+                  src={report.imageUrl}
+                  alt={report.title}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center p-8 rounded-xl border border-dashed border-white/15 bg-white/[0.01] text-xs text-slate-400 text-center">
+                <span>Naka-link sa opisyal na field report archive ng Bayan ng Paete.</span>
+              </div>
+            )}
+          </div>
 
           {/* Metadata Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-5 border-t border-white/10 text-xs">

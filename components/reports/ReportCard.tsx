@@ -20,6 +20,7 @@ export interface CommunityReport {
   status: ReportStatus;
   date: string;
   upvotes: number;
+  imageUrl?: string;
 }
 
 interface ReportCardProps {
