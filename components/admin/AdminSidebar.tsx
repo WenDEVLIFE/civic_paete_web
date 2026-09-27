@@ -262,6 +262,37 @@ export function AdminSidebar({
         )}
       </div>
 
+      {/* Transparency & Public Audits */}
+      <div className="px-3 py-2 border-t border-white/10 space-y-1">
+        <div className="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
+          <span>Transparency & Audits</span>
+          <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/10 border border-amber-400/20 text-amber-300 font-mono">
+            LIVE HUB
+          </span>
+        </div>
+        <Link
+          href="/transparency/projects"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <span className="text-sm">🚧</span>
+          <span>Proyekto & Badyet Audit</span>
+        </Link>
+        <Link
+          href="/transparency/officials"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <span className="text-sm">🏛️</span>
+          <span>Direktoryo ng Opisyal</span>
+        </Link>
+        <Link
+          href="/transparency/reports"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <span className="text-sm">📊</span>
+          <span>Open Data at Metriko</span>
+        </Link>
+      </div>
+
       {/* Bottom Footer Actions */}
       <div className="p-3 border-t border-white/10 space-y-2 bg-[#071126]/60">
         <Link

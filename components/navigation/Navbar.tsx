@@ -94,10 +94,51 @@ export function Navbar() {
               Magsumite ng Ulat
             </Link>
             <Link
-              href="#insights"
+              href="/#insights"
               className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
             >
               Rekomendasyon
+            </Link>
+            <div className="relative group">
+              <Link
+                href="/transparency/projects"
+                className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1"
+              >
+                <span>Transparency</span>
+                <span className="text-[10px] text-amber-400 font-semibold px-1.5 py-0.2 rounded bg-amber-400/10 border border-amber-400/20">
+                  Hub
+                </span>
+              </Link>
+              {/* Dropdown Menu */}
+              <div className="absolute left-0 top-full pt-1 hidden group-hover:block w-56 z-50">
+                <div className="rounded-xl bg-[#0A1931] border border-white/15 p-2 shadow-2xl backdrop-blur-xl space-y-1">
+                  <Link
+                    href="/transparency/projects"
+                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    🚧 Mga Proyekto ng Bayan
+                  </Link>
+                  <Link
+                    href="/transparency/officials"
+                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    🏛️ Direktoryo ng mga Opisyal
+                  </Link>
+                  <Link
+                    href="/transparency/reports"
+                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    📊 Mga Ulat at Open Data
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/legal/safety"
+              className="px-3.5 py-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors text-xs font-semibold flex items-center gap-1"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              Proteksyon
             </Link>
           </nav>
 
@@ -206,12 +247,66 @@ export function Navbar() {
             Magsumite ng Ulat
           </Link>
           <Link
-            href="#insights"
+            href="/#insights"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10"
           >
             Rekomendasyon ng Sistema
           </Link>
+
+          <div className="pt-2 pb-1 border-t border-white/10">
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-amber-400">
+              Transparency Hub
+            </span>
+            <Link
+              href="/transparency/projects"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              🚧 Mga Proyekto ng Bayan
+            </Link>
+            <Link
+              href="/transparency/officials"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              🏛️ Direktoryo ng mga Opisyal
+            </Link>
+            <Link
+              href="/transparency/reports"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              📊 Mga Ulat at Open Data
+            </Link>
+          </div>
+
+          <div className="pt-2 pb-1 border-t border-white/10">
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+              Batas at Proteksyon
+            </span>
+            <Link
+              href="/legal/safety"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              🛡️ Whistleblower & Legal Protection
+            </Link>
+            <Link
+              href="/legal/privacy"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              📜 Patakaran sa Privacy (RA 10173)
+            </Link>
+            <Link
+              href="/legal/terms"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+            >
+              ⚖️ Mga Tuntunin at Kundisyon
+            </Link>
+          </div>
 
           <div className="pt-4 border-t border-white/10 space-y-2.5">
             {user ? (

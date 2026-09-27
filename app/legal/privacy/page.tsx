@@ -290,20 +290,7 @@ export default function PrivacyPolicyPage() {
                   <a
                     key={s.id}
                     href={`#${s.id}`}
-                    className="text-xs px-2 py-1.5 rounded-lg transition-colors duration-150 hover:opacity-90"
-                    style={{ color: "#94A3B8" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color =
-                        "#60A5FA";
-                      (e.currentTarget as HTMLAnchorElement).style.background =
-                        "rgba(96,165,250,0.08)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color =
-                        "#94A3B8";
-                      (e.currentTarget as HTMLAnchorElement).style.background =
-                        "transparent";
-                    }}
+                    className="text-xs px-2 py-1.5 rounded-lg transition-colors duration-150 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10"
                   >
                     {s.icon} {s.title}
                   </a>

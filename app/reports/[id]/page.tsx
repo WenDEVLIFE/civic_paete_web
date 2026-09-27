@@ -4,6 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/navigation/Navbar";
+import { Footer } from "@/components/navigation/Footer";
 import {
   ArrowLeft,
   MapPin,
@@ -687,6 +688,8 @@ export default function ReportDetailPage({
           </form>
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }

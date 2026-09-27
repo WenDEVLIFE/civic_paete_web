@@ -319,16 +319,7 @@ export default function TermsPage() {
                   <a
                     key={s.id}
                     href={`#${s.id}`}
-                    className="text-xs px-2 py-1.5 rounded-lg transition-all duration-150"
-                    style={{ color: "#94A3B8" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "#F59E0B";
-                      (e.currentTarget as HTMLAnchorElement).style.background = "rgba(245,158,11,0.08)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "#94A3B8";
-                      (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                    }}
+                    className="text-xs px-2 py-1.5 rounded-lg transition-all duration-150 text-slate-400 hover:text-amber-400 hover:bg-amber-500/10"
                   >
                     {s.icon} {s.title}
                   </a>

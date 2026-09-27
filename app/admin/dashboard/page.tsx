@@ -636,6 +636,64 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Transparency & Audit Sync Banner */}
+              <div className="p-6 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="p-2 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                      <BarChart3 className="w-5 h-5" />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Public Transparency & Audit Synchronization</h3>
+                      <p className="text-xs text-slate-400">
+                        Live monitoring ng mga proyektong pang-bayan, direktoryo ng opisyal, at open datasets
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    PUBLIC TRANSPARENCY SYNC ACTIVE
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Link
+                    href="/transparency/projects"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-amber-400">🚧 Proyekto at Badyet</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium">Public Works History</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Audit ng 6 na imprastraktura, pondo, at kontraktor.</p>
+                  </Link>
+
+                  <Link
+                    href="/transparency/officials"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/40 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-blue-400">🏛️ Mga Opisyal ng Bayan</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium">Accountability Directory</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Metriko ng Mayor, SB, Kapitan, at Gobernador.</p>
+                  </Link>
+
+                  <Link
+                    href="/transparency/reports"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-emerald-400">📊 Open Data Hub</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium">Bukas na Datos & CSV/JSON</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Downloadable open datasets at buwanang trends.</p>
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
 

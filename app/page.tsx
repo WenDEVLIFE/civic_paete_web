@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Navbar } from "../components/navigation/Navbar";
+import { Footer } from "../components/navigation/Footer";
 import { HeroSection } from "../components/home/HeroSection";
 import {
   ReportCard,
@@ -396,14 +397,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#0A1931] py-10 px-4 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto space-y-2">
-          <p className="font-semibold text-white">Civic Paete — Bayan ng Paete, Laguna</p>
-          <p className="text-[11px] text-slate-500">
-            Digital Civic Platform para sa Transparency, Community Verification, at Mabilisang Aksyon ng Pamahalaan.
-          </p>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Submit Report Modal */}
       <SubmitReportModal
