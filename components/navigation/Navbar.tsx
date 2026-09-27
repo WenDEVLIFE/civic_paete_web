@@ -30,6 +30,47 @@ export function Navbar() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [adminSession, setAdminSession] = useState<{
+    role?: string;
+    email?: string;
+    name?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const checkAdminSession = () => {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("civic_paete_admin_session");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed && (parsed.role === "admin" || parsed.role === "governor" || parsed.email)) {
+              setAdminSession(parsed);
+              return;
+            }
+          } catch {
+            // ignore
+          }
+        }
+        setAdminSession(null);
+      }
+    };
+
+    checkAdminSession();
+    window.addEventListener("storage", checkAdminSession);
+    return () => window.removeEventListener("storage", checkAdminSession);
+  }, []);
+
+  const isOfficialOrAdmin = Boolean(
+    adminSession ||
+      (user?.email &&
+        (user.email.endsWith("@paete.gov.ph") ||
+          user.email.endsWith("@laguna.gov.ph") ||
+          user.email.includes("admin") ||
+          user.email.includes("governor"))) ||
+      (user?.displayName &&
+        (user.displayName.toLowerCase().includes("administrator") ||
+          user.displayName.toLowerCase().includes("governor")))
+  );
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -73,6 +114,11 @@ export function Navbar() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("civic_paete_admin_session");
+        document.cookie = "civic_paete_role=; path=/; max-age=0";
+      }
+      setAdminSession(null);
     } catch (err) {
       console.error("Sign out error:", err);
     }
@@ -164,14 +210,25 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Municipal Staff Portal Link */}
-            <Link
-              href="/admin/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-white/10 hover:border-blue-400/40 hover:bg-blue-950/40 transition-all"
-            >
-              <Shield className="w-3.5 h-3.5 text-blue-400" />
-              Officials Portal
-            </Link>
+            {/* Municipal Staff Portal Link or Dashboard */}
+            {isOfficialOrAdmin ? (
+              <Link
+                href="/admin/dashboard"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 hover:text-white px-3 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 hover:bg-amber-500/20 transition-all min-h-[40px]"
+                title="Go to Operations & Oversight Dashboard"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Admin Dashboard</span>
+              </Link>
+            ) : (
+              <Link
+                href="/admin/login"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-white/10 hover:border-blue-400/40 hover:bg-blue-950/40 transition-all min-h-[40px]"
+              >
+                <Shield className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <span>Officials Portal</span>
+              </Link>
+            )}
 
             {/* Google Resident Auth State */}
             {!isLoading && (
@@ -385,14 +442,25 @@ export function Navbar() {
               </button>
             )}
 
-            <Link
-              href="/admin/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 border border-white/15 text-slate-200 hover:bg-white/10 font-medium py-2.5 rounded-xl text-sm transition-all min-h-[44px]"
-            >
-              <Shield className="w-4 h-4 text-blue-400" />
-              Municipal Officials Portal
-            </Link>
+            {isOfficialOrAdmin ? (
+              <Link
+                href="/admin/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 border border-amber-400/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 font-medium py-2.5 rounded-xl text-sm transition-all min-h-[44px]"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <span>Municipal Operations Dashboard</span>
+              </Link>
+            ) : (
+              <Link
+                href="/admin/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 border border-white/15 text-slate-200 hover:bg-white/10 font-medium py-2.5 rounded-xl text-sm transition-all min-h-[44px]"
+              >
+                <Shield className="w-4 h-4 text-blue-400" />
+                <span>Municipal Officials Portal</span>
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -165,7 +165,13 @@ export function UserProfileModal({
   const handleSignOutClick = async () => {
     try {
       await signOut(auth);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("civic_paete_admin_session");
+        document.cookie = "civic_paete_role=; path=/; max-age=0";
+      }
       onClose();
+      router.push("/");
+      router.refresh();
     } catch (err) {
       console.error("Sign out notice:", err);
     }
