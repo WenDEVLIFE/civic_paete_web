@@ -10,7 +10,7 @@
 |---|---|:---:|---|
 | **1** | Privacy Policy (RA 10173 compliance) | 🟢 Done | `app/legal/privacy/page.tsx` + `components/legal/PrivacyModal.tsx` |
 | **2** | Cookie Consent Banner & Preferences | 🟢 Done | `components/legal/CookieConsentBanner.tsx` |
-| **3** | Terms & Conditions | 🟡 Queued | `app/legal/terms/page.tsx` + Modal preview |
+| **3** | Terms & Conditions | 🟢 Done | `app/legal/terms/page.tsx` |
 | **4** | User Data Management & Export | 🟡 Queued | `app/profile/data/page.tsx` / `UserDataModal.tsx` |
 | **5** | User Account & Barangay Verification System | 🟡 Queued | `components/auth/VerificationBadge.tsx` & Verification Flow |
 | **6** | Nickname / Anonymous Reporting Option | 🟡 Queued | `components/reports/SubmitReportModal.tsx` |
@@ -32,8 +32,8 @@
 - [x] **1.2 Privacy Policy Page & Modal (`Feature 1`)**
   - [x] Create `app/legal/privacy/page.tsx` detailing RA 10173 compliance, DPO contact for Paete LGU, data retention, and resident rights.
   - [x] Create `components/legal/PrivacyModal.tsx` — quick-reference slide-over with 4-point summary, embedded during signup and report submission.
-- [ ] **1.3 Terms & Conditions (`Feature 3`)**
-  - [ ] Build `app/legal/terms/page.tsx` outlining community guidelines, false report liabilities, official municipal response SLAs, and intellectual property.
+- [x] **1.3 Terms & Conditions (`Feature 3`)**
+  - [x] Build `app/legal/terms/page.tsx` with community guidelines (Pinapayagan/Ipinagbabawal), false report liabilities, LGU response SLA table (URGENT/HIGH/STANDARD/LOW), IP clauses, and contact block.
 - [ ] **1.4 Safety & Legal Protection Hub (`Feature 11`)**
   - [ ] Build `app/legal/safety/page.tsx` covering Whistleblower Protection, Anti-Harassment safeguards, and direct escalation contacts with the Provincial Ombudsman & DILG.
   - [ ] Add "Protektado ang Iyong Pagkakakilanlan" security badge inside report submission forms.
