@@ -1,664 +1,415 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  ShieldAlert,
+  FileCheck2,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Clock,
+  Scale,
+  Building2,
+  ArrowLeft,
+  Gavel,
+  ShieldCheck,
+  EyeOff,
+} from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Mga Tuntunin at Kundisyon | Civic Paete",
+  title: "Terms and Conditions | Civic Paete",
   description:
-    "Mga patakaran ng komunidad, responsibilidad ng gumagamit, at legal na kasunduan para sa paggamit ng Civic Paete digital na plataporma ng Munisipalidad ng Paete, Laguna.",
+    "Official Terms and Conditions, Community Guidelines, and Municipal Response Service Level Agreements (SLAs) for the Civic Paete platform.",
 };
 
 // ─── Section Data ─────────────────────────────────────────────────────────────
 
-const SECTIONS = [
+interface TermsSection {
+  id: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  badge?: string;
+  content?: string[];
+  list?: string[];
+  allowed?: { label: string; items: string[] };
+  prohibited?: { label: string; items: string[] };
+  slas?: { tier: string; time: string; scope: string; penalty: string }[];
+}
+
+const SECTIONS: TermsSection[] = [
   {
     id: "acceptance",
-    icon: "✅",
-    title: "Pagtanggap ng mga Tuntunin",
+    icon: FileCheck2,
+    title: "1. Acceptance of Terms & Civic Charter",
+    badge: "Binding Agreement",
     content: [
-      "Sa pamamagitan ng pag-access at paggamit ng Civic Paete, tinatanggap ninyo nang buo ang mga Tuntuning ito at Kundisyon. Kung hindi kayo sumasang-ayon sa alinman sa mga probisyong ito, mangyaring huwag gamitin ang plataporma.",
-      "Ang Civic Paete ay opisyal na digital na plataporma ng Munisipalidad ng Paete, Lalawigan ng Laguna, na dinisenyo para sa pagmemensahe ng komunidad, pag-uulat ng mga alalahanin ng mamamayan, at pagpapadali ng pakikipag-ugnayan sa pagitan ng mga residente at lokal na pamahalaan.",
+      "By accessing, registering, or submitting reports through Civic Paete, you agree to be legally bound by these Terms and Conditions and all municipal guidelines incorporated herein.",
+      "Civic Paete is the official digital civic engagement and infrastructure monitoring platform of the Municipal Government of Paete, Province of Laguna, created to promote good local governance, public works accountability, and responsive municipal services.",
     ],
   },
   {
     id: "eligibility",
-    icon: "👤",
-    title: "Pagiging Karapat-dapat na Gumagamit",
-    content: [
-      "Ang plataporma ay para sa mga sumusunod na gumagamit:",
-    ],
+    icon: Building2,
+    title: "2. User Eligibility & Representation",
+    badge: "Resident & Official",
     list: [
-      "Mga residente ng Munisipalidad ng Paete, Laguna",
-      "Mga opisyal at empleyado ng Paete at Lalawigan ng Laguna LGU",
-      "Mga miyembro ng media at mananaliksik na sumusunod sa mga patakaran ng plataporma",
-      "Lahat ng gumagamit ay dapat may edad 18 pataas, o may pahintulot ng magulang/guardian",
+      "Registered residents, property owners, and business operators within the Municipality of Paete, Laguna.",
+      "Accredited municipal employees, barangay officials, department heads, and provincial coordinators.",
+      "Accredited civic researchers, educational institutions, and public interest journalists.",
+      "Users must be at least 18 years of age, or have the express consent and supervision of a parent or legal guardian.",
     ],
   },
   {
     id: "community-guidelines",
-    icon: "🤝",
-    title: "Mga Alituntunin ng Komunidad",
+    icon: ShieldCheck,
+    title: "3. Community Conduct & Guidelines",
+    badge: "Public Conduct",
     content: [
-      "Ang Civic Paete ay espasyo para sa makabuluhan at maayos na pakikipag-ugnayan ng mamamayan. Inaasahan namin ang lahat ng gumagamit na:",
+      "Civic Paete is dedicated to constructive, evidence-based civic discourse. Users are expected to maintain civil communication and submit verified observations.",
     ],
     allowed: {
-      label: "✅ Pinapayagan",
+      label: "Permitted & Encouraged Activities",
       items: [
-        "Mag-ulat ng mga tunay na alalahanin ng komunidad nang may katumpakan at katapatan",
-        "Magbigay ng nakakonstruktibong feedback sa mga proyekto at serbisyo ng LGU",
-        "Suportahan ang mga ulat ng kapwa mamamayan sa pamamagitan ng upvote",
-        "Mag-post ng mga komento na nagdaragdag ng halaga sa talakayan",
-        "Gumamit ng anonymous alias para sa mga sensitibong ulat (Protektadong Mamamayan)",
+        "Filing genuine, fact-based reports regarding roads, drainage, lighting, sanitation, and safety.",
+        "Providing high-resolution photographic evidence and accurate street or landmark tags.",
+        "Constructively engaging with municipal action logs and endorsing community issues via upvotes.",
+        "Activating Identity Shield to preserve personal privacy while reporting sensitive municipal hazards.",
       ],
     },
     prohibited: {
-      label: "❌ Ipinagbabawal",
+      label: "Strictly Prohibited Violations",
       items: [
-        "Pagsasumite ng pekeng, mapanlinlang, o malisyosong ulat",
-        "Pananakot, harassment, o paninirang-puri sa sinuman",
-        "Paglalagay ng personal na impormasyon ng ibang tao nang wala ang kanilang pahintulot",
-        "Spam, paulit-ulit na mga post, o pagmamanipula ng sistema ng pagboto",
-        "Paggamit ng plataporma para sa komersyal na advertising o political campaigning",
-        "Nilalaman na labag sa batas, malaswa, o nagtataguyod ng karahasan",
+        "Submitting falsified, staged, or duplicate claims to harass officials or fellow residents.",
+        "Uploading defamatory, obscene, sexually explicit, or hate-speech media attachments.",
+        "Attempting to spam, DDoS, or reverse-engineer platform authentication tokens.",
+        "Posting commercial advertisements, electioneering propaganda, or unrelated solicitation.",
       ],
     },
   },
   {
-    id: "false-reports",
-    icon: "⚠️",
-    title: "Responsibilidad sa Maling Ulat",
+    id: "fraud-liability",
+    icon: Gavel,
+    title: "4. Liability for Malicious & False Reports",
+    badge: "Statutory Liability",
     content: [
-      "Ang pagsasumite ng maling ulat ay isang seryosong bagay na may legal na kahihinatnan sa ilalim ng batas ng Pilipinas:",
+      "Civic Paete upholds zero tolerance for malicious disinformation. The submission of knowingly false emergencies or fraudulent infrastructure complaints constitutes a serious municipal and criminal offense:",
     ],
     list: [
-      "Sinumang mag-file ng maling ulat ay maaaring managot sa ilalim ng Revised Penal Code (Perjury, Art. 183) at iba pang kaugnay na batas.",
-      "Ang Munisipalidad ay may karapatang mag-disqualify ng gumagamit na paulit-ulit na nagsusumite ng maling impormasyon.",
-      "Ang maling ulat na nagdudulot ng pinsala sa reputasyon ng isang opisyal ay maaaring humantong sa libel case sa ilalim ng RA 10175 (Cybercrime Prevention Act).",
-      "Ang mga napatunayang maling ulat ay itatago bilang audit record at maaaring gamitin bilang ebidensya sa legal na proseso.",
-    ],
-    callout: {
-      type: "warning",
-      text: "Ang bawat ulat ay nire-review ng mga awtorisadong opisyal ng LGU. Ang buwanang audit ay isinasagawa upang matiyak ang integridad ng plataporma.",
-    },
-  },
-  {
-    id: "sla",
-    icon: "⏱️",
-    title: "Mga SLA ng Pagtugon ng LGU",
-    content: [
-      "Ang Munisipalidad ng Paete ay nakatuon sa pagtugon sa mga ulat ng komunidad sa loob ng mga sumusunod na timeframe. Ang mga oras na ito ay simula sa sandali ng opisyal na pag-acknowledge ng ulat:",
-    ],
-    sla: [
-      {
-        category: "Emerhensiya at Kaligtasan",
-        tag: "URGENT",
-        tagColor: "#EF4444",
-        tagBg: "rgba(239,68,68,0.1)",
-        target: "2–4 oras",
-        examples: "Mga baha, kalamidad, aksidente, krimen",
-      },
-      {
-        category: "Imprastraktura at Pampublikong Serbisyo",
-        tag: "HIGH",
-        tagColor: "#F59E0B",
-        tagBg: "rgba(245,158,11,0.1)",
-        target: "24–48 oras",
-        examples: "Sirang streetlights, butas sa kalsada, basura",
-      },
-      {
-        category: "Mga Alalahanin ng Komunidad",
-        tag: "STANDARD",
-        tagColor: "#3B82F6",
-        tagBg: "rgba(59,130,246,0.1)",
-        target: "3–5 araw na trabaho",
-        examples: "Ingay, mga alitan ng kapitbahay, kalinisan",
-      },
-      {
-        category: "Mungkahi at Proyekto",
-        tag: "LOW",
-        tagColor: "#10B981",
-        tagBg: "rgba(16,185,129,0.1)",
-        target: "5–10 araw na trabaho",
-        examples: "Mga panukala sa pagpapabuti, programa, events",
-      },
-    ],
-    content2: [
-      "Ang mga SLA ay para sa pagtugon lamang — hindi garantiya ng agarang resolusyon. Ang kumplikadong mga isyu ay maaaring mangailangan ng karagdagang oras para sa imbestigasyon at pagpapatupad.",
+      "Article 154 of the Revised Penal Code (Unlawful Use of Means of Publication and Unlawful Utterances): Criminal liability applies to anyone knowingly disseminating false news that endangers public order.",
+      "Republic Act No. 10175 (Cybercrime Prevention Act of 2012): Computer-related forgery and online fraud penalties apply to deliberately manipulated digital records.",
+      "Municipal Sanctions: Permanent suspension of digital reporting privileges and immediate referral to the Paete Municipal Police Station (PNP) and Municipal Legal Office.",
     ],
   },
   {
-    id: "account-conduct",
-    icon: "🔑",
-    title: "Mga Responsibilidad ng Account",
-    list: [
-      "Kayo ay may pananagutang personal sa lahat ng aktibidad na nagaganap sa ilalim ng inyong account.",
-      "Kailangang mapanatiling ligtas ang inyong credentials — huwag ibahagi ang inyong account sa ibang tao.",
-      "Agad na ipagbigay-alam sa amin ang anumang hindi awtorisadong paggamit ng inyong account sa admin@paete.gov.ph.",
-      "Maaari naming suspindihin o tanggalin ang mga account na lumalabag sa mga Tuntunin nang wala pang paunang abiso.",
+    id: "response-slas",
+    icon: Clock,
+    title: "5. Official Municipal Response SLAs",
+    badge: "Mandatory Standards",
+    content: [
+      "Pursuant to Republic Act No. 11032 (Ease of Doing Business and Efficient Government Service Delivery Act of 2018), municipal departments are bound by strict response timeframes:",
+    ],
+    slas: [
+      {
+        tier: "Critical / Emergency Hazard",
+        time: "< 24 Hours",
+        scope: "Downed live electric wires, hazardous bridge structural cracks, chemical spills, burst water mains.",
+        penalty: "Immediate MDRRMO alert and direct dispatch notification to Municipal Mayor.",
+      },
+      {
+        tier: "Urgent Public Works",
+        time: "< 48 Hours",
+        scope: "Obstructed storm canals causing residential flooding, streetlight outages on major thoroughfares.",
+        penalty: "Priority routing to Municipal Engineer and Sangguniang Barangay.",
+      },
+      {
+        tier: "Routine Service & Sanitation",
+        time: "3 to 5 Business Days",
+        scope: "Uncollected roadside foliage, pothole repairs on secondary barangay roads, noise complaints.",
+        penalty: "Weekly docket review during Executive Municipal Committee meetings.",
+      },
+    ],
+  },
+  {
+    id: "whistleblower-shield",
+    icon: EyeOff,
+    title: "6. Anonymous Reporting & Whistleblower Shield",
+    badge: "Feature 6 & 11",
+    content: [
+      "Residents reporting governance irregularities, procurement anomalies, or high-risk public hazards may enable the 'Identity Shield' option.",
+      "When enabled, your public profile displays only an opaque pseudonym (e.g., 'Protected Citizen #104'). Real authenticated user IDs are securely stored in encrypted, air-gapped audit logs accessible only by the Municipal Legal Counsel pursuant to formal court orders.",
     ],
   },
   {
     id: "intellectual-property",
-    icon: "©️",
-    title: "Intellectual Property",
-    content: [
-      "Ang lahat ng nilalaman ng Civic Paete — kabilang ang disenyo, logo, teksto, at software — ay pag-aari ng Munisipalidad ng Paete, Lalawigan ng Laguna.",
-    ],
+    icon: Scale,
+    title: "7. Intellectual Property & Open Data",
+    badge: "Open Data Commons",
     list: [
-      "Ang mga ulat at komento na isinumite ng mga gumagamit ay nananatiling pag-aari ng gumagamit, ngunit nagbibigay kayo ng lisensiya sa LGU na gamitin ang mga ito para sa pampublikong interes.",
-      "Hindi maaaring kopyahin, ipamahagi, o gamitin para sa komersyal na layunin ang nilalaman ng plataporma nang wala ang nakasulat na pahintulot ng LGU.",
-      "Ang open data na pinal na ini-export sa ilalim ng Feature 10 ay inilalabas sa ilalim ng Creative Commons Attribution 4.0 (CC BY 4.0) lisensiya.",
+      "Resident Content License: By posting reports, you grant the Municipal Government of Paete a non-exclusive, royalty-free license to use, reproduce, and publish photos and descriptions for public works assessment.",
+      "Open Data Commons: De-identified statistical metrics, monthly resolution rates, and project histories are published under the Open Data Commons Public Domain Dedication (PDDL).",
+      "Municipal Seal & Trademarks: The official seal and brand assets of the Municipality of Paete remain the exclusive intellectual property of the LGU and cannot be used without prior written authorization.",
     ],
   },
   {
-    id: "liability",
-    icon: "🏛️",
-    title: "Limitasyon ng Pananagutan",
+    id: "amendments",
+    icon: ShieldAlert,
+    title: "8. Amendments & Jurisdictional Venue",
+    badge: "Legal Venue",
     content: [
-      "Sa pinakamataas na antas na pinahihintulutan ng batas ng Pilipinas, ang Munisipalidad ng Paete ay hindi mananagot sa:",
-    ],
-    list: [
-      "Anumang pinsala na resulta ng maling impormasyon na isinumite ng mga gumagamit",
-      "Pansamantalang hindi pagiging available ng plataporma dahil sa maintenance o teknikal na suliranin",
-      "Pagkalugi ng datos na dulot ng mga pangyayaring wala sa aming kontrol (force majeure)",
-      "Mga aksyon ng third-party na serbisyo tulad ng Firebase/Google",
-    ],
-  },
-  {
-    id: "modifications",
-    icon: "📝",
-    title: "Pagbabago sa mga Tuntunin",
-    content: [
-      "Nagreserba kami ng karapatan na baguhin ang mga Tuntuning ito anumang oras. Ang mga makabuluhang pagbabago ay ipapabatid sa pamamagitan ng:",
-    ],
-    list: [
-      "Abiso sa loob ng plataporma na may 30-araw na panahon ng epekto",
-      "Email notification sa lahat ng registered na gumagamit",
-      "Prominenteng banner sa homepage ng plataporma",
-    ],
-    content2: [
-      "Ang patuloy na paggamit ng plataporma pagkatapos ng mga pagbabago ay itinuturing na pagtanggap ng mga binagong tuntunin.",
-    ],
-  },
-  {
-    id: "governing-law",
-    icon: "⚖️",
-    title: "Namamahalang Batas at Jurisdiction",
-    content: [
-      "Ang mga Tuntuning ito ay pinamamahalaan ng batas ng Republika ng Pilipinas. Para sa anumang hindi pagkakasundo na may kaugnayan sa paggamit ng plataporma:",
-    ],
-    list: [
-      "Ang unang hakbang ay mediasyon sa pamamagitan ng Opisina ng Municipal Administrator",
-      "Kung hindi malutas sa mediasyon, ang mga hindi pagkakasundo ay ipasa sa Regional Trial Court ng Lalawigan ng Laguna",
-      "Ang Opisyal na Wika ng mga legal na proseso ay Filipino at English",
-    ],
-  },
-  {
-    id: "contact-terms",
-    icon: "📬",
-    title: "Makipag-ugnayan sa Amin",
-    content: [
-      "Para sa mga katanungan tungkol sa mga Tuntunin at Kundisyon na ito:",
+      "The Municipal Government of Paete reserves the right to amend these Terms to reflect legislative changes, executive orders, or system enhancements. Significant updates will be published with thirty (30) days notice.",
+      "Any legal disputes arising from the interpretation of these terms shall be submitted exclusively to the competent courts of the Province of Laguna, Region IV-A, Republic of the Philippines.",
     ],
   },
 ];
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default function TermsPage() {
-  const effectiveDate = "Setyembre 27, 2026";
-  const version = "v1.0";
+export default function TermsAndConditionsPage() {
+  const effectiveDate = "September 27, 2026";
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--civic-navy-dark)" }}>
-      {/* ── Header ─────────────────────────────────────────── */}
-      <header
-        style={{
-          background: "linear-gradient(180deg, #0A1931 0%, rgba(10,25,49,0.95) 100%)",
-          borderBottom: "1px solid rgba(96,165,250,0.12)",
-        }}
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 mb-6 text-xs" aria-label="Breadcrumb">
-            <Link href="/" className="transition-opacity hover:opacity-80" style={{ color: "#60A5FA" }}>
-              Civic Paete
-            </Link>
-            <span style={{ color: "#475569" }}>/</span>
-            <Link href="/legal/privacy" className="transition-opacity hover:opacity-80" style={{ color: "#60A5FA" }}>
-              Legal
-            </Link>
-            <span style={{ color: "#475569" }}>/</span>
-            <span style={{ color: "#94A3B8" }}>Mga Tuntunin at Kundisyon</span>
-          </nav>
+    <div className="min-h-screen bg-[#071126] text-[#F1F5F9] font-sans selection:bg-[#2563EB] selection:text-white">
+      {/* Paete Woodcarving Motif Accent Bar */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-[#2563EB] to-amber-500" />
 
-          {/* Icon + Title */}
-          <div className="flex items-start gap-4">
-            <div
-              className="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{
-                background: "rgba(245,158,11,0.12)",
-                border: "1px solid rgba(245,158,11,0.25)",
-              }}
+      {/* Header Bar */}
+      <header className="border-b border-white/10 bg-[#0A1931]/95 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-2 rounded-xl border border-white/10 transition-all active:scale-[0.98] min-h-[44px]"
             >
-              <svg
-                className="w-7 h-7"
-                style={{ color: "#F59E0B" }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-                />
-              </svg>
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span
-                  className="text-xs font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(245,158,11,0.12)",
-                    color: "#F59E0B",
-                    border: "1px solid rgba(245,158,11,0.25)",
-                    fontFamily: "var(--font-heading)",
-                  }}
-                >
-                  {version}
-                </span>
-                <span
-                  className="text-xs font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(16,185,129,0.1)",
-                    color: "#10B981",
-                    border: "1px solid rgba(16,185,129,0.2)",
-                    fontFamily: "var(--font-heading)",
-                  }}
-                >
-                  Opisyal na Dokumento
-                </span>
-              </div>
-              <h1
-                className="text-2xl sm:text-3xl font-bold tracking-tight"
-                style={{ color: "#F8FAFC", fontFamily: "var(--font-heading)" }}
-              >
-                Mga Tuntunin at Kundisyon
-              </h1>
-              <p className="text-sm mt-1" style={{ color: "#64748B" }}>
-                Munisipalidad ng Paete, Lalawigan ng Laguna •{" "}
-                <span style={{ color: "#94A3B8" }}>Epektibo: {effectiveDate}</span>
-              </p>
-            </div>
+              <ArrowLeft className="w-4 h-4 text-[#60A5FA]" />
+              <span>Back to Civic Portal</span>
+            </Link>
+            <span className="hidden sm:inline text-xs text-slate-500">|</span>
+            <span className="hidden sm:inline text-xs font-semibold text-slate-400 uppercase tracking-wider font-heading">
+              Office of the Municipal Legal Counsel
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <Link
+              href="/legal/privacy"
+              className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 font-medium transition-all min-h-[44px] flex items-center"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/legal/safety"
+              className="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 font-semibold transition-all min-h-[44px] flex items-center gap-1.5"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Whistleblower Protection
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* ── Body ───────────────────────────────────────────── */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
-          {/* Sticky ToC */}
-          <aside className="hidden lg:block">
-            <div
-              className="sticky top-6 rounded-xl p-4"
-              style={{
-                background: "rgba(17,35,71,0.6)",
-                border: "1px solid rgba(96,165,250,0.1)",
-              }}
+      {/* Hero Section */}
+      <section className="relative border-b border-white/10 bg-gradient-to-b from-[#0A1931] via-[#071126] to-[#071126] pt-12 pb-16 overflow-hidden">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#2563EB]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-500/15 border border-amber-500/30 text-amber-300 mb-6">
+              <Gavel className="w-4 h-4 text-amber-400" />
+              <span>Municipal Ordinance No. 2026-08 &bull; Republic Act No. 11032</span>
+            </div>
+
+            <h1
+              className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-4 uppercase"
+              style={{ fontFamily: "var(--font-heading)" }}
             >
-              <p
-                className="text-xs font-semibold tracking-widest uppercase mb-3"
-                style={{ color: "#475569", fontFamily: "var(--font-heading)" }}
-              >
-                Nilalaman
-              </p>
-              <nav className="flex flex-col gap-0.5" aria-label="Table of contents">
-                {SECTIONS.map((s) => (
+              Terms of Service
+            </h1>
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal mb-6">
+              Official operating charter and community standards of Civic Paete. Understand resident reporting rights,
+              anti-defamation rules, municipal response guarantees, and legal liabilities.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400 pt-2 border-t border-white/10">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Clock className="w-3.5 h-3.5 text-[#60A5FA]" /> Effective Date: {effectiveDate}
+              </span>
+              <span>&bull;</span>
+              <span className="flex items-center gap-1.5 text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5" /> False Report Penalties Enforced
+              </span>
+              <span>&bull;</span>
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 48-Hour SLA Guarantee
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+          {/* Sidebar TOC */}
+          <aside className="lg:col-span-1 lg:sticky lg:top-28 space-y-4">
+            <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 shadow-xl backdrop-blur-md">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 font-heading">
+                Document Sections
+              </h3>
+              <nav className="space-y-1" aria-label="Table of Contents">
+                {SECTIONS.map((sec) => (
                   <a
-                    key={s.id}
-                    href={`#${s.id}`}
-                    className="text-xs px-2 py-1.5 rounded-lg transition-all duration-150 text-slate-400 hover:text-amber-400 hover:bg-amber-500/10"
+                    key={sec.id}
+                    href={`#${sec.id}`}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all group min-h-[40px]"
                   >
-                    {s.icon} {s.title}
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 group-hover:bg-amber-400 transition-colors" />
+                    <span className="truncate">{sec.title}</span>
                   </a>
                 ))}
               </nav>
 
-              <div className="mt-4 pt-4 flex flex-col gap-2" style={{ borderTop: "1px solid rgba(96,165,250,0.1)" }}>
-                <Link
-                  href="/legal/privacy"
-                  className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-80"
-                  style={{ color: "#60A5FA" }}
-                >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                  </svg>
-                  Patakaran sa Privacy
-                </Link>
-                <Link
-                  href="/"
-                  className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-80"
-                  style={{ color: "#94A3B8" }}
-                >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                  </svg>
-                  Bumalik sa Feed
-                </Link>
+              <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
+                <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block font-heading">
+                  Legal Assistance Office
+                </span>
+                <p className="text-xs text-slate-300 leading-snug">
+                  Paete Municipal Hall, 2nd Floor, Room 204
+                </p>
+                <p className="text-xs text-slate-400 font-mono">legal@paete.gov.ph</p>
               </div>
             </div>
           </aside>
 
-          {/* Content */}
-          <div className="flex flex-col gap-6">
-            {/* Intro callout */}
-            <div
-              className="rounded-xl p-4"
-              style={{
-                background: "linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(17,35,71,0.6) 100%)",
-                border: "1px solid rgba(245,158,11,0.18)",
-              }}
-            >
-              <p className="text-sm leading-relaxed" style={{ color: "#CBD5E1" }}>
-                Ang dokumentong ito ay nagtatakda ng mga patakaran at responsibilidad para sa paggamit ng{" "}
-                <strong style={{ color: "#F59E0B" }}>Civic Paete</strong> — ang opisyal na digital na plataporma ng
-                Munisipalidad ng Paete. Maingat na basahin bago gamitin ang serbisyo. Ang paggamit ng plataporma ay
-                katumbas ng inyong pagtanggap sa mga tuntuning ito.
-              </p>
-            </div>
-
-            {/* Sections */}
-            {SECTIONS.map((section) => (
-              <section
-                key={section.id}
-                id={section.id}
-                className="rounded-xl overflow-hidden scroll-mt-6"
-                style={{
-                  background: "rgba(17,35,71,0.4)",
-                  border: "1px solid rgba(96,165,250,0.08)",
-                }}
-              >
-                {/* Section header */}
-                <div
-                  className="px-5 py-4 flex items-center gap-3"
-                  style={{
-                    borderBottom: "1px solid rgba(96,165,250,0.08)",
-                    background: "rgba(10,25,49,0.5)",
-                  }}
+          {/* Section Body */}
+          <div className="lg:col-span-3 space-y-8">
+            {SECTIONS.map((sec) => {
+              const Icon = sec.icon;
+              return (
+                <section
+                  key={sec.id}
+                  id={sec.id}
+                  className="p-6 sm:p-8 rounded-2xl bg-[#112347]/50 border border-white/10 hover:border-white/20 transition-all backdrop-blur-sm shadow-xl"
                 >
-                  <span className="text-xl" aria-hidden="true">{section.icon}</span>
-                  <h2
-                    className="text-base font-bold"
-                    style={{ color: "#F8FAFC", fontFamily: "var(--font-heading)" }}
-                  >
-                    {section.title}
-                  </h2>
-                </div>
-
-                {/* Section body */}
-                <div className="px-5 py-4 flex flex-col gap-3">
-                  {/* Intro paragraphs */}
-                  {section.content?.map((para, i) => (
-                    <p key={i} className="text-sm leading-relaxed" style={{ color: "#CBD5E1" }}>
-                      {para}
-                    </p>
-                  ))}
-
-                  {/* Allowed / Prohibited two-column (community guidelines) */}
-                  {"allowed" in section && section.allowed && "prohibited" in section && section.prohibited && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Allowed */}
-                      <div
-                        className="rounded-xl p-3"
-                        style={{
-                          background: "rgba(16,185,129,0.07)",
-                          border: "1px solid rgba(16,185,129,0.2)",
-                        }}
-                      >
-                        <p
-                          className="text-xs font-bold mb-2"
-                          style={{ color: "#10B981", fontFamily: "var(--font-heading)" }}
-                        >
-                          {section.allowed.label}
-                        </p>
-                        <ul className="flex flex-col gap-1.5">
-                          {section.allowed.items.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-xs" style={{ color: "#94A3B8" }}>
-                              <span className="flex-shrink-0 mt-0.5" style={{ color: "#10B981" }}>•</span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        <Icon className="w-5 h-5" />
                       </div>
-                      {/* Prohibited */}
-                      <div
-                        className="rounded-xl p-3"
-                        style={{
-                          background: "rgba(239,68,68,0.07)",
-                          border: "1px solid rgba(239,68,68,0.2)",
-                        }}
+                      <h2
+                        className="text-lg sm:text-xl font-bold text-white tracking-tight"
+                        style={{ fontFamily: "var(--font-heading)" }}
                       >
-                        <p
-                          className="text-xs font-bold mb-2"
-                          style={{ color: "#EF4444", fontFamily: "var(--font-heading)" }}
-                        >
-                          {section.prohibited.label}
-                        </p>
-                        <ul className="flex flex-col gap-1.5">
-                          {section.prohibited.items.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-xs" style={{ color: "#94A3B8" }}>
-                              <span className="flex-shrink-0 mt-0.5" style={{ color: "#EF4444" }}>•</span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                        {sec.title}
+                      </h2>
+                    </div>
+                    {sec.badge && (
+                      <span className="text-[11px] font-semibold font-mono px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300">
+                        {sec.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {sec.content && (
+                    <div className="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                      {sec.content.map((p, idx) => (
+                        <p key={idx}>{p}</p>
+                      ))}
                     </div>
                   )}
 
-                  {/* Simple list */}
-                  {"list" in section && section.list && (
-                    <ul className="flex flex-col gap-1.5">
-                      {section.list.map((item) => (
-                        <li key={item} className="flex items-start gap-2 text-sm" style={{ color: "#94A3B8" }}>
-                          <span
-                            className="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full"
-                            style={{ background: "#F59E0B" }}
-                            aria-hidden="true"
-                          />
-                          {item}
+                  {/* Allowed / Prohibited Split */}
+                  {(sec.allowed || sec.prohibited) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                      {sec.allowed && (
+                        <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-2">
+                          <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-heading flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4" />
+                            {sec.allowed.label}
+                          </h4>
+                          <ul className="space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+                            {sec.allowed.items.map((item, idx) => (
+                              <li key={idx} className="leading-relaxed">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {sec.prohibited && (
+                        <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 space-y-2">
+                          <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider font-heading flex items-center gap-1.5">
+                            <XCircle className="w-4 h-4" />
+                            {sec.prohibited.label}
+                          </h4>
+                          <ul className="space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+                            {sec.prohibited.items.map((item, idx) => (
+                              <li key={idx} className="leading-relaxed">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Bullet lists */}
+                  {sec.list && (
+                    <ul className="space-y-2 text-xs sm:text-sm text-slate-300 list-disc list-inside bg-[#0A1931]/60 p-4 rounded-xl border border-white/5">
+                      {sec.list.map((li, lIdx) => (
+                        <li key={lIdx} className="leading-relaxed">
+                          {li}
                         </li>
                       ))}
                     </ul>
                   )}
 
-                  {/* Warning callout */}
-                  {"callout" in section && section.callout && (
-                    <div
-                      className="rounded-xl px-4 py-3 flex items-start gap-3"
-                      style={{
-                        background: "rgba(245,158,11,0.08)",
-                        border: "1px solid rgba(245,158,11,0.2)",
-                      }}
-                    >
-                      <span className="text-base flex-shrink-0 mt-0.5" aria-hidden="true">⚠️</span>
-                      <p className="text-xs leading-relaxed" style={{ color: "#FCD34D" }}>
-                        {section.callout.text}
-                      </p>
+                  {/* SLAs Table */}
+                  {sec.slas && (
+                    <div className="overflow-x-auto mt-4">
+                      <table className="w-full text-left text-xs border border-white/10 rounded-xl overflow-hidden">
+                        <thead className="bg-[#0A1931] text-slate-400 uppercase font-heading text-[11px]">
+                          <tr>
+                            <th className="p-3 border-b border-white/10">Priority Tier</th>
+                            <th className="p-3 border-b border-white/10">Mandatory SLA</th>
+                            <th className="p-3 border-b border-white/10">Applicable Scope</th>
+                            <th className="p-3 border-b border-white/10">Action Mechanism</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 bg-[#071126]/60">
+                          {sec.slas.map((s, idx) => (
+                            <tr key={idx} className="hover:bg-white/[0.02]">
+                              <td className="p-3 font-semibold text-white">{s.tier}</td>
+                              <td className="p-3 font-mono font-bold text-amber-300">{s.time}</td>
+                              <td className="p-3 text-slate-300">{s.scope}</td>
+                              <td className="p-3 text-slate-400 text-[11px]">{s.penalty}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
+                </section>
+              );
+            })}
 
-                  {/* SLA table */}
-                  {"sla" in section && section.sla && (
-                    <div className="flex flex-col gap-2">
-                      {section.sla.map((row) => (
-                        <div
-                          key={row.category}
-                          className="rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"
-                          style={{
-                            background: "rgba(10,25,49,0.6)",
-                            border: "1px solid rgba(96,165,250,0.08)",
-                          }}
-                        >
-                          <div className="flex items-center gap-2 sm:w-28 flex-shrink-0">
-                            <span
-                              className="text-xs font-bold px-2 py-0.5 rounded-full"
-                              style={{
-                                background: row.tagBg,
-                                color: row.tagColor,
-                                border: `1px solid ${row.tagColor}40`,
-                                fontFamily: "var(--font-heading)",
-                              }}
-                            >
-                              {row.tag}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold" style={{ color: "#E2E8F0", fontFamily: "var(--font-heading)" }}>
-                              {row.category}
-                            </p>
-                            <p className="text-xs" style={{ color: "#64748B" }}>
-                              {row.examples}
-                            </p>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <span
-                              className="text-xs font-bold"
-                              style={{ color: row.tagColor, fontFamily: "var(--font-heading)" }}
-                            >
-                              {row.target}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Second paragraph block (after SLA) */}
-                  {"content2" in section && section.content2?.map((para, i) => (
-                    <p key={i} className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                      {para}
-                    </p>
-                  ))}
-
-                  {/* Contact block */}
-                  {section.id === "contact-terms" && (
-                    <div
-                      className="rounded-xl p-4"
-                      style={{
-                        background: "rgba(17,35,71,0.8)",
-                        border: "1px solid rgba(96,165,250,0.15)",
-                      }}
-                    >
-                      <div className="flex flex-col gap-2">
-                        <ContactRow label="Opisina" value="Opisina ng Municipal Administrator" />
-                        <ContactRow label="Tirahan" value="Municipal Hall, Paete, Laguna 4007" />
-                        <ContactRow
-                          label="E-mail"
-                          value="admin@paete.gov.ph"
-                          isLink
-                          href="mailto:admin@paete.gov.ph"
-                        />
-                        <ContactRow
-                          label="Privacy"
-                          value="dpo@paete.gov.ph"
-                          isLink
-                          href="mailto:dpo@paete.gov.ph"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </section>
-            ))}
-
-            {/* Related legal links */}
-            <div
-              className="rounded-xl p-4 flex flex-col sm:flex-row gap-3"
-              style={{
-                background: "rgba(17,35,71,0.4)",
-                border: "1px solid rgba(96,165,250,0.08)",
-              }}
-            >
-              <p
-                className="text-xs font-semibold tracking-wider uppercase flex-shrink-0 pt-0.5"
-                style={{ color: "#475569", fontFamily: "var(--font-heading)" }}
-              >
-                Kaugnay na Dokumento
+            {/* Bottom Citation */}
+            <div className="p-6 rounded-2xl bg-[#0A1931]/60 border border-white/10 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p>
+                Civic Paete &bull; Document Reference: <span className="font-mono text-slate-300">CP-TERMS-2026-V1</span>
               </p>
-              <div className="flex flex-wrap gap-2">
-                <LegalLink href="/legal/privacy" label="Patakaran sa Privacy" color="#60A5FA" />
-                <LegalLink href="/legal/safety" label="Kaligtasan at Proteksyon" color="#10B981" />
+              <div className="flex items-center gap-3">
+                <Link href="/legal/privacy" className="text-[#60A5FA] hover:underline">
+                  Privacy Policy
+                </Link>
+                <span>&bull;</span>
+                <Link href="/legal/safety" className="text-[#60A5FA] hover:underline">
+                  Safety & Protection Hub
+                </Link>
               </div>
             </div>
-
-            {/* Footer */}
-            <p className="text-xs text-center py-4" style={{ color: "#475569", borderTop: "1px solid rgba(96,165,250,0.08)" }}>
-              Maaaring baguhin ang mga Tuntunin at Kundisyon na ito. Ang mga pagbabago ay may 30-araw na abiso.
-              Huling na-update: {effectiveDate} — {version}
-            </p>
           </div>
         </div>
       </main>
     </div>
-  );
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function ContactRow({
-  label,
-  value,
-  isLink,
-  href,
-}: {
-  label: string;
-  value: string;
-  isLink?: boolean;
-  href?: string;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <span
-        className="text-xs font-semibold w-16 flex-shrink-0 pt-0.5"
-        style={{ color: "#475569", fontFamily: "var(--font-heading)" }}
-      >
-        {label}
-      </span>
-      {isLink && href ? (
-        <a
-          href={href}
-          className="text-xs transition-opacity hover:opacity-80"
-          style={{ color: "#60A5FA" }}
-        >
-          {value}
-        </a>
-      ) : (
-        <span className="text-xs" style={{ color: "#CBD5E1" }}>
-          {value}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function LegalLink({ href, label, color }: { href: string; label: string; color: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-opacity hover:opacity-80"
-      style={{
-        background: `${color}14`,
-        color,
-        border: `1px solid ${color}30`,
-      }}
-    >
-      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-      </svg>
-      {label}
-    </Link>
   );
 }

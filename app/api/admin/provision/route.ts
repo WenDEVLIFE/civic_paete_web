@@ -125,7 +125,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: "Admin at Governor accounts naipasa na sa Firebase Auth at Firestore.",
+      message: "Admin and Governor accounts successfully provisioned in Firebase Auth and Firestore.",
       results,
     });
   } catch (error: unknown) {
@@ -133,7 +133,7 @@ export async function POST() {
     return NextResponse.json(
       {
         success: false,
-        error: err.message || "Nabigo ang pag-provision ng accounts sa Firebase.",
+        error: err.message || "Failed to provision accounts in Firebase.",
       },
       { status: 500 }
     );

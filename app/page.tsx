@@ -17,17 +17,17 @@ import { Search, PlusCircle, Sparkles, MessageSquare } from "lucide-react";
 const INITIAL_REPORTS: CommunityReport[] = [
   {
     id: "rep-1",
-    title: "Sirang Streetlight sa kahabaan ng Quesada Street",
+    title: "Non-functional Streetlights along Quesada Street",
     description:
-      "Madilim na bahagi sa gabi at delikado para sa mga estudyante at mamamayang umuuwi mula sa trabaho. May tatlong poste na hindi umiilaw.",
+      "A dark stretch of road at night creating hazardous transit conditions for students and commuters returning home. Three adjacent lamp posts have been unlit since last week.",
     category: "lighting",
     barangay: "Bagumbayan",
     status: "in_progress",
-    date: "Setyembre 24, 2026",
+    date: "September 24, 2026",
     upvotes: 18,
     authorName: "Juan Dela Cruz",
     authorRole: "resident",
-    officialNotes: "Nainspeksyon na ng maintenance crew. Nakatakdang palitan ang 100W LED lamp fixture bukas ng umaga.",
+    officialNotes: "Inspected by electrical maintenance crew. Scheduled for 100W LED lamp fixture replacement tomorrow morning.",
     officialActorName: "Engr. Marco Adea",
     officialActorRole: "Municipal Engineering Office",
     comments: [
@@ -35,54 +35,54 @@ const INITIAL_REPORTS: CommunityReport[] = [
         id: "c-1",
         authorName: "Maria Santos",
         authorRole: "resident",
-        timestamp: "2 araw ang nakalipas",
-        content: "Totoo ito, napakadilim diyan lalo na bandang 8 PM paglabas ng mga nagtatrabaho.",
+        timestamp: "2 days ago",
+        content: "Corroborated. This corner is completely dark past 8:00 PM when retail staff and students walk home.",
       },
       {
         id: "c-2",
         authorName: "Engr. Marco Adea",
         authorRole: "official",
-        timestamp: "Kahapon",
-        content: "Noted po. Naka-schedule na ang bucket truck ng bayan para sa maintenance.",
+        timestamp: "Yesterday",
+        content: "Logged and scheduled. The municipal electrical bucket truck is queued for this sector.",
         isOfficial: true,
       },
     ],
   },
   {
     id: "rep-2",
-    title: "Kanal na barado na nagdudulot ng mabagal na pag-agos",
+    title: "Obstructed Drainage Canal Causing Stormwater Overflow",
     description:
-      "Kailangang masipsip o linisin bago sumapit ang malalakas na buhos ng ulan upang maiwasan ang pag-apaw sa mga kalapit na bahay.",
+      "Culvert requires immediate clearing before seasonal monsoon downpours to prevent backflow and flash flooding into adjacent residential properties.",
     category: "drainage",
     barangay: "Ibaba del Sur",
     status: "pending",
-    date: "Setyembre 25, 2026",
+    date: "September 25, 2026",
     upvotes: 14,
-    authorName: "Aling Corazon Reyes",
+    authorName: "Corazon Reyes",
     authorRole: "resident",
     comments: [
       {
         id: "c-3",
         authorName: "Roberto Fadul",
         authorRole: "resident",
-        timestamp: "1 araw ang nakalipas",
-        content: "Dumadaan ako diyan araw-araw, may mga plastic cup na nakabara sa bukana ng culvert.",
+        timestamp: "1 day ago",
+        content: "I pass this canal daily; plastic debris and silt are currently blocking the culvert intake.",
       },
     ],
   },
   {
     id: "rep-3",
-    title: "Naayos na Pothole sa Kanto ng Pamilihan",
+    title: "Remediated Road Pothole near Public Market Junction",
     description:
-      "Nalapatan na ng aspalto ng engineering office matapos i-ulat noong nakaraang linggo. Mas ligtas na para sa mga traysikel.",
+      "Asphalt cold-patch applied by municipal engineering following resident reporting last week. Safely passable for tricycles and utility vehicles.",
     category: "road",
     barangay: "Maytoong",
     status: "resolved",
-    date: "Setyembre 22, 2026",
+    date: "September 22, 2026",
     upvotes: 34,
     authorName: "Tricycle Driver Association (TODA Paete)",
     authorRole: "resident",
-    officialNotes: "Nalapatan ng cold-patch asphalt noong Sept 23, 2026. Ligtas na at tapos na ang clearing.",
+    officialNotes: "Completed cold-patch asphalt remediation on Sept 23, 2026. Area swept and declared safe.",
     officialActorName: "Municipal Engineering",
     officialActorRole: "Road Maintenance Division",
     comments: [
@@ -90,20 +90,20 @@ const INITIAL_REPORTS: CommunityReport[] = [
         id: "c-4",
         authorName: "Danilo Ramos",
         authorRole: "resident",
-        timestamp: "3 araw ang nakalipas",
-        content: "Salamat sa mabilis na pag-aksyon ng munisipyo! Hindi na sumasabit ang mga gulong.",
+        timestamp: "3 days ago",
+        content: "Sincere appreciation for the swift municipal response! Tricycle wheels no longer get caught.",
       },
     ],
   },
   {
     id: "rep-4",
-    title: "Tambak ng mga sanga at dahon sa gilid ng kalsada",
+    title: "Solid Waste & Tree Branch Debris along Road Shoulder",
     description:
-      "Mula sa pinutol na punong kahoy, kailangan ng truck para mahakot nang maayos bago makaharang sa paradahan.",
+      "Discarded timber cuttings and uncollected roadside yard debris require heavy collection truck before obstructing municipal parking.",
     category: "waste",
     barangay: "Quinale",
     status: "pending",
-    date: "Setyembre 26, 2026",
+    date: "September 26, 2026",
     upvotes: 9,
     authorName: "Elena Cadawas",
     authorRole: "resident",
@@ -111,17 +111,17 @@ const INITIAL_REPORTS: CommunityReport[] = [
   },
   {
     id: "rep-5",
-    title: "Nakatagilid na poste ng kuryente malapit sa ilog",
+    title: "Tilted Wooden Utility Pole Adjacent to Riverbank",
     description:
-      "Nangangailangan ng agarang inspeksyon mula sa mga kinauukulan para sa kaligtasan ng mga kalapit na kabahayan dahil sa lumambot na lupa.",
+      "Requires urgent structural inspection by utility line teams due to severe soil softening following recent riverbank swelling.",
     category: "safety",
     barangay: "Bangkusay",
     status: "urgent",
-    date: "Setyembre 26, 2026",
+    date: "September 26, 2026",
     upvotes: 43,
-    authorName: "Kapitan Noel Bernardo",
+    authorName: "Noel Bernardo",
     authorRole: "resident",
-    officialNotes: "Nai-coordinate na sa Meralco Liaison at Provincial Disaster Risk Reduction Team para sa safety cordon.",
+    officialNotes: "Coordinated with Meralco Liaison and Provincial Disaster Risk Reduction Team for safety perimeter cordon.",
     officialActorName: "MDRRMO Paete",
     officialActorRole: "Emergency Response",
     comments: [
@@ -129,24 +129,24 @@ const INITIAL_REPORTS: CommunityReport[] = [
         id: "c-5",
         authorName: "Barangay Tanod Team",
         authorRole: "resident",
-        timestamp: "Kahapon",
-        content: "Naglagay na po kami ng temporary caution tape habang hinihintay ang heavy crew.",
+        timestamp: "Yesterday",
+        content: "Temporary caution tape has been cordoned off around the base while awaiting heavy maintenance crew.",
       },
     ],
   },
   {
     id: "rep-6",
-    title: "Nalinis na drainage canal sa may Simbahan",
+    title: "Cleaned Drainage Canal near Parish Church Grounds",
     description:
-      "Natanggal na ang mga plastic na nakabara sa daluyan ng tubig matapos ang isinagawang community cleanup drive.",
+      "Plastic waste and accumulated silt fully extracted from the drainage canal following joint community cleanup drive.",
     category: "drainage",
     barangay: "Ilaya del Norte",
     status: "resolved",
-    date: "Setyembre 21, 2026",
+    date: "September 21, 2026",
     upvotes: 29,
     authorName: "Parish Youth Volunteer",
     authorRole: "resident",
-    officialNotes: "Matagumpay na natapos ang joint cleanup drive ng MENRO at volunteers.",
+    officialNotes: "Joint cleanup drive successfully concluded by MENRO and community volunteers.",
     officialActorName: "Arlene Cadawas",
     officialActorRole: "MENRO Paete",
     comments: [],
@@ -176,8 +176,8 @@ export default function Home() {
           ...rep,
           status: newStatus,
           officialNotes: note || rep.officialNotes,
-          officialActorName: rep.officialActorName || "LGU Paete Official",
-          officialActorRole: rep.officialActorRole || "Pamahalaang Bayan",
+          officialActorName: rep.officialActorName || "Paete LGU Official",
+          officialActorRole: rep.officialActorRole || "Municipal Government",
         };
       })
     );
@@ -202,9 +202,9 @@ export default function Home() {
       ...newReportData,
       id: `rep-${Date.now()}`,
       status: "pending",
-      date: "Ngayon lang",
+      date: "Just now",
       upvotes: 1,
-      authorName: "Mamamayan ng Paete",
+      authorName: "Paete Resident",
       authorRole: "resident",
       comments: [],
     };
@@ -234,54 +234,54 @@ export default function Home() {
         <HeroSection onOpenReportModal={() => setIsModalOpen(true)} />
 
         {/* Community Social Feed Section */}
-        <section id="mga-ulat" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <section id="community-reports" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Civic Social Feed ng Bayan</span>
+                <span>Municipal Civic Feed</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-white">
-                Mga Ulat at Talakayan ng Komunidad
+                Community Reports & Civic Action Feed
               </h2>
-              <p className="text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl">
-                Bawat concern ay may verified pipeline, bukas na komento ng mamamayan, at opisyal na disposisyon mula sa Pamahalaang Bayan at Pamunuan ng Laguna.
+              <p className="text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl font-sans">
+                Every verified issue is tracked through a public lifecycle pipeline with citizen discussions and official dispositions from the Municipality of Paete and Provincial Government of Laguna.
               </p>
             </div>
 
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer self-start md:self-auto"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer self-start md:self-auto min-h-[44px]"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Magsumite ng Bagong Ulat</span>
+              <span>Submit Community Report</span>
             </button>
           </div>
 
           {/* Search and Barangay Filters */}
-          <div className="bg-[#0A1931]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 mb-8 space-y-3 shadow-xl">
+          <div className="bg-[#0A1931]/80 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/10 mb-8 space-y-4 shadow-xl">
             {/* Search input — full width */}
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 id="feed-search-input"
-                placeholder="Maghanap ng ulat ayon sa pamagat, detalye, o kalye..."
+                placeholder="Search community reports by title, street, landmark, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition-all min-h-[44px]"
               />
             </div>
 
             {/* Barangay chip-row */}
             <div>
-              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-1.5">
-                Barangay:
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-2">
+                Paete Barangay:
               </span>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 {[
-                  { value: "all", label: "🏘️ Lahat" },
+                  { value: "all", label: "🏘️ All Barangays" },
                   { value: "Bagumbayan", label: "Bagumbayan" },
                   { value: "Bangkusay", label: "Bangkusay" },
                   { value: "Ermita", label: "Ermita" },
@@ -298,7 +298,7 @@ export default function Home() {
                     type="button"
                     onClick={() => setSelectedBarangay(brgy.value)}
                     className={[
-                      "px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer text-xs",
+                      "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer text-xs min-h-[40px] flex items-center",
                       selectedBarangay === brgy.value
                         ? "bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
                         : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
@@ -313,17 +313,17 @@ export default function Home() {
 
             {/* Category chip-row */}
             <div>
-              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-1.5">
-                Kategorya:
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-2">
+                Category:
               </span>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
                 {[
-                  { id: "all", label: "Lahat" },
-                  { id: "lighting", label: "⚡ Ilaw sa Kalsada" },
-                  { id: "drainage", label: "🌊 Kanal at Baha" },
-                  { id: "road", label: "🚧 Kalsada at Pothole" },
-                  { id: "waste", label: "🗑️ Basura at Kalinisan" },
-                  { id: "safety", label: "🚨 Kaligtasan ng Publiko" },
+                  { id: "all", label: "All Categories" },
+                  { id: "lighting", label: "⚡ Streetlights & Power" },
+                  { id: "drainage", label: "🌊 Drainage & Flooding" },
+                  { id: "road", label: "🚧 Roads & Potholes" },
+                  { id: "waste", label: "🗑️ Solid Waste" },
+                  { id: "safety", label: "🚨 Public Safety" },
                 ].map((cat) => (
                   <button
                     key={cat.id}
@@ -331,7 +331,7 @@ export default function Home() {
                     type="button"
                     onClick={() => setActiveCategory(cat.id)}
                     className={[
-                      "px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer",
+                      "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer min-h-[40px] flex items-center",
                       activeCategory === cat.id
                         ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                         : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
@@ -346,23 +346,23 @@ export default function Home() {
             {/* Active filter summary */}
             {(selectedBarangay !== "all" || activeCategory !== "all" || searchQuery) && (
               <div className="flex items-center gap-2 pt-2 border-t border-white/5 flex-wrap">
-                <span className="text-[11px] text-slate-500 shrink-0">Aktibong filter:</span>
+                <span className="text-[11px] text-slate-500 shrink-0">Active Filters:</span>
                 {selectedBarangay !== "all" && (
-                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-300 border border-red-500/20">
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-red-500/10 text-red-300 border border-red-500/20">
                     📍 {selectedBarangay}
-                    <button type="button" onClick={() => setSelectedBarangay("all")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang barangay filter">×</button>
+                    <button type="button" onClick={() => setSelectedBarangay("all")} className="ml-1 hover:text-white cursor-pointer" aria-label="Clear barangay filter">×</button>
                   </span>
                 )}
                 {activeCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
                     {activeCategory}
-                    <button type="button" onClick={() => setActiveCategory("all")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang kategorya filter">×</button>
+                    <button type="button" onClick={() => setActiveCategory("all")} className="ml-1 hover:text-white cursor-pointer" aria-label="Clear category filter">×</button>
                   </span>
                 )}
                 {searchQuery && (
-                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-slate-300 border border-white/10">
                     &ldquo;{searchQuery}&rdquo;
-                    <button type="button" onClick={() => setSearchQuery("")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang search">×</button>
+                    <button type="button" onClick={() => setSearchQuery("")} className="ml-1 hover:text-white cursor-pointer" aria-label="Clear search query">×</button>
                   </span>
                 )}
               </div>
@@ -386,7 +386,7 @@ export default function Home() {
             <div className="p-12 text-center rounded-2xl border border-white/10 bg-white/[0.02]">
               <MessageSquare className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
               <p className="text-slate-400 text-sm">
-                Walang natagpuang ulat sa kategorya o barangay na ito.
+                No reports found matching the selected category, barangay, or search query.
               </p>
             </div>
           )}

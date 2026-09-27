@@ -59,73 +59,73 @@ interface AuditLog {
 const INITIAL_ADMIN_REPORTS: AdminReport[] = [
   {
     id: "rep-1",
-    title: "Sirang Streetlight sa kahabaan ng Quesada Street",
-    description: "Madilim na bahagi sa gabi at delikado para sa mga estudyante at mamamayang umuuwi mula sa trabaho.",
+    title: "Non-functional Streetlights along Quesada Street",
+    description: "A dark stretch of road at night creating hazardous transit conditions for students and commuters returning home.",
     category: "lighting",
     barangay: "Bagumbayan",
     status: "in_progress",
-    date: "Setyembre 24, 2026",
+    date: "September 24, 2026",
     upvotes: 18,
     assignedOffice: "Municipal Engineering Office",
-    officialNotes: "Ininspeksyon ng maintenance team; kailangan ng bagong LED bulb fixture.",
+    officialNotes: "Inspected by electrical maintenance team; replacement LED bulb fixture ordered.",
   },
   {
     id: "rep-2",
-    title: "Kanal na barado na nagdudulot ng mabagal na pag-agos",
-    description: "Kailangang masipsip o linisin bago sumapit ang malalakas na buhos ng ulan upang maiwasan ang pag-apaw.",
+    title: "Obstructed Drainage Canal Causing Stormwater Overflow",
+    description: "Culvert requires immediate clearing before seasonal monsoon downpours to prevent backflow and flash flooding.",
     category: "drainage",
     barangay: "Ibaba del Sur",
     status: "pending",
-    date: "Setyembre 25, 2026",
+    date: "September 25, 2026",
     upvotes: 12,
     assignedOffice: "MENRO / Barangay Maintenance",
   },
   {
     id: "rep-3",
-    title: "Naayos na Pothole sa Kanto ng Pamilihan",
-    description: "Nalapatan na ng aspalto ng engineering office matapos i-ulat noong nakaraang linggo.",
+    title: "Remediated Road Pothole near Public Market Junction",
+    description: "Asphalt cold-patch applied by municipal engineering following resident reporting last week.",
     category: "road",
     barangay: "Maytoong",
     status: "resolved",
-    date: "Setyembre 22, 2026",
+    date: "September 22, 2026",
     upvotes: 34,
     assignedOffice: "Municipal Engineering Office",
-    officialNotes: "Nalapatan ng cold-patch asphalt noong Sept 23, 2026.",
+    officialNotes: "Completed cold-patch asphalt remediation on Sept 23, 2026.",
   },
   {
     id: "rep-4",
-    title: "Tambak ng mga sanga at dahon sa gilid ng kalsada",
-    description: "Mula sa pinutol na punong kahoy, kailangan ng truck para mahakot nang maayos.",
+    title: "Solid Waste & Tree Branch Debris along Road Shoulder",
+    description: "Discarded timber cuttings and uncollected roadside yard debris require heavy collection truck.",
     category: "waste",
     barangay: "Quinale",
     status: "pending",
-    date: "Setyembre 26, 2026",
+    date: "September 26, 2026",
     upvotes: 7,
     assignedOffice: "MENRO (Sanitation)",
   },
   {
     id: "rep-5",
-    title: "Nakatagilid na poste ng kuryente malapit sa ilog",
-    description: "Nangangailangan ng agarang inspeksyon mula sa mga kinauukulan para sa kaligtasan ng mga kalapit na kabahayan.",
+    title: "Tilted Wooden Utility Pole Adjacent to Riverbank",
+    description: "Requires urgent structural inspection by utility line teams due to severe soil softening following recent riverbank swelling.",
     category: "safety",
     barangay: "Bangkusay",
     status: "urgent",
-    date: "Setyembre 26, 2026",
+    date: "September 26, 2026",
     upvotes: 41,
     assignedOffice: "MDRRMO / Meralco Liaison",
-    officialNotes: "Nai-forward na sa emergency coordination team para sa agarang safety cordon.",
+    officialNotes: "Forwarded to emergency coordination team for safety perimeter cordon.",
   },
   {
     id: "rep-6",
-    title: "Nalinis na drainage canal sa may Simbahan",
-    description: "Natanggal na ang mga plastic na nakabara sa daluyan ng tubig.",
+    title: "Cleaned Drainage Canal near Parish Church Grounds",
+    description: "Plastic waste and accumulated silt fully extracted from the drainage canal.",
     category: "drainage",
     barangay: "Ilaya del Norte",
     status: "resolved",
-    date: "Setyembre 21, 2026",
+    date: "September 21, 2026",
     upvotes: 29,
     assignedOffice: "Barangay Cleanup Team",
-    officialNotes: "Natapos ang cleanup drive noong Linggo ng umaga.",
+    officialNotes: "Completed cleanup drive on Sunday morning.",
   },
 ];
 
@@ -135,7 +135,7 @@ const INITIAL_USERS: CivicUser[] = [
     name: "Municipal Administrator",
     email: "admin@paete.gov.ph",
     role: "official",
-    barangayOrOffice: "Office of the Municipal Mayor / Hall",
+    barangayOrOffice: "Office of the Municipal Mayor",
     reportsCount: 0,
     registeredDate: "Sept 27, 2026",
     authProvider: "municipal_credentials",
@@ -211,7 +211,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
     action: "STATUS_UPDATE",
     reportId: "rep-1",
     barangay: "Bagumbayan",
-    details: "Binago ang status: 'Pending' → 'In Progress'. Nagdagdag ng opisyal na inspeksyon note.",
+    details: "Changed status: 'Pending' → 'In Progress'. Added official inspection note.",
   },
   {
     id: "aud-102",
@@ -221,7 +221,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
     action: "RULE_FLAGGED",
     reportId: "rep-1",
     barangay: "Bagumbayan",
-    details: "Na-flag bilang recurring streetlight cluster concern (3 ulat sa loob ng 7 araw).",
+    details: "Flagged as recurring streetlight cluster concern (3 reports within 7 days).",
   },
   {
     id: "aud-103",
@@ -231,7 +231,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
     action: "OFFICE_DISPATCH",
     reportId: "rep-2",
     barangay: "Ibaba del Sur",
-    details: "Itinalaga sa Barangay Drainage Maintenance crew para sa clearing operation.",
+    details: "Dispatched to Barangay Drainage Maintenance crew for clearing operation.",
   },
   {
     id: "aud-104",
@@ -241,7 +241,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
     action: "STATUS_RESOLVED",
     reportId: "rep-3",
     barangay: "Maytoong",
-    details: "Binago ang status sa 'Resolved'. Nalapatan ng aspalto at may kalakip na patunay.",
+    details: "Changed status to 'Resolved'. Completed cold-patch remediation with clearance record.",
   },
 ];
 
@@ -267,7 +267,6 @@ export default function AdminDashboardPage() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("civic_paete_admin_session");
       if (!stored) {
-        // Redirect to login if no active session
         router.replace("/admin/login");
         return;
       }
@@ -298,6 +297,7 @@ export default function AdminDashboardPage() {
     }
     router.replace("/admin/login");
   };
+
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [reports, setReports] = useState<AdminReport[]>(INITIAL_ADMIN_REPORTS);
@@ -330,16 +330,15 @@ export default function AdminDashboardPage() {
       prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
     );
 
-    // Automatically append to Audit Trail
     const newLog: AuditLog = {
       id: generateLogId(),
-      timestamp: "Ngayon lang",
-      actorName: "LGU Admin Staff",
-      actorRole: "Municipal Official",
+      timestamp: "Just now",
+      actorName: currentUser?.name || "LGU Administrator",
+      actorRole: currentUser?.office || "Municipal Official",
       action: "STATUS_UPDATE",
       reportId: target.id,
       barangay: target.barangay,
-      details: `Binago ang status mula '${target.status}' papuntang '${newStatus}'.`,
+      details: `Updated status from '${target.status}' to '${newStatus}'.`,
     };
     setAuditLogs([newLog, ...auditLogs]);
   };
@@ -352,16 +351,15 @@ export default function AdminDashboardPage() {
       )
     );
 
-    // Append to Audit Trail
     const newLog: AuditLog = {
       id: generateLogId(),
-      timestamp: "Ngayon lang",
-      actorName: "LGU Admin Staff",
-      actorRole: "Municipal Official",
+      timestamp: "Just now",
+      actorName: currentUser?.name || "LGU Administrator",
+      actorRole: currentUser?.office || "Municipal Official",
       action: "NOTE_ATTACHED",
       reportId: selectedReport.id,
       barangay: selectedReport.barangay,
-      details: `Nag-attach ng opisyal na disposisyon/note: "${noteInput}"`,
+      details: `Attached official disposition: "${noteInput}"`,
     };
     setAuditLogs([newLog, ...auditLogs]);
 
@@ -393,7 +391,7 @@ export default function AdminDashboardPage() {
         <CivicPaeteLogo size="lg" variant="full" theme="dark" className="mb-4" />
         <div className="flex items-center gap-2 text-sm text-slate-400">
           <Shield className="w-4 h-4 text-blue-400 animate-pulse" />
-          <span>Bini-beripika ang awtorisasyon ng opisyal...</span>
+          <span>Verifying official authorization session...</span>
         </div>
       </div>
     );
@@ -421,27 +419,26 @@ export default function AdminDashboardPage() {
         {/* Top Header Bar for Desktop & Mobile */}
         <header className="sticky top-0 z-20 w-full border-b border-white/10 bg-[#0A1931]/95 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Mobile Hamburger Button */}
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              aria-label="Buksan ang menu"
+              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline">
-                {currentUser?.role === "governor" ? "Provincial Command" : "Municipal Console"}
+                {currentUser?.role === "governor" ? "Provincial Command" : "Municipal Operations"}
               </span>
               <span className="text-slate-600 hidden sm:inline">•</span>
-              <h2 className="text-sm sm:text-base font-bold text-white capitalize">
-                {activeTab === "overview" && "Buod at Estadistika"}
-                {activeTab === "provincial" && "Panlalawigang Pagmamasid (Laguna)"}
-                {activeTab === "reports" && "Pamamahala ng mga Ulat"}
-                {activeTab === "users" && "Direktoryo ng Opisyal at Mamamayan"}
-                {activeTab === "audit" && "Audit Trail & Talaan ng Pamahalaan"}
+              <h2 className="text-sm sm:text-base font-bold text-white capitalize font-heading">
+                {activeTab === "overview" && "Overview & Executive Analytics"}
+                {activeTab === "provincial" && "Laguna Provincial Oversight"}
+                {activeTab === "reports" && "Community Reports Management"}
+                {activeTab === "users" && "Officials & Citizen Directory"}
+                {activeTab === "audit" && "Audit Trail & Municipal Logs"}
               </h2>
             </div>
           </div>
@@ -449,7 +446,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center gap-3">
             {/* Role Chip */}
             <div
-              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border font-heading ${
                 currentUser?.role === "governor"
                   ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
                   : "bg-blue-500/15 text-blue-300 border-blue-500/30"
@@ -470,7 +467,7 @@ export default function AdminDashboardPage() {
 
             <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="hidden md:inline text-slate-300">Firebase Active</span>
+              <span className="hidden md:inline text-slate-300">Session Secure</span>
             </div>
           </div>
         </header>
@@ -488,16 +485,16 @@ export default function AdminDashboardPage() {
                     <span>
                       {currentUser?.role === "governor"
                         ? "Provincial High Command Overview"
-                        : "Municipal Operations Overview"}
+                        : "Municipal Operations Command"}
                     </span>
                   </div>
                   <h1 className="text-2xl font-black font-heading text-white">
                     {currentUser?.role === "governor"
                       ? "Laguna Provincial Capitol Oversight"
-                      : "Pamahalaang Bayan ng Paete, Laguna"}
+                      : "Municipality of Paete, Laguna"}
                   </h1>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Centralized command console para sa pagsubaybay ng imprastraktura, kaligtasan, at serbisyo publiko.
+                  <p className="text-xs text-slate-400 mt-1 font-sans">
+                    Centralized municipal operations console for infrastructure triage, public safety monitoring, and civic service accountability.
                   </p>
                 </div>
 
@@ -505,9 +502,9 @@ export default function AdminDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setActiveTab("reports")}
-                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-md shadow-blue-600/30 transition-all cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-md shadow-blue-600/30 transition-all cursor-pointer min-h-[44px]"
                   >
-                    Tingnan ang Lahat ng Ulat ({reports.length})
+                    View All Reports ({reports.length})
                   </button>
                 </div>
               </div>
@@ -516,47 +513,47 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Kabuuang Ulat</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Total Reports</span>
                     <FileText className="w-4 h-4 text-blue-400" />
                   </div>
                   <div className="text-2xl font-black font-heading text-white">{totalReports}</div>
-                  <p className="text-[11px] text-slate-500 mt-1">Lahat ng isinumite</p>
+                  <p className="text-[11px] text-slate-500 mt-1">All logged submissions</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Nangangailangan</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Pending Review</span>
                     <Clock className="w-4 h-4 text-amber-400" />
                   </div>
                   <div className="text-2xl font-black font-heading text-amber-400">{pendingReports}</div>
-                  <p className="text-[11px] text-slate-500 mt-1">Bago at for review</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Awaiting verification</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Isinasagawa</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">In Progress</span>
                     <AlertTriangle className="w-4 h-4 text-sky-400" />
                   </div>
                   <div className="text-2xl font-black font-heading text-sky-400">{inProgressReports}</div>
-                  <p className="text-[11px] text-slate-500 mt-1">May nakatalagang opisina</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Field team active</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Nalutas Na</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Resolved</span>
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div className="text-2xl font-black font-heading text-emerald-400">{resolvedReports}</div>
-                  <p className="text-[11px] text-slate-500 mt-1">Matagumpay na natapos</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Certified remediated</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Kritikal / Hazard</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Critical / Hazard</span>
                     <Shield className="w-4 h-4 text-red-400" />
                   </div>
                   <div className="text-2xl font-black font-heading text-red-400">{urgentReports}</div>
-                  <p className="text-[11px] text-slate-500 mt-1">Nangangailangan ng agarang pansin</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Urgent response needed</p>
                 </div>
               </div>
 
@@ -564,9 +561,9 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div className="p-5 rounded-2xl bg-[#0A1931] border border-red-500/20 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-red-400 font-bold text-sm">
+                    <div className="flex items-center gap-2 text-red-400 font-bold text-sm font-heading">
                       <AlertTriangle className="w-4 h-4" />
-                      <span>Mga Urgent Concerns ({urgentReports})</span>
+                      <span>Urgent Community Hazards ({urgentReports})</span>
                     </div>
                     <button
                       type="button"
@@ -576,7 +573,7 @@ export default function AdminDashboardPage() {
                       }}
                       className="text-xs text-red-400 hover:text-red-300 font-semibold underline cursor-pointer"
                     >
-                      Tingnan Lahat
+                      View All
                     </button>
                   </div>
 
@@ -589,7 +586,7 @@ export default function AdminDashboardPage() {
                           className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between"
                         >
                           <div className="min-w-0 pr-3">
-                            <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
+                            <h4 className="text-xs font-bold text-white truncate font-heading">{item.title}</h4>
                             <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
                               <MapPin className="w-3 h-3 text-red-400 shrink-0" />
                               <span>Brgy. {item.barangay}</span>
@@ -603,9 +600,9 @@ export default function AdminDashboardPage() {
                               setSelectedReport(item);
                               setNoteInput(item.officialNotes || "");
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium shrink-0 cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium shrink-0 cursor-pointer min-h-[36px]"
                           >
-                            Disposisyon
+                            Disposition
                           </button>
                         </div>
                       ))}
@@ -614,23 +611,23 @@ export default function AdminDashboardPage() {
 
                 {/* Rule Engine & Municipal Health Panel */}
                 <div className="p-5 rounded-2xl bg-[#0A1931] border border-blue-500/20 space-y-4">
-                  <div className="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                  <div className="flex items-center gap-2 text-sky-400 font-bold text-sm font-heading">
                     <Sparkles className="w-4 h-4" />
-                    <span>Civic AI Rule Engine & Cluster Insights</span>
+                    <span>Civic Analytical Engine & Cluster Insights</span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-slate-300 leading-relaxed">
-                    <span className="font-semibold text-white block mb-1">
+                  <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-slate-300 leading-relaxed font-sans">
+                    <span className="font-semibold text-white block mb-1 font-heading">
                       Streetlight Infrastructure Alert:
                     </span>
-                    May na-detect na 3 magkakaugnay na concern sa kahabaan ng Quesada Street sa loob ng 7 araw. Inirerekomenda ang pag-dispatch ng Municipal Engineering electrical bucket truck.
+                    3 correlated electrical concerns detected along the Quesada Street corridor within 7 days. Immediate dispatch of Municipal Engineering electrical bucket truck recommended.
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-slate-300 leading-relaxed">
-                    <span className="font-semibold text-white block mb-1">
-                      Flood Mitigation & Drainage:
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-slate-300 leading-relaxed font-sans">
+                    <span className="font-semibold text-white block mb-1 font-heading">
+                      Flood Mitigation & Drainage Clearance:
                     </span>
-                    Matagumpay na natapos ang clearing operation sa Ilaya del Norte. Inirerekomenda ang regular na monthly desilting schedule bago ang tag-ulan.
+                    Stormwater clearing operation in Ilaya del Norte concluded successfully. Continuous monthly desilting recommended prior to forecasted monsoon swells.
                   </div>
                 </div>
               </div>
@@ -643,9 +640,9 @@ export default function AdminDashboardPage() {
                       <BarChart3 className="w-5 h-5" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-white">Public Transparency & Audit Synchronization</h3>
-                      <p className="text-xs text-slate-400">
-                        Live monitoring ng mga proyektong pang-bayan, direktoryo ng opisyal, at open datasets
+                      <h3 className="text-sm font-bold text-white font-heading">Public Transparency & Audit Synchronization</h3>
+                      <p className="text-xs text-slate-400 font-sans">
+                        Live monitoring of municipal public works, governance directory, and open civic datasets
                       </p>
                     </div>
                   </div>
@@ -657,92 +654,92 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Link
                     href="/transparency/projects"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition-all group"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-amber-400">🚧 Proyekto at Badyet</span>
+                      <span className="text-xs font-bold text-amber-400 font-heading">🚧 Public Works & Budget</span>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
-                    <p className="text-xs text-slate-300 font-medium">Public Works History</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Audit ng 6 na imprastraktura, pondo, at kontraktor.</p>
+                    <p className="text-xs text-slate-300 font-medium">Infrastructure Project History</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Audit of 6 municipal projects, contractors, and fund allocations.</p>
                   </Link>
 
                   <Link
                     href="/transparency/officials"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/40 transition-all group"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-blue-400">🏛️ Mga Opisyal ng Bayan</span>
+                      <span className="text-xs font-bold text-blue-400 font-heading">🏛️ Municipal & Provincial Leaders</span>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium">Accountability Directory</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Metriko ng Mayor, SB, Kapitan, at Gobernador.</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Civic response metrics for Mayor, Councilors, Captains, and Governor.</p>
                   </Link>
 
                   <Link
                     href="/transparency/reports"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 transition-all group"
+                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-emerald-400">📊 Open Data Hub</span>
+                      <span className="text-xs font-bold text-emerald-400 font-heading">📊 Open Data Hub</span>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
-                    <p className="text-xs text-slate-300 font-medium">Bukas na Datos & CSV/JSON</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Downloadable open datasets at buwanang trends.</p>
+                    <p className="text-xs text-slate-300 font-medium">Open Datasets & CSV/JSON Export</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Downloadable civic datasets and monthly resolution trends.</p>
                   </Link>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB: PROVINCIAL OVERSIGHT (GOVERNOR ONLY) */}
+          {/* TAB: PROVINCIAL OVERSIGHT */}
           {activeTab === "provincial" && (
             <div className="space-y-6">
               <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/40 via-[#0A1931] to-amber-950/30 border border-amber-500/30 space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 font-heading">
                   <Landmark className="w-3.5 h-3.5" />
-                  <span>Panlalawigang Tanggapan ng Gobernador — Lalawigan ng Laguna</span>
+                  <span>Office of the Provincial Governor — Province of Laguna</span>
                 </div>
                 <h1 className="text-2xl font-black font-heading text-white">
                   Provincial Oversight & Inter-LGU Coordination Console
                 </h1>
-                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                  Eksklusibong panel para sa Tanggapan ng Gobernador upang mabilis na ma-monitor ang mga kritikal na ulat sa Bayan ng Paete, mag-dispatch ng suportang panlalawigan, at makipag-ugnayan sa PDRRMO at Provincial Engineering Office.
+                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed font-sans">
+                  Exclusive oversight console for the Office of the Provincial Governor to monitor critical civic concerns in Paete, dispatch provincial resources, and coordinate with PDRRMO and the Provincial Engineering Office.
                 </p>
               </div>
 
               {/* Provincial Metric Summary */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-amber-500/20">
-                  <div className="text-xs font-semibold text-amber-400 uppercase">Kritikal sa Paete</div>
-                  <div className="text-3xl font-black text-white mt-1">{urgentReports}</div>
-                  <p className="text-[11px] text-slate-400 mt-1">Nangangailangan ng suportang panlalawigan</p>
+                  <div className="text-xs font-semibold text-amber-400 uppercase">Critical in Paete</div>
+                  <div className="text-3xl font-black text-white mt-1 font-heading">{urgentReports}</div>
+                  <p className="text-[11px] text-slate-400 mt-1">Requiring provincial coordination</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                  <div className="text-xs font-semibold text-slate-400 uppercase">Kabuuang Ulat ng Bayan</div>
-                  <div className="text-3xl font-black text-white mt-1">{totalReports}</div>
-                  <p className="text-[11px] text-slate-400 mt-1">Mula sa 9 na barangay ng Paete</p>
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Total Paete Reports</div>
+                  <div className="text-3xl font-black text-white mt-1 font-heading">{totalReports}</div>
+                  <p className="text-[11px] text-slate-400 mt-1">Logged across 9 Paete barangays</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-emerald-500/20">
                   <div className="text-xs font-semibold text-emerald-400 uppercase">LGU Resolution Rate</div>
-                  <div className="text-3xl font-black text-emerald-400 mt-1">
+                  <div className="text-3xl font-black text-emerald-400 mt-1 font-heading">
                     {totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0}%
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1">{resolvedReports} na resolbang concern</p>
+                  <p className="text-[11px] text-slate-400 mt-1">{resolvedReports} resolved concerns</p>
                 </div>
               </div>
 
               {/* Urgent Reports table for Provincial Intervention */}
               <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2 font-heading">
                     <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span>Mga Ulat na Nangangailangan ng Provincial Dispatch o Escalation</span>
+                    <span>Reports Requiring Provincial Dispatch or Escalation</span>
                   </h3>
                   <span className="text-xs text-slate-400">
-                    {reports.filter((r) => r.status === "urgent" || r.status === "pending").length} aktibo
+                    {reports.filter((r) => r.status === "urgent" || r.status === "pending").length} active
                   </span>
                 </div>
 
@@ -764,8 +761,8 @@ export default function AdminDashboardPage() {
                             </span>
                             <span className="text-xs text-slate-400 font-medium">Brgy. {rep.barangay}</span>
                           </div>
-                          <h4 className="text-sm font-semibold text-white">{rep.title}</h4>
-                          <p className="text-xs text-slate-400 mt-0.5">{rep.description}</p>
+                          <h4 className="text-sm font-semibold text-white font-heading">{rep.title}</h4>
+                          <p className="text-xs text-slate-400 mt-0.5 font-sans">{rep.description}</p>
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
@@ -775,12 +772,12 @@ export default function AdminDashboardPage() {
                               setSelectedReport(rep);
                               setNoteInput(
                                 rep.officialNotes ||
-                                  "Mula sa Tanggapan ng Gobernador: I-prioritize ang aksyon at ipagbigay-alam sa Provincial Engineering."
+                                  "Office of the Provincial Governor: Prioritize remediation and notify Provincial Engineering."
                               );
                             }}
-                            className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+                            className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all cursor-pointer min-h-[44px]"
                           >
-                            Maglagay ng Provincial Directive
+                            Attach Provincial Directive
                           </button>
                         </div>
                       </div>
@@ -790,439 +787,439 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-        {/* TAB 1: REPORTS MANAGEMENT */}
-        {activeTab === "reports" && (
-          <div className="space-y-6">
-            {/* Metric KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Kabuuang Ulat</span>
-                  <FileText className="w-4 h-4 text-blue-400" />
+          {/* TAB: REPORTS MANAGEMENT */}
+          {activeTab === "reports" && (
+            <div className="space-y-6">
+              {/* Metric KPI Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Total Reports</span>
+                    <FileText className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-white">{totalReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">All logged submissions</p>
                 </div>
-                <div className="text-2xl font-black font-heading text-white">{totalReports}</div>
-                <p className="text-[11px] text-slate-500 mt-1">Lahat ng isinumite</p>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Pending Review</span>
-                  <Clock className="w-4 h-4 text-amber-400" />
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Pending Review</span>
+                    <Clock className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-amber-400">{pendingReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Awaiting verification</p>
                 </div>
-                <div className="text-2xl font-black font-heading text-amber-400">{pendingReports}</div>
-                <p className="text-[11px] text-slate-500 mt-1">Nangangailangan ng aksyon</p>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Inaaksyunan</span>
-                  <BarChart3 className="w-4 h-4 text-blue-400" />
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">In Progress</span>
+                    <BarChart3 className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-blue-400">{inProgressReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Field team active</p>
                 </div>
-                <div className="text-2xl font-black font-heading text-blue-400">{inProgressReports}</div>
-                <p className="text-[11px] text-slate-500 mt-1">May naka-assign na opisina</p>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Naaksyunan</span>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Resolved</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-emerald-400">{resolvedReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Remediated with evidence</p>
                 </div>
-                <div className="text-2xl font-black font-heading text-emerald-400">{resolvedReports}</div>
-                <p className="text-[11px] text-slate-500 mt-1">Nalutas nang may patunay</p>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 col-span-2 lg:col-span-1">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Kritikal / Urgent</span>
-                  <AlertTriangle className="w-4 h-4 text-red-400" />
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 col-span-2 lg:col-span-1">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Critical / Hazard</span>
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-red-400">{urgentReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Public safety hazard</p>
                 </div>
-                <div className="text-2xl font-black font-heading text-red-400">{urgentReports}</div>
-                <p className="text-[11px] text-slate-500 mt-1">Public safety hazard</p>
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col md:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Maghanap ayon sa pamagat, barangay, o deskripsyon..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
-                />
               </div>
 
-              <div className="flex items-center gap-2">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="all" className="bg-[#0A1931]">Lahat ng Status</option>
-                  <option value="pending" className="bg-[#0A1931]">Pending Review</option>
-                  <option value="in_progress" className="bg-[#0A1931]">In Progress</option>
-                  <option value="resolved" className="bg-[#0A1931]">Resolved</option>
-                  <option value="urgent" className="bg-[#0A1931]">Urgent</option>
-                </select>
+              {/* Filter Bar */}
+              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by title, barangay, or description..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
+                  />
+                </div>
 
-                <select
-                  value={barangayFilter}
-                  onChange={(e) => setBarangayFilter(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="all" className="bg-[#0A1931]">Lahat ng Barangay (9)</option>
-                  <option value="Bagumbayan" className="bg-[#0A1931]">Brgy. Bagumbayan</option>
-                  <option value="Bangkusay" className="bg-[#0A1931]">Brgy. Bangkusay</option>
-                  <option value="Ermita" className="bg-[#0A1931]">Brgy. Ermita</option>
-                  <option value="Ibaba del Norte" className="bg-[#0A1931]">Brgy. Ibaba del Norte</option>
-                  <option value="Ibaba del Sur" className="bg-[#0A1931]">Brgy. Ibaba del Sur</option>
-                  <option value="Ilaya del Norte" className="bg-[#0A1931]">Brgy. Ilaya del Norte</option>
-                  <option value="Ilaya del Sur" className="bg-[#0A1931]">Brgy. Ilaya del Sur</option>
-                  <option value="Maytoong" className="bg-[#0A1931]">Brgy. Maytoong</option>
-                  <option value="Quinale" className="bg-[#0A1931]">Brgy. Quinale</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none min-h-[44px]"
+                  >
+                    <option value="all" className="bg-[#0A1931]">All Statuses</option>
+                    <option value="pending" className="bg-[#0A1931]">Pending Review</option>
+                    <option value="in_progress" className="bg-[#0A1931]">In Progress</option>
+                    <option value="resolved" className="bg-[#0A1931]">Resolved</option>
+                    <option value="urgent" className="bg-[#0A1931]">Critical Hazard</option>
+                  </select>
+
+                  <select
+                    value={barangayFilter}
+                    onChange={(e) => setBarangayFilter(e.target.value)}
+                    className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none min-h-[44px]"
+                  >
+                    <option value="all" className="bg-[#0A1931]">All Barangays (9)</option>
+                    <option value="Bagumbayan" className="bg-[#0A1931]">Brgy. Bagumbayan</option>
+                    <option value="Bangkusay" className="bg-[#0A1931]">Brgy. Bangkusay</option>
+                    <option value="Ermita" className="bg-[#0A1931]">Brgy. Ermita</option>
+                    <option value="Ibaba del Norte" className="bg-[#0A1931]">Brgy. Ibaba del Norte</option>
+                    <option value="Ibaba del Sur" className="bg-[#0A1931]">Brgy. Ibaba del Sur</option>
+                    <option value="Ilaya del Norte" className="bg-[#0A1931]">Brgy. Ilaya del Norte</option>
+                    <option value="Ilaya del Sur" className="bg-[#0A1931]">Brgy. Ilaya del Sur</option>
+                    <option value="Maytoong" className="bg-[#0A1931]">Brgy. Maytoong</option>
+                    <option value="Quinale" className="bg-[#0A1931]">Brgy. Quinale</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            {/* Reports Table */}
-            <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
-                    <tr>
-                      <th className="px-5 py-3.5">Concern / Pamagat</th>
-                      <th className="px-5 py-3.5">Barangay</th>
-                      <th className="px-5 py-3.5">Petsa</th>
-                      <th className="px-5 py-3.5">Kasalukuyang Status</th>
-                      <th className="px-5 py-3.5">Opisyal na Aksyon</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredReports.map((report) => (
-                      <tr key={report.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="font-bold text-white text-sm font-heading">
-                            {report.title}
-                          </div>
-                          <div className="text-slate-400 text-xs line-clamp-1 mt-0.5">
-                            {report.description}
-                          </div>
-                          {report.officialNotes && (
-                            <div className="mt-1 text-[11px] text-blue-300 flex items-center gap-1">
-                              <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
-                              <span>Note: {report.officialNotes}</span>
+              {/* Reports Table */}
+              <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm">
+                    <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+                      <tr>
+                        <th className="px-5 py-3.5">Concern / Title</th>
+                        <th className="px-5 py-3.5">Barangay</th>
+                        <th className="px-5 py-3.5">Date Logged</th>
+                        <th className="px-5 py-3.5">Current Status</th>
+                        <th className="px-5 py-3.5">Official Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {filteredReports.map((report) => (
+                        <tr key={report.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-4">
+                            <div className="font-bold text-white text-sm font-heading">
+                              {report.title}
                             </div>
-                          )}
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 text-slate-300">
-                            <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                            <span>Brgy. {report.barangay}</span>
-                          </span>
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs">
-                          {report.date}
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <select
-                            value={report.status}
-                            onChange={(e) =>
-                              handleStatusChange(report.id, e.target.value as ReportStatus)
-                            }
-                            className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none transition-all ${
-                              report.status === "resolved"
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                                : report.status === "in_progress"
-                                ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                                : report.status === "urgent"
-                                ? "bg-red-500/10 text-red-400 border-red-500/30"
-                                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                            }`}
-                          >
-                            <option value="pending" className="bg-[#0A1931] text-amber-400">
-                              Pending Review
-                            </option>
-                            <option value="in_progress" className="bg-[#0A1931] text-blue-400">
-                              In Progress
-                            </option>
-                            <option value="resolved" className="bg-[#0A1931] text-emerald-400">
-                              Resolved
-                            </option>
-                            <option value="urgent" className="bg-[#0A1931] text-red-400">
-                              Urgent / Hazard
-                            </option>
-                          </select>
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedReport(report);
-                              setNoteInput(report.officialNotes || "");
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/20 hover:text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-medium text-slate-200 transition-all"
-                          >
-                            <MessageSquare className="w-3.5 h-3.5" />
-                            <span>{report.officialNotes ? "I-edit ang Tala" : "Maglagay ng Tala"}</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: USER MANAGEMENT */}
-        {activeTab === "users" && (
-          <div className="space-y-6">
-            {/* User Overview KPIs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Kabuuang Rehistradong Gumagamit</span>
-                  <Users className="w-4 h-4 text-blue-400" />
-                </div>
-                <div className="text-2xl font-bold font-heading text-white">{users.length}</div>
-                <p className="text-[11px] text-slate-500 mt-1">Mamamayan at kawani ng pamahalaan</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Mamamayan (Google Verified)</span>
-                  <UserCheck className="w-4 h-4 text-sky-400" />
-                </div>
-                <div className="text-2xl font-bold font-heading text-sky-400">
-                  {users.filter((u) => u.role === "resident").length}
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1">Mga taga-Paete na nag-uulat</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Awtorisadong Opisyal</span>
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="text-2xl font-bold font-heading text-emerald-400">
-                  {users.filter((u) => u.role === "official").length}
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1">May access sa pagbabago ng status</p>
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Maghanap ng gumagamit ayon sa pangalan, email, o opisina..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <select
-                value={userRoleFilter}
-                onChange={(e) => setUserRoleFilter(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value="all" className="bg-[#0A1931]">Lahat ng Uri ng User</option>
-                <option value="resident" className="bg-[#0A1931]">Mamamayan (Resident)</option>
-                <option value="official" className="bg-[#0A1931]">Opisyal ng Bayan (Official)</option>
-              </select>
-            </div>
-
-            {/* Users Table */}
-            <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
-                    <tr>
-                      <th className="px-5 py-3.5">Pangalan / User</th>
-                      <th className="px-5 py-3.5">Role</th>
-                      <th className="px-5 py-3.5">Barangay / Department</th>
-                      <th className="px-5 py-3.5">Auth Method</th>
-                      <th className="px-5 py-3.5">Mga Naitalang Ulat</th>
-                      <th className="px-5 py-3.5">Petsa Narehistro</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-3.5">
-                          <div className="font-bold text-white font-heading">{user.name}</div>
-                          <div className="text-slate-400 text-xs flex items-center gap-1">
-                            <Mail className="w-3 h-3 text-slate-500" />
-                            <span>{user.email}</span>
-                          </div>
-                        </td>
-
-                        <td className="px-5 py-3.5 whitespace-nowrap">
-                          {user.role === "official" ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                              <ShieldCheck className="w-3 h-3" />
-                              Opisyal ng Bayan
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              <UserCheck className="w-3 h-3" />
-                              Mamamayan
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="px-5 py-3.5 whitespace-nowrap">
-                          <div className="flex items-center gap-1 text-slate-300">
-                            {user.role === "official" ? (
-                              <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                            ) : (
-                              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                            <div className="text-slate-400 text-xs line-clamp-1 mt-0.5 font-sans">
+                              {report.description}
+                            </div>
+                            {report.officialNotes && (
+                              <div className="mt-1 text-[11px] text-blue-300 flex items-center gap-1 font-sans">
+                                <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
+                                <span>Note: {report.officialNotes}</span>
+                              </div>
                             )}
-                            <span>{user.barangayOrOffice}</span>
-                          </div>
-                        </td>
+                          </td>
 
-                        <td className="px-5 py-3.5 whitespace-nowrap text-slate-300 text-xs">
-                          {user.authProvider === "google" ? (
-                            <span className="text-sky-300 font-medium">Google Sign-In</span>
-                          ) : (
-                            <span className="text-amber-300 font-medium">Municipal ID</span>
-                          )}
-                        </td>
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1 text-slate-300">
+                              <MapPin className="w-3.5 h-3.5 text-blue-400" />
+                              <span>Brgy. {report.barangay}</span>
+                            </span>
+                          </td>
 
-                        <td className="px-5 py-3.5 whitespace-nowrap font-semibold text-white">
-                          {user.role === "resident" ? user.reportsCount : "N/A"}
-                        </td>
+                          <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
+                            {report.date}
+                          </td>
 
-                        <td className="px-5 py-3.5 whitespace-nowrap text-slate-400 text-xs">
-                          {user.registeredDate}
-                        </td>
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <select
+                              value={report.status}
+                              onChange={(e) =>
+                                handleStatusChange(report.id, e.target.value as ReportStatus)
+                              }
+                              className={`px-3 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none transition-all min-h-[36px] ${
+                                report.status === "resolved"
+                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                  : report.status === "in_progress"
+                                  ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                                  : report.status === "urgent"
+                                  ? "bg-red-500/10 text-red-400 border-red-500/30"
+                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                              }`}
+                            >
+                              <option value="pending" className="bg-[#0A1931] text-amber-400">
+                                Pending Review
+                              </option>
+                              <option value="in_progress" className="bg-[#0A1931] text-blue-400">
+                                In Progress
+                              </option>
+                              <option value="resolved" className="bg-[#0A1931] text-emerald-400">
+                                Resolved
+                              </option>
+                              <option value="urgent" className="bg-[#0A1931] text-red-400">
+                                Critical Hazard
+                              </option>
+                            </select>
+                          </td>
+
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedReport(report);
+                                setNoteInput(report.officialNotes || "");
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/20 hover:text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-medium text-slate-200 transition-all min-h-[36px] cursor-pointer"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>{report.officialNotes ? "Edit Disposition" : "Add Disposition"}</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: USERS MANAGEMENT */}
+          {activeTab === "users" && (
+            <div className="space-y-6">
+              {/* User Overview KPIs */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Total Registered Accounts</span>
+                    <Users className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-heading text-white">{users.length}</div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Verified residents and administrative staff</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Residents (Google Verified)</span>
+                    <UserCheck className="w-4 h-4 text-sky-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-heading text-sky-400">
+                    {users.filter((u) => u.role === "resident").length}
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Authenticated community reporters</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Authorized Officials</span>
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-heading text-emerald-400">
+                    {users.filter((u) => u.role === "official").length}
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Authorized status modification permissions</p>
+                </div>
+              </div>
+
+              {/* Filter Bar */}
+              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search accounts by name, email, or department..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
+                  />
+                </div>
+
+                <select
+                  value={userRoleFilter}
+                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none min-h-[44px]"
+                >
+                  <option value="all" className="bg-[#0A1931]">All Account Roles</option>
+                  <option value="resident" className="bg-[#0A1931]">Verified Resident</option>
+                  <option value="official" className="bg-[#0A1931]">Government Official</option>
+                </select>
+              </div>
+
+              {/* Users Table */}
+              <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm">
+                    <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+                      <tr>
+                        <th className="px-5 py-3.5">Name / Account</th>
+                        <th className="px-5 py-3.5">Role</th>
+                        <th className="px-5 py-3.5">Barangay / Department</th>
+                        <th className="px-5 py-3.5">Auth Provider</th>
+                        <th className="px-5 py-3.5">Reports Logged</th>
+                        <th className="px-5 py-3.5">Registered Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {filteredUsers.map((user) => (
+                        <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-3.5">
+                            <div className="font-bold text-white font-heading">{user.name}</div>
+                            <div className="text-slate-400 text-xs flex items-center gap-1 font-mono">
+                              <Mail className="w-3 h-3 text-slate-500" />
+                              <span>{user.email}</span>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            {user.role === "official" ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 font-heading">
+                                <ShieldCheck className="w-3 h-3" />
+                                Official
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-heading">
+                                <UserCheck className="w-3 h-3" />
+                                Resident
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-1 text-slate-300 font-sans">
+                              {user.role === "official" ? (
+                                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                              ) : (
+                                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                              )}
+                              <span>{user.barangayOrOffice}</span>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3.5 whitespace-nowrap text-slate-300 text-xs font-sans">
+                            {user.authProvider === "google" ? (
+                              <span className="text-sky-300 font-medium">Google Auth</span>
+                            ) : (
+                              <span className="text-amber-300 font-medium">Municipal ID</span>
+                            )}
+                          </td>
+
+                          <td className="px-5 py-3.5 whitespace-nowrap font-semibold text-white font-mono">
+                            {user.role === "resident" ? user.reportsCount : "N/A"}
+                          </td>
+
+                          <td className="px-5 py-3.5 whitespace-nowrap text-slate-400 text-xs font-mono">
+                            {user.registeredDate}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: AUDIT TRAIL & LOGS */}
+          {activeTab === "audit" && (
+            <div className="space-y-6">
+              <div className="p-4 rounded-2xl bg-blue-950/30 border border-blue-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-sans">
+                <div className="flex items-center gap-2 text-blue-200">
+                  <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
+                  <span>
+                    <strong>Immutable Civic Audit Trail:</strong> Every status update, official note, and administrative action is logged to guarantee municipal accountability and transparency.
+                  </span>
+                </div>
+                <span className="text-slate-400 font-mono">Total Recorded Actions: {auditLogs.length}</span>
+              </div>
+
+              {/* Audit Logs Table */}
+              <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm">
+                    <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+                      <tr>
+                        <th className="px-5 py-3.5">Timestamp</th>
+                        <th className="px-5 py-3.5">Actor / Official</th>
+                        <th className="px-5 py-3.5">Action</th>
+                        <th className="px-5 py-3.5">Report / Barangay</th>
+                        <th className="px-5 py-3.5">Action Details</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {auditLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
+                            {log.timestamp}
+                          </td>
+
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <div className="font-bold text-white font-heading">{log.actorName}</div>
+                            <div className="text-[11px] text-blue-400">{log.actorRole}</div>
+                          </td>
+
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-white/5 text-slate-200 border border-white/10 font-mono">
+                              {log.action}
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="font-bold text-white font-mono">{log.reportId}</span>
+                            <span className="text-slate-400 text-xs block font-sans">Brgy. {log.barangay}</span>
+                          </td>
+
+                          <td className="px-5 py-4 text-slate-300 text-xs leading-relaxed font-sans">
+                            {log.details}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* Official Resolution Note Modal */}
+        {selectedReport && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="w-full max-w-md rounded-2xl border border-white/15 bg-[#0A1931] p-6 shadow-2xl text-white">
+              <h3 className="text-lg font-bold font-heading mb-1">
+                Official LGU Disposition & Action Note
+              </h3>
+              <p className="text-xs text-slate-400 mb-4 font-sans">
+                Report #{selectedReport.id} — {selectedReport.title}
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
+                    Resolution / Disposition Note
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={noteInput}
+                    onChange={(e) => setNoteInput(e.target.value)}
+                    placeholder="e.g., Dispatched municipal engineering repair crew; completion expected by Friday..."
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none font-sans"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReport(null)}
+                    className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 cursor-pointer min-h-[44px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveNote}
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm cursor-pointer min-h-[44px] font-heading"
+                  >
+                    Save Official Note
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* TAB 3: AUDIT TRAIL & LOGS */}
-        {activeTab === "audit" && (
-          <div className="space-y-6">
-            <div className="p-4 rounded-2xl bg-blue-950/30 border border-blue-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2 text-blue-200">
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>
-                  <strong>Immutable Audit Trail:</strong> Ang bawat disposisyon, pagbabago ng estado, o tala ng opisyal ay may awtomatikong tracking para sa transparency.
-                </span>
-              </div>
-              <span className="text-slate-400">Total Recorded Actions: {auditLogs.length}</span>
-            </div>
-
-            {/* Audit Logs Table */}
-            <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
-                    <tr>
-                      <th className="px-5 py-3.5">Timestamp</th>
-                      <th className="px-5 py-3.5">Opisyal / Actor</th>
-                      <th className="px-5 py-3.5">Aksyon</th>
-                      <th className="px-5 py-3.5">Ulat / Lokasyon</th>
-                      <th className="px-5 py-3.5">Mga Detalye ng Aksyon</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {auditLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
-                          {log.timestamp}
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <div className="font-bold text-white font-heading">{log.actorName}</div>
-                          <div className="text-[11px] text-blue-400">{log.actorRole}</div>
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-white/5 text-slate-200 border border-white/10">
-                            {log.action}
-                          </span>
-                        </td>
-
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="font-bold text-white">{log.reportId}</span>
-                          <span className="text-slate-400 text-xs block">Brgy. {log.barangay}</span>
-                        </td>
-
-                        <td className="px-5 py-4 text-slate-300 text-xs leading-relaxed">
-                          {log.details}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Official Resolution Note Modal */}
-      {selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-[#0A1931] p-6 shadow-2xl text-white">
-            <h3 className="text-lg font-bold font-heading mb-1">
-              Opisyal na Aksyon at Tala ng LGU
-            </h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Ulat #{selectedReport.id} — {selectedReport.title}
-            </p>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Resolution / Update Note
-                </label>
-                <textarea
-                  rows={4}
-                  value={noteInput}
-                  onChange={(e) => setNoteInput(e.target.value)}
-                  placeholder="Halimbawa: Naipadala na sa Engineering team; target completion sa Biyernes..."
-                  className="w-full p-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedReport(null)}
-                  className="px-4 py-2 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10"
-                >
-                  Kanselahin
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveNote}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm"
-                >
-                  I-save ang Opisyal na Tala
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       </div>
     </div>
   );

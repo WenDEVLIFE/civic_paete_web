@@ -27,15 +27,15 @@ interface MonthlyData {
 }
 
 const MONTHLY_TRENDS_2026: MonthlyData[] = [
-  { month: "Enero", shortMonth: "Ene", filed: 42, resolved: 39 },
-  { month: "Pebrero", shortMonth: "Peb", filed: 56, resolved: 51 },
-  { month: "Marso", shortMonth: "Mar", filed: 64, resolved: 58 },
-  { month: "Abril", shortMonth: "Abr", filed: 48, resolved: 46 },
-  { month: "Mayo", shortMonth: "May", filed: 72, resolved: 65 },
-  { month: "Hunyo", shortMonth: "Hun", filed: 85, resolved: 74 },
-  { month: "Hulyo", shortMonth: "Hul", filed: 104, resolved: 91 },
-  { month: "Agosto", shortMonth: "Ago", filed: 92, resolved: 83 },
-  { month: "Setyembre", shortMonth: "Set", filed: 78, resolved: 70 },
+  { month: "January", shortMonth: "Jan", filed: 42, resolved: 39 },
+  { month: "February", shortMonth: "Feb", filed: 56, resolved: 51 },
+  { month: "March", shortMonth: "Mar", filed: 64, resolved: 58 },
+  { month: "April", shortMonth: "Apr", filed: 48, resolved: 46 },
+  { month: "May", shortMonth: "May", filed: 72, resolved: 65 },
+  { month: "June", shortMonth: "Jun", filed: 85, resolved: 74 },
+  { month: "July", shortMonth: "Jul", filed: 104, resolved: 91 },
+  { month: "August", shortMonth: "Aug", filed: 92, resolved: 83 },
+  { month: "September", shortMonth: "Sep", filed: 78, resolved: 70 },
 ];
 
 interface CategorySummary {
@@ -51,7 +51,7 @@ interface CategorySummary {
 const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "infra",
-    name: "Kalsada at Imprastraktura",
+    name: "Roads & Physical Infrastructure",
     icon: "🚧",
     count: 215,
     resolvedCount: 191,
@@ -60,7 +60,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   },
   {
     id: "drainage",
-    name: "Kanal, Baha at Drainage",
+    name: "Drainage, Canals & Flood Mitigation",
     icon: "🌊",
     count: 148,
     resolvedCount: 132,
@@ -69,7 +69,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   },
   {
     id: "waste",
-    name: "Basura at Kalinisan",
+    name: "Solid Waste & Ecological Sanitation",
     icon: "🗑️",
     count: 112,
     resolvedCount: 104,
@@ -78,7 +78,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   },
   {
     id: "lighting",
-    name: "Streetlights at Kuryente",
+    name: "Streetlights & Electrical Hazards",
     icon: "💡",
     count: 86,
     resolvedCount: 80,
@@ -87,7 +87,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   },
   {
     id: "safety",
-    name: "Kapayapaan at Kaayusan",
+    name: "Public Safety & Peace and Order",
     icon: "🛡️",
     count: 47,
     resolvedCount: 41,
@@ -96,7 +96,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   },
   {
     id: "others",
-    name: "Iba pang Serbisyong Publiko",
+    name: "General Municipal Facilities",
     icon: "🏛️",
     count: 33,
     resolvedCount: 29,
@@ -140,27 +140,27 @@ interface DatasetItem {
 const OPEN_DATASETS: DatasetItem[] = [
   {
     id: "reports-2026",
-    title: "Mga Reklamo at Kahilingang Sibil 2026 (De-identified)",
+    title: "Civic Submissions & Incident Ledger 2026 (De-identified)",
     description:
-      "Talaan ng lahat ng ulat mula Enero hanggang Setyembre 2026 na may tinanggal na sensitibong personal na impormasyon alinsunod sa Data Privacy Act of 2012.",
+      "Comprehensive registry of all public infrastructure tickets from January to September 2026. Personally identifiable resident attributes are sanitized pursuant to RA 10173.",
     filename: "civic_paete_reports_2026",
     recordsCount: 641,
     format: "BOTH",
-    lastUpdated: "Setyembre 27, 2026",
+    lastUpdated: "September 27, 2026",
     csvData: `report_id,barangay,category,status,urgency,filed_date,resolved_date,turnaround_hours
-RPT-2026-001,Bagumbayan,Drainage,Resolved,Mataas,2026-01-04,2026-01-05,24
-RPT-2026-002,Ilaya del Sur,Streetlight,Resolved,Katamtaman,2026-01-06,2026-01-08,48
-RPT-2026-003,Ibaba del Norte,Basura,Resolved,Mababa,2026-01-09,2026-01-10,22
-RPT-2026-004,Bangkusay,Kalsada,Resolved,Kritikal,2026-01-12,2026-01-14,38
-RPT-2026-005,Ermita,Drainage,Resolved,Mataas,2026-01-15,2026-01-16,28
-RPT-2026-006,Maytoong,Kalsada,Resolved,Katamtaman,2026-01-18,2026-01-20,44
-RPT-2026-007,Quinale,Streetlight,Resolved,Mababa,2026-01-21,2026-01-23,46
-RPT-2026-008,Ibaba del Sur,Basura,Resolved,Mataas,2026-01-24,2026-01-25,18
-RPT-2026-009,Bagumbayan,Kalsada,Resolved,Katamtaman,2026-01-27,2026-01-29,36
-RPT-2026-010,Ilaya del Norte,Kapayapaan,Resolved,Mataas,2026-01-30,2026-02-01,32`,
+RPT-2026-001,Bagumbayan,Drainage,Resolved,High,2026-01-04,2026-01-05,24
+RPT-2026-002,Ilaya del Sur,Streetlight,Resolved,Medium,2026-01-06,2026-01-08,48
+RPT-2026-003,Ibaba del Norte,Sanitation,Resolved,Low,2026-01-09,2026-01-10,22
+RPT-2026-004,Bangkusay,Roads,Resolved,Critical,2026-01-12,2026-01-14,38
+RPT-2026-005,Ermita,Drainage,Resolved,High,2026-01-15,2026-01-16,28
+RPT-2026-006,Maytoong,Roads,Resolved,Medium,2026-01-18,2026-01-20,44
+RPT-2026-007,Quinale,Streetlight,Resolved,Low,2026-01-21,2026-01-23,46
+RPT-2026-008,Ibaba del Sur,Sanitation,Resolved,High,2026-01-24,2026-01-25,18
+RPT-2026-009,Bagumbayan,Roads,Resolved,Medium,2026-01-27,2026-01-29,36
+RPT-2026-010,Ilaya del Norte,Safety,Resolved,High,2026-01-30,2026-02-01,32`,
     jsonData: {
       metadata: {
-        municipality: "Paete, Laguna",
+        municipality: "Paete, Laguna, Philippines",
         coverage: "2026-01-01 to 2026-09-27",
         license: "Open Data Commons PDDL",
         total_records: 641,
@@ -168,36 +168,36 @@ RPT-2026-010,Ilaya del Norte,Kapayapaan,Resolved,Mataas,2026-01-30,2026-02-01,32
       reports_sample: [
         { id: "RPT-2026-001", barangay: "Bagumbayan", category: "Drainage", status: "Resolved", turnaround_hours: 24 },
         { id: "RPT-2026-002", barangay: "Ilaya del Sur", category: "Streetlight", status: "Resolved", turnaround_hours: 48 },
-        { id: "RPT-2026-003", barangay: "Ibaba del Norte", category: "Basura", status: "Resolved", turnaround_hours: 22 },
-        { id: "RPT-2026-004", barangay: "Bangkusay", category: "Kalsada", status: "Resolved", turnaround_hours: 38 },
+        { id: "RPT-2026-003", barangay: "Ibaba del Norte", category: "Sanitation", status: "Resolved", turnaround_hours: 22 },
+        { id: "RPT-2026-004", barangay: "Bangkusay", category: "Roads", status: "Resolved", turnaround_hours: 38 },
         { id: "RPT-2026-005", barangay: "Ermita", category: "Drainage", status: "Resolved", turnaround_hours: 28 },
       ],
     },
   },
   {
     id: "projects-audit-2026",
-    title: "Pampublikong Proyekto at Badyet Audit 2026",
+    title: "Public Infrastructure & Capital Outlay Audit 2026",
     description:
-      "Tala ng mga proyektong pang-imprastraktura, halaga ng badyet, pinagkunan ng pondo, at nakatalagang kontraktor sa Paete.",
+      "Detailed ledger of municipal infrastructure works, appropriations, funding classifications, and awarded contractors in Paete, Laguna.",
     filename: "paete_public_works_audits_2026",
     recordsCount: 14,
     format: "BOTH",
-    lastUpdated: "Setyembre 25, 2026",
+    lastUpdated: "September 25, 2026",
     csvData: `project_code,project_title,barangay,allocated_budget_php,contractor,completion_pct,status,fund_source
-PRJ-2026-01,Pagpapalawak ng Drainage Quesada St,Bagumbayan,2850000,Reyes Construction,100,Tapos Na,20% Development Fund
-PRJ-2026-02,LED Solar Streetlights Phase 3,Munisipalidad,1450000,SunPower Laguna,85,Isinasagawa,LGU Calamity & Safety Fund
-PRJ-2026-03,Flood Retaining Wall San Vicente,Ilaya del Sur,4200000,Laguna GeoBuilders,65,Isinasagawa,Provincial Assistance Fund
-PRJ-2026-04,Rehabilitasyon ng F Sario St,Ibaba del Sur,1800000,Bangkusay Asphalt Works,100,Tapos Na,Municipal General Fund
-PRJ-2026-05,Paete Eco-Park & Waste Sorting Center,Maytoong,3100000,GreenLaguna Initiatives,30,Isinasagawa,DENR Ecological Solid Waste Grant
-PRJ-2026-06,Renovasyon ng Municipal Hall Roof,Poblacion,950000,Woodcraft & Civil Works,0,Bidding,Municipal Capital Outlay`,
+PRJ-2026-01,Drainage Expansion Quesada St,Bagumbayan,2850000,Reyes Construction,100,Completed,20% Development Fund
+PRJ-2026-02,LED Solar Streetlights Grid Phase 3,Municipality,1450000,SunPower Laguna,85,Ongoing,LGU Calamity & Safety Fund
+PRJ-2026-03,Bangkusay Creek Retaining Wall,Ilaya del Sur,4200000,Laguna GeoBuilders,65,Ongoing,Provincial Assistance Fund
+PRJ-2026-04,Road Resurfacing Maytoong,Ibaba del Sur,1800000,Bangkusay Asphalt Works,100,Completed,Municipal General Fund
+PRJ-2026-05,Paete Lakeside Eco-Park & Waste Pavilion,Maytoong,3100000,GreenLaguna Initiatives,30,Ongoing,DENR Ecological Grant
+PRJ-2026-06,Municipal Function Wing Modernization,Poblacion,950000,Woodcraft & Civil Works,0,Under Bidding,Municipal Capital Outlay`,
     jsonData: {
       municipality: "Paete, Laguna",
       fiscal_year: 2026,
       total_appropriation_php: 14350000,
       projects: [
-        { code: "PRJ-2026-01", title: "Drainage Quesada St", budget: 2850000, status: "Completed" },
-        { code: "PRJ-2026-02", title: "LED Solar Streetlights", budget: 1450000, status: "Ongoing" },
-        { code: "PRJ-2026-03", title: "Flood Retaining Wall", budget: 4200000, status: "Ongoing" },
+        { code: "PRJ-2026-01", title: "Drainage Expansion Quesada St", budget: 2850000, status: "Completed" },
+        { code: "PRJ-2026-02", title: "LED Solar Streetlights Grid", budget: 1450000, status: "Ongoing" },
+        { code: "PRJ-2026-03", title: "Bangkusay Creek Retaining Wall", budget: 4200000, status: "Ongoing" },
       ],
     },
   },
@@ -205,11 +205,11 @@ PRJ-2026-06,Renovasyon ng Municipal Hall Roof,Poblacion,950000,Woodcraft & Civil
     id: "barangay-metrics-2026",
     title: "Barangay Service Resolution Benchmarks 2026",
     description:
-      "Statistika ng kahusayan sa pagtugon ng 9 na barangay sa Paete kaugnay ng mga naihaing hinaing at aksyon ng komunidad.",
+      "Official operational performance benchmarks across all 9 barangays of Paete measuring citizen report triage and resolution efficiency.",
     filename: "paete_barangay_benchmarks_2026",
     recordsCount: 9,
     format: "BOTH",
-    lastUpdated: "Setyembre 20, 2026",
+    lastUpdated: "September 20, 2026",
     csvData: `barangay,total_reports,resolved_reports,resolution_rate_pct,avg_response_hours,in_progress_count
 Bagumbayan,98,89,90.8,32,9
 Ibaba del Sur,90,82,91.1,30,8
@@ -221,7 +221,7 @@ Ermita,62,57,91.9,40,5
 Maytoong,42,38,90.5,42,4
 Quinale,32,29,90.6,45,3`,
     jsonData: {
-      coverage: "9 Barangays of Paete",
+      coverage: "9 Barangays of Paete, Laguna",
       average_resolution_rate: "90.8%",
       benchmarks: [
         { barangay: "Bagumbayan", rate: 90.8, avg_hours: 32 },
@@ -236,7 +236,6 @@ export default function OpenDataReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<"2026-ALL" | "2026-Q3" | "2026-Q2" | "2026-Q1">("2026-ALL");
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
 
-  // Trigger real file download in-browser
   const handleDownload = (item: DatasetItem, format: "csv" | "json") => {
     let content = "";
     let mimeType = "";
@@ -271,95 +270,98 @@ export default function OpenDataReportsPage() {
   const maxFiledValue = Math.max(...MONTHLY_TRENDS_2026.map((m) => m.filed));
 
   return (
-    <div className="min-h-screen bg-[#070D18] text-[#F1F5F9] pb-24">
-      {/* Top Breadcrumb & Notification */}
-      <header className="border-b border-white/10 bg-[#0A1931]/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-4">
-          <nav className="flex items-center gap-2 text-xs text-[#94A3B8]">
-            <Link href="/" className="hover:text-white transition-colors">
-              Tahanan
+    <div className="min-h-screen bg-[#071126] text-[#F1F5F9] font-sans selection:bg-[#2563EB] selection:text-white pb-24">
+      {/* Paete Woodcarving Motif Accent Bar */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-[#2563EB] to-emerald-500" />
+
+      {/* Top Header */}
+      <header className="border-b border-white/10 bg-[#0A1931]/95 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+          <nav className="flex items-center gap-2 text-xs text-slate-400">
+            <Link href="/" className="text-slate-300 hover:text-white transition-colors">
+              Home
             </Link>
             <span>/</span>
-            <Link href="/transparency/projects" className="hover:text-white transition-colors">
+            <Link href="/transparency/projects" className="text-slate-300 hover:text-white transition-colors">
               Transparency Hub
             </Link>
             <span>/</span>
-            <span className="text-[#38BDF8] font-medium">Mga Ulat at Open Data</span>
+            <span className="text-[#38BDF8] font-semibold font-heading">Open Data & Reports</span>
           </nav>
 
           <div className="flex items-center gap-3">
             <Link
               href="/transparency/projects"
-              className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center"
             >
-              🚧 Mga Proyekto
+              🚧 Public Works
             </Link>
             <Link
               href="/transparency/officials"
-              className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center"
             >
-              🏛️ Mga Opisyal
+              🏛️ Officials Directory
             </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4 pt-10">
-        {/* Banner Announcement */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        {/* Banner Alert for Download Feedback */}
         {downloadSuccess && (
           <div className="mb-6 p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2 text-sm font-medium">
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>
-                Matagumpay na na-download ang file: <strong className="text-white">{downloadSuccess}</strong>
+                File successfully generated and downloaded: <strong className="text-white">{downloadSuccess}</strong>
               </span>
             </div>
             <button
               onClick={() => setDownloadSuccess(null)}
-              className="text-xs text-emerald-400 hover:text-white underline"
+              className="text-xs text-emerald-400 hover:text-white underline cursor-pointer"
             >
-              Isara
+              Dismiss
             </button>
           </div>
         )}
 
         {/* Hero Section */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 mb-4">
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>Open Data Initiative &bull; LGU Paete</span>
+            <span>Open Data Initiative &bull; LGU Paete, Laguna</span>
           </div>
+
           <h1
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-3"
+            className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-3 uppercase"
             style={{ fontFamily: "var(--font-heading)" }}
           >
-            Mga Ulat at Open Data ng Bayan
+            Civic Reports & Open Data
           </h1>
-          <p className="text-base sm:text-lg text-[#94A3B8] max-w-3xl leading-relaxed">
-            I-access, suriin, at i-download ang mga pampublikong estadistika ng Munisipalidad ng Paete. Kasama ang
-            buwanang tala ng mga naaksyunang ulat sibil, metriko ng mga barangay, at bukas na datos para sa pananaliksik
-            at pananagutan.
+          <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed font-normal">
+            Access, evaluate, and download open datasets from the Municipal Government of Paete. Features monthly
+            incident resolution trajectories, neighborhood benchmark indices, and downloadable machine-readable files.
           </p>
 
           {/* Timeframe Filter Bar */}
-          <div className="mt-6 flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
-            <span className="text-xs text-[#64748B] flex items-center gap-1.5 mr-2 font-medium">
-              <Filter className="w-3.5 h-3.5" /> Panahon ng Datos:
+          <div className="mt-6 flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
+            <span className="text-xs text-slate-400 flex items-center gap-1.5 mr-2 font-semibold font-heading uppercase tracking-wider text-[11px]">
+              <Filter className="w-3.5 h-3.5 text-[#38BDF8]" /> Time Horizon:
             </span>
             {[
-              { id: "2026-ALL" as const, label: "2026 Buong Taon (YTD)" },
-              { id: "2026-Q3" as const, label: "Q3 (Hulyo – Setyembre)" },
-              { id: "2026-Q2" as const, label: "Q2 (Abril – Hunyo)" },
-              { id: "2026-Q1" as const, label: "Q1 (Enero – Marso)" },
+              { id: "2026-ALL" as const, label: "2026 Full Year (YTD)" },
+              { id: "2026-Q3" as const, label: "Q3 (July – September)" },
+              { id: "2026-Q2" as const, label: "Q2 (April – June)" },
+              { id: "2026-Q1" as const, label: "Q1 (January – March)" },
             ].map((p) => (
               <button
                 key={p.id}
                 onClick={() => setSelectedPeriod(p.id)}
-                className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
+                className={`text-xs px-3.5 py-2 rounded-xl font-semibold transition-all min-h-[40px] cursor-pointer ${
                   selectedPeriod === p.id
-                    ? "bg-[#38BDF8] text-[#070D18] font-bold shadow-md shadow-[#38BDF8]/20"
-                    : "bg-white/5 text-[#94A3B8] hover:bg-white/10 hover:text-white border border-white/5"
+                    ? "bg-[#38BDF8] text-[#071126] font-bold shadow-md shadow-[#38BDF8]/20"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/10"
                 }`}
               >
                 {p.label}
@@ -370,64 +372,64 @@ export default function OpenDataReportsPage() {
 
         {/* 4 Summary Metric Cards */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="p-5 rounded-2xl bg-[#0D1F38]/80 border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-2">
-              <span className="text-xs uppercase tracking-wider font-semibold">Naihaing Ulat</span>
+          <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs uppercase tracking-wider font-bold font-heading">Total Reports Filed</span>
               <Layers className="w-4 h-4 text-[#38BDF8]" />
             </div>
-            <div className="text-3xl font-extrabold text-white">641</div>
+            <div className="text-3xl font-black text-white font-heading">641</div>
             <div className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
-              <span>+18.4%</span> kumpara noong 2025
+              <span>+18.4%</span> YoY vs 2025
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0D1F38]/80 border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-2">
-              <span className="text-xs uppercase tracking-wider font-semibold">Nalutas na Kasalukuyan</span>
+          <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs uppercase tracking-wider font-bold font-heading">Resolution Rate</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             </div>
-            <div className="text-3xl font-extrabold text-emerald-400">90.8%</div>
-            <div className="text-xs text-[#94A3B8] mt-1">577 sa 641 ang nalutas</div>
+            <div className="text-3xl font-black text-emerald-400 font-heading">90.8%</div>
+            <div className="text-xs text-slate-400 mt-1">577 of 641 verified resolved</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0D1F38]/80 border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-2">
-              <span className="text-xs uppercase tracking-wider font-semibold">Oras ng Aksyon</span>
+          <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs uppercase tracking-wider font-bold font-heading">Average SLA Time</span>
               <Clock className="w-4 h-4 text-amber-400" />
             </div>
-            <div className="text-3xl font-extrabold text-amber-300">35.8 hrs</div>
-            <div className="text-xs text-emerald-400 mt-1">Mas mabilis kaysa 48hr SLA</div>
+            <div className="text-3xl font-black text-amber-300 font-heading">35.8 hrs</div>
+            <div className="text-xs text-emerald-400 mt-1">Faster than 48h statutory SLA</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#0D1F38]/80 border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-2">
-              <span className="text-xs uppercase tracking-wider font-semibold">Kasiyahan ng Mamamayan</span>
+          <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs uppercase tracking-wider font-bold font-heading">Citizen Satisfaction</span>
               <ThumbsUp className="w-4 h-4 text-[#38BDF8]" />
             </div>
-            <div className="text-3xl font-extrabold text-white">4.8 / 5.0</div>
-            <div className="text-xs text-[#94A3B8] mt-1">Batay sa 412 na review</div>
+            <div className="text-3xl font-black text-white font-heading">4.8 / 5.0</div>
+            <div className="text-xs text-slate-400 mt-1">Based on 412 verified reviews</div>
           </div>
         </section>
 
         {/* Section 1: Monthly Resolution Trends (Visual CSS Bar Graph) */}
-        <section className="mb-12 p-6 sm:p-8 rounded-2xl bg-[#0D1F38]/70 border border-white/10 backdrop-blur-md">
+        <section className="mb-12 p-6 sm:p-8 rounded-2xl bg-[#112347]/50 border border-white/10 backdrop-blur-md shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-[#38BDF8]" /> Buwanang Dami ng Ulat at Paglutas (2026)
+              <h2 className="text-xl font-bold text-white font-heading flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-[#38BDF8]" /> Monthly Incident & Resolution Trajectory (2026)
               </h2>
-              <p className="text-xs text-[#94A3B8] mt-1">
-                Paghahambing ng kabuuang bilang ng ulat na natanggap laban sa mga matagumpay na naaksyunan
+              <p className="text-xs text-slate-400 mt-1">
+                Comparative analysis of community concerns submitted versus tickets successfully resolved by Paete LGU.
               </p>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-[#38BDF8]/40 border border-[#38BDF8]" />
-                <span className="text-[#94A3B8]">Natanggap</span>
+                <span className="text-slate-300">Submitted</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-emerald-500" />
-                <span className="text-[#94A3B8]">Nalutas</span>
+                <span className="text-slate-300">Resolved</span>
               </div>
             </div>
           </div>
@@ -440,49 +442,44 @@ export default function OpenDataReportsPage() {
 
               return (
                 <div key={item.month} className="flex-1 flex flex-col items-center h-full justify-end group">
-                  {/* Tooltip on hover */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-white bg-[#070D18] px-2 py-1 rounded border border-white/20 mb-2 pointer-events-none text-center whitespace-nowrap shadow-xl">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-white bg-[#071126] px-2 py-1 rounded border border-white/20 mb-2 pointer-events-none text-center whitespace-nowrap shadow-xl">
                     <p className="font-semibold text-[#38BDF8]">{item.month}</p>
-                    <p>{item.resolved} / {item.filed} nalutas</p>
+                    <p>{item.resolved} of {item.filed} solved</p>
                   </div>
 
-                  {/* Bars */}
                   <div className="w-full flex items-end justify-center gap-1 sm:gap-2 h-full">
-                    {/* Filed bar */}
                     <div
                       className="w-full max-w-[18px] bg-[#38BDF8]/40 border border-[#38BDF8]/70 rounded-t-sm transition-all duration-500 group-hover:bg-[#38BDF8]/60"
                       style={{ height: `${filedHeight}%` }}
-                      title={`Natanggap: ${item.filed}`}
+                      title={`Submitted: ${item.filed}`}
                     />
-                    {/* Resolved bar */}
                     <div
                       className="w-full max-w-[18px] bg-emerald-500 rounded-t-sm transition-all duration-500 group-hover:bg-emerald-400"
                       style={{ height: `${resolvedHeight}%` }}
-                      title={`Nalutas: ${item.resolved}`}
+                      title={`Resolved: ${item.resolved}`}
                     />
                   </div>
 
-                  {/* Month Label */}
-                  <span className="text-[11px] font-medium text-[#94A3B8] mt-3">{item.shortMonth}</span>
+                  <span className="text-[11px] font-medium text-slate-400 mt-3 font-heading">{item.shortMonth}</span>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-[11px] text-[#64748B]">
-            <span>* Nagtatala ng pinakamataas na dami ng ulat tuwing tag-ulan (Hulyo - Agosto) sanhi ng mga baha at sirang kanal.</span>
-            <span>Pinagkunan: Paete Municipal Incident Command System (MICS)</span>
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+            <span>* Peak ticket volume occurs during the monsoon season (July – August) due to canal obstructions and storm runoff.</span>
+            <span>Source: Paete Municipal Incident Command System (MICS)</span>
           </div>
         </section>
 
         {/* Section 2: Category Breakdown */}
-        <section className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-amber-400" /> Paghahati Ayon sa Kategorya
+        <section className="mb-12 space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-white font-heading flex items-center gap-2">
+              <Layers className="w-5 h-5 text-amber-400" /> Category Distribution & Resolution Yield
             </h2>
-            <p className="text-xs text-[#94A3B8] mt-1">
-              Distribusyon ng 641 na naihaing usapin sa bawat sektor ng serbisyo publiko
+            <p className="text-xs text-slate-400 mt-1">
+              Distribution of 641 citizen reports categorized across primary municipal service sectors.
             </p>
           </div>
 
@@ -490,14 +487,14 @@ export default function OpenDataReportsPage() {
             {CATEGORY_DATA.map((cat) => (
               <div
                 key={cat.id}
-                className="p-5 rounded-2xl bg-[#0D1F38]/60 border border-white/10 hover:border-white/20 transition-all"
+                className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 hover:border-white/20 transition-all shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-2xl" aria-hidden="true">
                     {cat.icon}
                   </span>
                   <span
-                    className="text-xs font-bold px-2 py-0.5 rounded-full"
+                    className="text-xs font-bold px-2 py-0.5 rounded-full font-mono"
                     style={{
                       backgroundColor: `${cat.color}20`,
                       color: cat.color,
@@ -508,13 +505,12 @@ export default function OpenDataReportsPage() {
                   </span>
                 </div>
 
-                <h3 className="font-bold text-white text-sm mb-1">{cat.name}</h3>
-                <div className="flex items-center justify-between text-xs text-[#94A3B8] mb-3">
-                  <span>Kabuuang Ulat: <strong className="text-white">{cat.count}</strong></span>
-                  <span>Nalutas: <strong className="text-emerald-400">{cat.resolvedCount}</strong></span>
+                <h3 className="font-bold text-white text-sm mb-1 font-heading">{cat.name}</h3>
+                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
+                  <span>Total Tickets: <strong className="text-white">{cat.count}</strong></span>
+                  <span>Resolved: <strong className="text-emerald-400">{cat.resolvedCount}</strong></span>
                 </div>
 
-                {/* Progress bar */}
                 <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
@@ -524,8 +520,8 @@ export default function OpenDataReportsPage() {
                     }}
                   />
                 </div>
-                <div className="mt-2 text-[10px] text-right text-[#64748B]">
-                  {Math.round((cat.resolvedCount / cat.count) * 100)}% resolution rate
+                <div className="mt-2 text-[10px] text-right text-slate-500 font-mono">
+                  {Math.round((cat.resolvedCount / cat.count) * 100)}% resolution yield
                 </div>
               </div>
             ))}
@@ -533,31 +529,31 @@ export default function OpenDataReportsPage() {
         </section>
 
         {/* Section 3: Barangay Performance Benchmark Table */}
-        <section className="mb-12 p-6 sm:p-8 rounded-2xl bg-[#0D1F38]/70 border border-white/10 backdrop-blur-md">
+        <section className="mb-12 p-6 sm:p-8 rounded-2xl bg-[#112347]/50 border border-white/10 backdrop-blur-md shadow-xl">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-emerald-400" /> Kahusayan ng Bawat Barangay
+              <h2 className="text-xl font-bold text-white font-heading flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-emerald-400" /> Neighborhood Benchmark Index (9 Barangays)
               </h2>
-              <p className="text-xs text-[#94A3B8] mt-1">
-                Talaan ng pagtugon ng 9 na barangay sa Paete mula Enero hanggang Setyembre 2026
+              <p className="text-xs text-slate-400 mt-1">
+                Comparative accountability metrics for all nine barangays in Paete from January to September 2026.
               </p>
             </div>
-            <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-              Lahat ay higit sa 89% Resolution Target
+            <span className="text-xs px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold font-mono">
+              All 9 Barangays Exceed 89% Resolution Target
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-white/10 text-[#64748B] uppercase font-semibold">
+                <tr className="border-b border-white/10 text-slate-400 uppercase font-bold font-heading text-[11px]">
                   <th className="pb-3 pl-2">Barangay</th>
-                  <th className="pb-3 text-right">Kabuuang Ulat</th>
-                  <th className="pb-3 text-right">Nalutas</th>
-                  <th className="pb-3 text-right">Isinasagawa</th>
-                  <th className="pb-3 text-right">Karaniwang Oras</th>
-                  <th className="pb-3 text-right pr-2">Rating ng Lunas</th>
+                  <th className="pb-3 text-right">Total Filed</th>
+                  <th className="pb-3 text-right">Resolved</th>
+                  <th className="pb-3 text-right">In Progress</th>
+                  <th className="pb-3 text-right">Avg Response</th>
+                  <th className="pb-3 text-right pr-2">Resolution Yield</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -569,12 +565,12 @@ export default function OpenDataReportsPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald-400" />
                         {b.barangay}
                       </td>
-                      <td className="py-3.5 text-right text-[#94A3B8]">{b.totalFiled}</td>
-                      <td className="py-3.5 text-right font-semibold text-emerald-400">{b.resolved}</td>
-                      <td className="py-3.5 text-right text-amber-300">{b.inProgress}</td>
-                      <td className="py-3.5 text-right text-[#94A3B8]">{b.avgHours} oras</td>
+                      <td className="py-3.5 text-right text-slate-300 font-mono">{b.totalFiled}</td>
+                      <td className="py-3.5 text-right font-semibold text-emerald-400 font-mono">{b.resolved}</td>
+                      <td className="py-3.5 text-right text-amber-300 font-mono">{b.inProgress}</td>
+                      <td className="py-3.5 text-right text-slate-300 font-mono">{b.avgHours} hrs</td>
                       <td className="py-3.5 text-right pr-2">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           {rate}%
                         </span>
                       </td>
@@ -587,16 +583,16 @@ export default function OpenDataReportsPage() {
         </section>
 
         {/* Section 4: Open Datasets Download Center */}
-        <section className="mb-12">
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#38BDF8]/10 border border-[#38BDF8]/20 text-[#38BDF8] mb-2">
+        <section className="mb-12 space-y-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#38BDF8]/15 border border-[#38BDF8]/30 text-[#38BDF8] mb-2 font-heading">
               <Download className="w-3.5 h-3.5" />
-              <span>Bukas na Datos (Open Data Hub)</span>
+              <span>Public Domain Data Hub</span>
             </div>
-            <h2 className="text-2xl font-bold text-white">Mag-download ng Datos (CSV / JSON)</h2>
-            <p className="text-xs text-[#94A3B8] mt-1 max-w-2xl">
-              Malugod naming ibinabahagi ang mga dataset ng pamahalaan para sa mga mamamahayag, mag-aaral, mananaliksik,
-              at mamamayan. Libreng magagamit sa ilalim ng Open Data Commons Public Domain Dedication (PDDL).
+            <h2 className="text-2xl font-bold text-white font-heading">Download Raw Datasets (CSV & JSON)</h2>
+            <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              We proactively publish municipal records for journalists, students, civic technologists, and researchers.
+              Freely reusable under the Open Data Commons Public Domain Dedication (PDDL).
             </p>
           </div>
 
@@ -604,30 +600,30 @@ export default function OpenDataReportsPage() {
             {OPEN_DATASETS.map((item) => (
               <div
                 key={item.id}
-                className="p-6 rounded-2xl bg-[#0D1F38]/80 border border-white/10 flex flex-col justify-between hover:border-[#38BDF8]/40 transition-all shadow-lg"
+                className="p-6 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col justify-between hover:border-[#38BDF8]/40 transition-all shadow-xl"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs text-[#64748B] mb-3">
+                  <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
                     <span className="px-2 py-0.5 rounded bg-white/5 font-mono text-[10px] text-[#38BDF8]">
-                      {item.recordsCount} Tala / Rows
+                      {item.recordsCount} Records
                     </span>
-                    <span>Huli: {item.lastUpdated}</span>
+                    <span>Updated: {item.lastUpdated}</span>
                   </div>
 
-                  <h3 className="text-base font-bold text-white mb-2 leading-snug">{item.title}</h3>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed mb-6">{item.description}</p>
+                  <h3 className="text-base font-bold text-white mb-2 leading-snug font-heading">{item.title}</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed mb-6">{item.description}</p>
                 </div>
 
                 <div className="pt-4 border-t border-white/10 flex items-center gap-3">
                   <button
                     onClick={() => handleDownload(item, "csv")}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                   >
-                    <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
+                    <FileSpreadsheet className="w-3.5 h-3.5" /> Download CSV
                   </button>
                   <button
                     onClick={() => handleDownload(item, "json")}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#38BDF8]/15 hover:bg-[#38BDF8]/25 border border-[#38BDF8]/30 text-[#38BDF8] text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#38BDF8]/15 hover:bg-[#38BDF8]/25 border border-[#38BDF8]/30 text-[#38BDF8] text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                   >
                     <FileCode2 className="w-3.5 h-3.5" /> JSON
                   </button>
@@ -638,28 +634,29 @@ export default function OpenDataReportsPage() {
         </section>
 
         {/* Section 5: Data Governance & Privacy Guarantee */}
-        <section className="p-6 rounded-2xl bg-[#0A1931]/60 border border-white/10 text-xs text-[#94A3B8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <section className="p-6 sm:p-7 rounded-2xl bg-[#0A1931]/60 border border-white/10 text-xs text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
           <div className="flex items-start gap-3">
             <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-sm font-bold text-white mb-1">Proteksyon sa Pagkakakilanlan at Open Data Policy</h4>
-              <p className="leading-relaxed">
-                Ang lahat ng ulat at datos na nailalathala rito ay dumaan sa proseso ng de-identification upang
-                maprotektahan ang pagkakakilanlan ng bawat nag-ulat alinsunod sa Batas Republika Blg. 10173 (Data
-                Privacy Act of 2012).
+              <h4 className="text-sm font-bold text-white mb-1 font-heading">
+                De-identification Guarantee & Open Governance Policy
+              </h4>
+              <p className="leading-relaxed text-slate-300 max-w-2xl">
+                All records published within this hub undergo strict algorithmic de-identification. Names, phone
+                numbers, and residential house coordinates are stripped in compliance with Republic Act No. 10173.
               </p>
             </div>
           </div>
           <Link
             href="/legal/privacy"
-            className="shrink-0 inline-flex items-center gap-1 text-xs text-[#38BDF8] hover:underline font-medium"
+            className="shrink-0 inline-flex items-center gap-1 text-xs text-[#38BDF8] hover:underline font-semibold"
           >
-            Basahin ang Patakaran sa Privacy <ArrowUpRight className="w-3.5 h-3.5" />
+            Review Data Privacy Charter <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </section>
 
-        <footer className="mt-12 text-center text-xs text-[#64748B]">
-          Munisipalidad ng Paete, Laguna &bull; Tanggapan ng Punong Bayan at Municipal Planning and Development
+        <footer className="mt-12 text-center text-xs text-slate-500 font-mono">
+          Municipality of Paete, Laguna &bull; Office of the Municipal Mayor &amp; Municipal Planning and Development
           Coordinator (MPDC)
         </footer>
       </main>

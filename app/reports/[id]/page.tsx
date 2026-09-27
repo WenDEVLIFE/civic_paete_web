@@ -65,44 +65,44 @@ interface DetailedReport {
 const MOCK_REPORTS_DATABASE: Record<string, DetailedReport> = {
   "rep-1": {
     id: "rep-1",
-    title: "Sirang Streetlight sa kahabaan ng Quesada Street",
+    title: "Non-functional Streetlights along Quesada Street",
     description:
-      "Madilim na bahagi sa gabi at delikado para sa mga estudyante at mamamayang umuuwi mula sa trabaho. May tatlong poste na hindi umiilaw mula noong nakaraang linggo.",
+      "A dark stretch of road at night creating hazardous transit conditions for students and commuters returning home. Three adjacent lamp posts have been unlit since last week.",
     category: "lighting",
     barangay: "Bagumbayan",
-    locationDetails: "Tapat ng dating barangay hall malapit sa kanto ng Quesada St.",
+    locationDetails: "Fronting old barangay hall near the junction of Quesada St.",
     submittedBy: "Juan Dela Cruz (Verified Resident)",
     status: "in_progress",
-    date: "Setyembre 24, 2026",
+    date: "September 24, 2026",
     upvotes: 19,
     assignedDepartment: "Municipal Engineering Office",
     timeline: [
       {
-        title: "Pormal na Naisumite ng Mamamayan",
-        departmentOrActor: "Mamamayan (Google Verified Account)",
-        timestamp: "Setyembre 24, 2026 • 08:30 AM",
-        notes: "Matagumpay na naitala ang ulat sa digital civic system ng Paete.",
+        title: "Officially Submitted by Resident",
+        departmentOrActor: "Verified Citizen (Google Auth)",
+        timestamp: "September 24, 2026 • 08:30 AM",
+        notes: "Report securely logged into the Paete digital civic management system.",
         status: "completed",
       },
       {
-        title: "Sinuri at Bineripika ng LGU Admin",
+        title: "Triage & Validation by Municipal Admin",
         departmentOrActor: "Municipal Command Center",
-        timestamp: "Setyembre 24, 2026 • 11:15 AM",
-        notes: "Na-validate ang lokasyon at ini-assign ang priority level.",
+        timestamp: "September 24, 2026 • 11:15 AM",
+        notes: "Location validated, assigned high priority dispatch, and routed to Engineering.",
         status: "completed",
       },
       {
-        title: "Kasalukuyang Inaaksyunan sa Field",
+        title: "Active Field Operations & Inspection",
         departmentOrActor: "Municipal Engineering Office",
-        timestamp: "Setyembre 25, 2026 • 02:40 PM",
-        notes: "Nainspeksyon ng electrical maintenance team; nakatakdang palitan ang 100W LED lamp fixture bukas ng umaga.",
+        timestamp: "September 25, 2026 • 02:40 PM",
+        notes: "Inspected by electrical maintenance team; replacement 100W LED lamp fixture scheduled for installation tomorrow morning.",
         status: "current",
       },
       {
-        title: "Pagkumpleto at Paglalagay ng Patunay",
+        title: "Resolution Clearance & Photographic Audit",
         departmentOrActor: "Municipal Engineering & LGU Inspector",
-        timestamp: "Inaasahang petsa: Setyembre 27, 2026",
-        notes: "Mag-a-upload ng patunay ng maayos nang ilaw bago pormal na isara ang ticket.",
+        timestamp: "Target: September 27, 2026",
+        notes: "Clearance photo and verification report will be uploaded before closing the public ticket.",
         status: "upcoming",
       },
     ],
@@ -111,38 +111,38 @@ const MOCK_REPORTS_DATABASE: Record<string, DetailedReport> = {
         id: "c-1",
         authorName: "Maria Santos",
         authorRole: "resident",
-        timestamp: "2 araw ang nakalipas",
-        content: "Napakadilim nga diyan pag gabi. Buti naman at kasalukuyan nang inaaksyunan.",
+        timestamp: "2 days ago",
+        content: "Corroborated. This corner is completely dark past 8:00 PM when retail staff and students walk home.",
       },
       {
         id: "c-2",
         authorName: "Engr. Marco Adea",
         authorRole: "official",
-        timestamp: "Kahapon",
-        content: "Naka-lineup po ang electrical bucket truck ng munisipyo para rito.",
+        timestamp: "Yesterday",
+        content: "Logged and scheduled. The municipal electrical bucket truck is queued for this sector.",
         isOfficial: true,
       },
     ],
   },
   "rep-2": {
     id: "rep-2",
-    title: "Kanal na barado na nagdudulot ng mabagal na pag-agos",
+    title: "Obstructed Drainage Canal Causing Stormwater Overflow",
     description:
-      "Kailangang masipsip o linisin bago sumapit ang malalakas na buhos ng ulan upang maiwasan ang pag-apaw sa kabahayan.",
+      "Culvert requires immediate clearing before seasonal monsoon downpours to prevent backflow and flash flooding into adjacent residential properties.",
     category: "drainage",
     barangay: "Ibaba del Sur",
-    locationDetails: "Likod ng multi-purpose hall, Ibaba del Sur",
+    locationDetails: "Behind multi-purpose hall, Ibaba del Sur",
     submittedBy: "Maria Santos-Reyes (Verified Resident)",
     status: "pending",
-    date: "Setyembre 25, 2026",
+    date: "September 25, 2026",
     upvotes: 14,
     assignedDepartment: "MENRO / Barangay Maintenance",
     timeline: [
       {
-        title: "Nai-post ng Mamamayan",
+        title: "Logged by Resident",
         departmentOrActor: "Resident Submission",
-        timestamp: "Setyembre 25, 2026 • 09:10 AM",
-        notes: "Naka-queue para sa ocular inspection ng MENRO Paete.",
+        timestamp: "September 25, 2026 • 09:10 AM",
+        notes: "Queued for ocular inspection by MENRO Paete field team.",
         status: "completed",
       },
     ],
@@ -150,23 +150,23 @@ const MOCK_REPORTS_DATABASE: Record<string, DetailedReport> = {
   },
   "rep-3": {
     id: "rep-3",
-    title: "Naayos na Pothole sa Kanto ng Pamilihan",
+    title: "Remediated Road Pothole near Public Market Junction",
     description:
-      "Nalapatan na ng aspalto ng engineering office matapos i-ulat noong nakaraang linggo.",
+      "Asphalt cold-patch applied by municipal engineering following resident reporting last week.",
     category: "road",
     barangay: "Maytoong",
-    locationDetails: "Kanto ng J. Rizal at Pamilihan Bayan",
+    locationDetails: "Corner of J. Rizal and Public Market Road",
     submittedBy: "Roberto Fadul (Verified Resident)",
     status: "resolved",
-    date: "Setyembre 22, 2026",
+    date: "September 22, 2026",
     upvotes: 35,
     assignedDepartment: "Municipal Engineering Office",
     timeline: [
       {
-        title: "Opisyal na Nalutas (Resolved)",
+        title: "Officially Remediated & Resolved",
         departmentOrActor: "LGU Admin & Barangay Maytoong",
-        timestamp: "Setyembre 23, 2026 • 04:00 PM",
-        notes: "Pormal nang nalutas at binigyang clearance para sa kaligtasan ng mga motorista.",
+        timestamp: "September 23, 2026 • 04:00 PM",
+        notes: "Remediation verified and certified safe for local vehicular and pedestrian transit.",
         status: "completed",
       },
     ],
@@ -182,11 +182,10 @@ export default function ReportDetailPage({
   const unwrappedParams = use(params);
   const reportId = unwrappedParams.id;
 
-  // Fallback to rep-1 if ID is not in mock DB
   const initialReport = MOCK_REPORTS_DATABASE[reportId] || {
     ...MOCK_REPORTS_DATABASE["rep-1"],
     id: reportId,
-    title: `Ulat #${reportId} sa Bayan ng Paete`,
+    title: `Report #${reportId} in Municipality of Paete`,
   };
 
   const [report, setReport] = useState<DetailedReport>(initialReport);
@@ -250,7 +249,7 @@ export default function ReportDetailPage({
     e.preventDefault();
     if (!commentInput.trim()) return;
 
-    let authorName = "Mamamayan ng Paete";
+    let authorName = "Paete Resident";
     let authorRole: "resident" | "official" | "governor" = "resident";
     let isOfficial = false;
 
@@ -259,7 +258,7 @@ export default function ReportDetailPage({
       authorRole = officerSession.role === "governor" ? "governor" : "official";
       isOfficial = true;
     } else if (residentUser) {
-      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Mamamayan";
+      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Verified Resident";
     }
 
     const newComm: ReportComment = {
@@ -267,7 +266,7 @@ export default function ReportDetailPage({
       authorName,
       authorAvatar: residentUser?.photoURL || undefined,
       authorRole,
-      timestamp: "Ngayon lang",
+      timestamp: "Just now",
       content: commentInput.trim(),
       isOfficial,
     };
@@ -279,18 +278,18 @@ export default function ReportDetailPage({
   const handleUpdateStatus = (newStatus: DetailedReport["status"]) => {
     setIsUpdatingStatus(true);
 
-    const actor = officerSession?.name || "Opisyal ng Bayan";
+    const actor = officerSession?.name || "Municipal Official";
     const officeName =
       officerSession?.role === "governor"
-        ? "Tanggapan ng Gobernador - Laguna"
-        : officerSession?.office || "Pamahalaang Bayan ng Paete";
+        ? "Office of the Provincial Governor - Laguna"
+        : officerSession?.office || "Municipality of Paete";
 
-    const note = officerNoteInput.trim() || `Na-update ang status papuntang '${newStatus}'.`;
+    const note = officerNoteInput.trim() || `Status updated to '${newStatus}'.`;
 
     const newTimelineItem: TimelineEvent = {
-      title: `Opisyal na Pagbabago: ${newStatus.toUpperCase()}`,
+      title: `Official Action: ${newStatus.toUpperCase()}`,
       departmentOrActor: `${actor} (${officeName})`,
-      timestamp: "Ngayon lang",
+      timestamp: "Just now",
       notes: note,
       status: "completed",
     };
@@ -312,28 +311,28 @@ export default function ReportDetailPage({
     { label: string; bg: string; text: string; border: string; icon: React.ReactNode }
   > = {
     pending: {
-      label: "Pending Review",
+      label: "Pending Verification",
       bg: "bg-amber-500/15",
       text: "text-amber-300",
       border: "border-amber-500/30",
       icon: <Clock className="w-3.5 h-3.5" />,
     },
     in_progress: {
-      label: "Kasalukuyang Inaaksyunan",
+      label: "In Progress",
       bg: "bg-blue-500/15",
       text: "text-blue-300",
       border: "border-blue-500/30",
       icon: <Clock className="w-3.5 h-3.5" />,
     },
     resolved: {
-      label: "Opisyal na Naaksyunan (Resolved)",
+      label: "Resolved",
       bg: "bg-emerald-500/15",
       text: "text-emerald-300",
       border: "border-emerald-500/30",
       icon: <CheckCircle2 className="w-3.5 h-3.5" />,
     },
     urgent: {
-      label: "Kritikal / Public Hazard",
+      label: "Critical Hazard",
       bg: "bg-red-500/15",
       text: "text-red-300",
       border: "border-red-500/30",
@@ -352,11 +351,11 @@ export default function ReportDetailPage({
         {/* Back Link */}
         <div>
           <Link
-            href="/#mga-ulat"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition-all cursor-pointer"
+            href="/#community-reports"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl border border-white/10 transition-all cursor-pointer min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Bumalik sa Lahat ng mga Ulat</span>
+            <span>Back to All Community Reports</span>
           </Link>
         </div>
 
@@ -379,30 +378,30 @@ export default function ReportDetailPage({
               <button
                 type="button"
                 onClick={handleUpvote}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer min-h-[44px] ${
                   hasUpvoted
                     ? "bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30"
                     : "bg-white/5 text-slate-300 hover:bg-blue-600/20 hover:text-blue-300 border-white/10"
                 }`}
               >
                 <ThumbsUp className="w-3.5 h-3.5" />
-                <span>Suportahan ({upvotes})</span>
+                <span>Upvote ({upvotes})</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all text-xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all text-xs cursor-pointer min-h-[44px]"
               >
                 {shareCopied ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Na-kopya!</span>
+                    <span className="text-emerald-400 font-semibold">Copied!</span>
                   </>
                 ) : (
                   <>
                     <Share2 className="w-3.5 h-3.5" />
-                    <span>I-bahagi</span>
+                    <span>Share</span>
                   </>
                 )}
               </button>
@@ -413,14 +412,14 @@ export default function ReportDetailPage({
             {report.title}
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed mb-6">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed mb-6 font-sans">
             {report.description}
           </p>
 
           {/* Quick Meta Data Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs border-t border-white/10 pt-4">
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <span className="text-slate-400 block mb-1">Lokasyon sa Bayan</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <span className="text-slate-400 block mb-1">Paete Location</span>
               <div className="flex items-center gap-1.5 font-semibold text-white">
                 <MapPin className="w-4 h-4 text-red-400 shrink-0" />
                 <span>Brgy. {report.barangay}</span>
@@ -430,19 +429,19 @@ export default function ReportDetailPage({
               </span>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <span className="text-slate-400 block mb-1">Nakatokang Opisina ng LGU</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <span className="text-slate-400 block mb-1">Assigned Municipal Office</span>
               <div className="flex items-center gap-1.5 font-semibold text-sky-300">
                 <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
                 <span>{report.assignedDepartment}</span>
               </div>
               <span className="text-[11px] text-slate-400 mt-0.5 block">
-                Pamahalaang Bayan ng Paete
+                Municipality of Paete, Laguna
               </span>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <span className="text-slate-400 block mb-1">Nag-ulat & Petsa</span>
+            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5">
+              <span className="text-slate-400 block mb-1">Reporter & Date Logged</span>
               <div className="flex items-center gap-1.5 font-semibold text-white">
                 <UserCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="truncate">{report.submittedBy}</span>
@@ -455,14 +454,14 @@ export default function ReportDetailPage({
           </div>
         </section>
 
-        {/* OFFICER ACTION TOOLBAR (FOR ADMIN & GOVERNOR) */}
+        {/* OFFICER ACTION TOOLBAR */}
         {isOfficer && (
           <section className="p-5 rounded-2xl bg-gradient-to-r from-blue-950/50 via-[#0A1931] to-blue-950/30 border border-blue-500/30 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-bold text-white">
-                  Officer Action Toolbar: {officerSession?.name}
+                <span className="text-sm font-bold text-white font-heading">
+                  Officer Action Console: {officerSession?.name}
                 </span>
                 <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   {officerSession?.role}
@@ -472,9 +471,9 @@ export default function ReportDetailPage({
               <button
                 type="button"
                 onClick={() => setShowOfficerControls(!showOfficerControls)}
-                className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-all cursor-pointer min-h-[36px]"
               >
-                <span>{showOfficerControls ? "Itago ang Controls" : "I-update ang Status ng Ulat"}</span>
+                <span>{showOfficerControls ? "Hide Controls" : "Update Report Status"}</span>
                 {showOfficerControls ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
@@ -485,7 +484,7 @@ export default function ReportDetailPage({
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("pending")}
-                    className="p-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/30 text-amber-300 transition-all cursor-pointer"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/30 text-amber-300 transition-all cursor-pointer min-h-[44px]"
                   >
                     ⏳ Pending
                   </button>
@@ -493,7 +492,7 @@ export default function ReportDetailPage({
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("in_progress")}
-                    className="p-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 text-blue-300 transition-all cursor-pointer"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 text-blue-300 transition-all cursor-pointer min-h-[44px]"
                   >
                     ⚙️ In Progress
                   </button>
@@ -501,7 +500,7 @@ export default function ReportDetailPage({
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("resolved")}
-                    className="p-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 text-emerald-300 transition-all cursor-pointer"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 text-emerald-300 transition-all cursor-pointer min-h-[44px]"
                   >
                     ✅ Resolved
                   </button>
@@ -509,28 +508,28 @@ export default function ReportDetailPage({
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("urgent")}
-                    className="p-2 rounded-xl text-xs font-bold bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-red-300 transition-all cursor-pointer"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-red-300 transition-all cursor-pointer min-h-[44px]"
                   >
-                    🚨 Urgent / Hazard
+                    🚨 Critical Hazard
                   </button>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-[11px] font-semibold text-slate-400 uppercase">
-                    Opisyal na Tala o Resolution Note:
+                    Official Resolution Note / Public Disposition:
                   </label>
                   <input
                     type="text"
                     value={officerNoteInput}
                     onChange={(e) => setOfficerNoteInput(e.target.value)}
-                    placeholder="Ilagay ang update ukol sa field inspection, team dispatch, o completion..."
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none"
+                    placeholder="Enter dispatch details, team schedule, or remediation summary..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none min-h-[44px]"
                   />
                 </div>
 
                 {isUpdatingStatus && (
                   <div className="text-xs text-blue-400 animate-pulse font-medium">
-                    Ipinapasok ang opisyal na update sa database...
+                    Recording official update to government database...
                   </div>
                 )}
               </div>
@@ -602,7 +601,7 @@ export default function ReportDetailPage({
                       <span>{step.departmentOrActor}</span>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
                       {step.notes}
                     </p>
                   </div>
@@ -618,17 +617,17 @@ export default function ReportDetailPage({
             <div className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-blue-400" />
               <h2 className="text-lg sm:text-xl font-bold font-heading text-white">
-                Usapan ng Komunidad at mga Opisyal ({comments.length})
+                Community Discussion & Official Notes ({comments.length})
               </h2>
             </div>
-            <span className="text-xs text-slate-400">Public Verification Thread</span>
+            <span className="text-xs text-slate-400 font-sans">Public Verification Thread</span>
           </div>
 
           {/* Comments Feed */}
           <div className="space-y-3">
             {comments.length === 0 ? (
-              <div className="text-center py-6 text-xs text-slate-500 italic bg-white/[0.02] rounded-xl border border-white/5">
-                Wala pang komento sa ulat na ito. Maging una sa pagpapatunay!
+              <div className="text-center py-6 text-xs text-slate-500 italic bg-white/[0.02] rounded-xl border border-white/5 font-sans">
+                No comments logged for this report. Be the first to corroborate!
               </div>
             ) : (
               comments.map((comm) => (
@@ -642,19 +641,19 @@ export default function ReportDetailPage({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white text-xs sm:text-sm">
+                      <span className="font-bold text-white text-xs sm:text-sm font-heading">
                         {comm.authorName}
                       </span>
                       {comm.isOfficial && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">
                           <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                          <span>Opisyal ng Pamahalaan</span>
+                          <span>Government Official</span>
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-slate-500">{comm.timestamp}</span>
+                    <span className="text-[11px] text-slate-500 font-mono">{comm.timestamp}</span>
                   </div>
-                  <p className="text-slate-300 text-xs sm:text-sm">{comm.content}</p>
+                  <p className="text-slate-300 text-xs sm:text-sm font-sans">{comm.content}</p>
                 </div>
               ))
             )}
@@ -668,20 +667,20 @@ export default function ReportDetailPage({
               onChange={(e) => setCommentInput(e.target.value)}
               placeholder={
                 officerSession
-                  ? `Mag-iwan ng opisyal na tugon bilang ${officerSession.name}...`
+                  ? `Leave official reply as ${officerSession.name}...`
                   : residentUser
-                  ? `Magkomento bilang ${residentUser.displayName || "Resident"}...`
-                  : "Mag-iwan ng komento o dagdag na patunay sa concern na ito..."
+                  ? `Comment as ${residentUser.displayName || "Resident"}...`
+                  : "Post public comment or corroborating photographic details..."
               }
-              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none transition-all"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
             />
             <button
               type="submit"
               disabled={!commentInput.trim()}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer"
+              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer min-h-[44px]"
             >
               <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">Ipadala</span>
+              <span className="hidden sm:inline">Submit</span>
             </button>
           </form>
         </section>

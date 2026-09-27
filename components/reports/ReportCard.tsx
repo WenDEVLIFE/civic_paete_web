@@ -55,7 +55,7 @@ export interface CommunityReport {
   comments?: ReportComment[];
   /** True when the submitter chose to post anonymously */
   isAnonymous?: boolean;
-  /** Public-facing alias shown instead of the real name (e.g. "Protektadong Mamamayan #104") */
+  /** Public-facing alias shown instead of the real name (e.g. "Protected Citizen #104") */
   anonymousAlias?: string;
 }
 
@@ -147,7 +147,7 @@ export function ReportCard({
     e.preventDefault();
     if (!newCommentText.trim()) return;
 
-    let authorName = "Mamamayan ng Paete";
+    let authorName = "Paete Resident";
     let authorRole: "resident" | "official" | "governor" = "resident";
     let isOfficial = false;
 
@@ -156,7 +156,7 @@ export function ReportCard({
       authorRole = officerSession.role === "governor" ? "governor" : "official";
       isOfficial = true;
     } else if (residentUser) {
-      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Mamamayan";
+      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Verified Citizen";
     }
 
     const commentObj: ReportComment = {
@@ -164,7 +164,7 @@ export function ReportCard({
       authorName,
       authorAvatar: residentUser?.photoURL || undefined,
       authorRole,
-      timestamp: "Ngayon lang",
+      timestamp: "Just now",
       content: newCommentText.trim(),
       isOfficial,
     };
@@ -178,11 +178,11 @@ export function ReportCard({
     setIsSavingStatus(true);
     setCurrentStatus(statusTarget);
 
-    const actor = officerSession?.name || "Opisyal ng Bayan";
+    const actor = officerSession?.name || "Municipal Official";
     const roleTitle =
       officerSession?.role === "governor"
-        ? "Tanggapan ng Gobernador - Laguna"
-        : officerSession?.office || "Pamahalaang Bayan ng Paete";
+        ? "Office of the Provincial Governor - Laguna"
+        : officerSession?.office || "Municipality of Paete";
 
     setOfficialActor(actor);
     setOfficialRoleTitle(roleTitle);
@@ -205,7 +205,7 @@ export function ReportCard({
     { label: string; bg: string; text: string; border: string; step: number; icon: React.ReactNode }
   > = {
     pending: {
-      label: "Binasang Ulat (Pending)",
+      label: "Pending Verification",
       bg: "bg-amber-500/15",
       text: "text-amber-300",
       border: "border-amber-500/30",
@@ -213,7 +213,7 @@ export function ReportCard({
       icon: <Clock className="w-3.5 h-3.5" />,
     },
     urgent: {
-      label: "Kritikal / Hazard",
+      label: "Critical Hazard",
       bg: "bg-red-500/15",
       text: "text-red-300",
       border: "border-red-500/30",
@@ -221,7 +221,7 @@ export function ReportCard({
       icon: <AlertTriangle className="w-3.5 h-3.5" />,
     },
     in_progress: {
-      label: "Kasalukuyang Inaaksyunan",
+      label: "In Progress",
       bg: "bg-blue-500/15",
       text: "text-blue-300",
       border: "border-blue-500/30",
@@ -229,7 +229,7 @@ export function ReportCard({
       icon: <Clock className="w-3.5 h-3.5" />,
     },
     resolved: {
-      label: "Naaksyunan Na (Resolved)",
+      label: "Resolved",
       bg: "bg-emerald-500/15",
       text: "text-emerald-300",
       border: "border-emerald-500/30",
@@ -239,11 +239,11 @@ export function ReportCard({
   };
 
   const categoryLabels: Record<CommunityReport["category"], string> = {
-    waste: "Kalinisan at Basura",
-    lighting: "Ilaw sa Kalsada",
-    road: "Kalsada at Pothole",
-    drainage: "Kanal at Tubig-Baha",
-    safety: "Kaligtasan ng Publiko",
+    waste: "Solid Waste",
+    lighting: "Streetlights",
+    road: "Roads & Potholes",
+    drainage: "Drainage Channels",
+    safety: "Public Safety",
   };
 
   const currentCfg = statusConfig[currentStatus];
@@ -257,7 +257,6 @@ export function ReportCard({
           {/* Author Avatar */}
           <div className="relative">
             {report.isAnonymous ? (
-              /* Anonymous masked avatar */
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center border border-slate-600/40"
                 style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}
@@ -274,10 +273,9 @@ export function ReportCard({
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 border border-white/20 text-white font-bold text-xs flex items-center justify-center shadow-inner">
-                {report.authorName ? report.authorName.slice(0, 2).toUpperCase() : "MP"}
+                {report.authorName ? report.authorName.slice(0, 2).toUpperCase() : "PR"}
               </div>
             )}
-            {/* Verified dot — hidden for anonymous */}
             {!report.isAnonymous && (
               <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0A1931] flex items-center justify-center text-[9px] text-white">
                 ✓
@@ -290,8 +288,8 @@ export function ReportCard({
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-white hover:text-blue-300 transition-colors">
                 {report.isAnonymous
-                  ? (report.anonymousAlias || "Protektadong Mamamayan")
-                  : (report.authorName || "Mamamayan ng Paete")}
+                  ? (report.anonymousAlias || "Protected Citizen")
+                  : (report.authorName || "Paete Resident")}
               </span>
               {report.isAnonymous ? (
                 <span
@@ -303,7 +301,7 @@ export function ReportCard({
                   }}
                 >
                   <Shield className="w-3 h-3" aria-hidden="true" />
-                  <span>Nakaprotektang Ulat</span>
+                  <span>Shielded Report</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
@@ -364,7 +362,7 @@ export function ReportCard({
           </div>
         )}
 
-        {/* 3. CIVIC LIFECYCLE PROGRESS PIPELINE (CIVICPLUS STYLE) */}
+        {/* 3. CIVIC LIFECYCLE PROGRESS PIPELINE */}
         <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2 mt-3">
           <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
             <span className="flex items-center gap-1.5 text-blue-400">
@@ -382,8 +380,8 @@ export function ReportCard({
                   : "bg-white/5 border-white/5 text-slate-500"
               }`}
             >
-              <div className="text-[10px] font-bold">1. Naisumite</div>
-              <div className="text-[9px] text-slate-400">Community Verified</div>
+              <div className="text-[10px] font-bold">1. Submitted</div>
+              <div className="text-[9px] text-slate-400">Logged & Verified</div>
             </div>
 
             <div
@@ -394,7 +392,7 @@ export function ReportCard({
               }`}
             >
               <div className="text-[10px] font-bold">2. Dispatched</div>
-              <div className="text-[9px] text-slate-400">Inaaksyunan sa Field</div>
+              <div className="text-[9px] text-slate-400">Field Work Active</div>
             </div>
 
             <div
@@ -404,22 +402,22 @@ export function ReportCard({
                   : "bg-white/5 border-white/5 text-slate-500"
               }`}
             >
-              <div className="text-[10px] font-bold">3. Nalutas</div>
-              <div className="text-[9px] text-slate-400">May Patunay</div>
+              <div className="text-[10px] font-bold">3. Resolved</div>
+              <div className="text-[9px] text-slate-400">Remediated & Verified</div>
             </div>
           </div>
         </div>
 
-        {/* 4. OFFICIAL GOVERNMENT DISPOSITION (IF NOTES PRESENT) */}
+        {/* 4. OFFICIAL GOVERNMENT DISPOSITION */}
         {officialNote && (
           <div className="p-3.5 rounded-xl bg-gradient-to-r from-blue-950/40 to-slate-900 border border-blue-500/30 text-xs space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-bold text-blue-400">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Opisyal na Tugon ng Pamahalaan</span>
+                <span>Official Municipal Disposition</span>
               </span>
               <span className="text-[10px] text-slate-400 font-normal">
-                {officialActor ? `${officialActor} (${officialRoleTitle})` : "LGU Paete Official"}
+                {officialActor ? `${officialActor} (${officialRoleTitle})` : "Paete LGU Official"}
               </span>
             </div>
             <p className="text-slate-200 text-xs italic leading-relaxed bg-white/5 p-2 rounded-lg border border-white/5">
@@ -429,7 +427,7 @@ export function ReportCard({
         )}
       </div>
 
-      {/* 5. OFFICER QUICK-ACTION UPDATE DRAWER (ADMIN & GOVERNOR) */}
+      {/* 5. OFFICER QUICK-ACTION UPDATE DRAWER */}
       {isOfficerLoggedIn && (
         <div className="px-4 py-2.5 bg-blue-950/30 border-t border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -443,16 +441,16 @@ export function ReportCard({
               {officerSession?.role === "governor" ? "Provincial Governor" : "Municipal Admin"}
             </span>
             <span className="text-xs text-slate-300 font-medium hidden sm:inline">
-              Maaari mong baguhin ang status ng ulat na ito
+              You can modify the official status of this report
             </span>
           </div>
 
           <button
             type="button"
             onClick={() => setShowOfficerPanel(!showOfficerPanel)}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer min-h-[36px]"
           >
-            <span>{showOfficerPanel ? "Isara ang Controls" : "I-update ang Status"}</span>
+            <span>{showOfficerPanel ? "Close Controls" : "Update Status"}</span>
             {showOfficerPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
@@ -462,14 +460,14 @@ export function ReportCard({
       {isOfficerLoggedIn && showOfficerPanel && (
         <div className="p-4 bg-[#071126]/95 border-b border-white/10 space-y-3 animate-in fade-in duration-150">
           <div className="text-xs font-semibold text-slate-300">
-            Pumili ng bagong status para sa ulat:
+            Select updated report status:
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("pending")}
-              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
                 currentStatus === "pending"
                   ? "bg-amber-500/30 text-amber-300 border-amber-500"
                   : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
@@ -481,7 +479,7 @@ export function ReportCard({
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("in_progress")}
-              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
                 currentStatus === "in_progress"
                   ? "bg-blue-500/30 text-blue-300 border-blue-500"
                   : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
@@ -493,7 +491,7 @@ export function ReportCard({
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("resolved")}
-              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
                 currentStatus === "resolved"
                   ? "bg-emerald-500/30 text-emerald-300 border-emerald-500"
                   : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
@@ -505,32 +503,32 @@ export function ReportCard({
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("urgent")}
-              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
                 currentStatus === "urgent"
                   ? "bg-red-500/30 text-red-300 border-red-500"
                   : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
               }`}
             >
-              🚨 Urgent / Hazard
+              🚨 Critical Hazard
             </button>
           </div>
 
           <div className="space-y-1.5">
             <label className="block text-[11px] font-semibold text-slate-400 uppercase">
-              Maglakip ng Opisyal na Note / Disposisyon:
+              Attach Official Note / Disposition:
             </label>
             <input
               type="text"
               value={noteDraft}
               onChange={(e) => setNoteDraft(e.target.value)}
-              placeholder="Halimbawa: Naipadala na sa Engineering team; target matapos bukas."
-              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none"
+              placeholder="e.g., Dispatched Municipal Engineering electrical crew; completion expected within 24h."
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none min-h-[44px]"
             />
           </div>
 
           {isSavingStatus && (
             <div className="text-xs text-blue-400 animate-pulse font-medium">
-              Ina-update ang status sa pamahalaan...
+              Updating official disposition in government records...
             </div>
           )}
         </div>
@@ -539,19 +537,19 @@ export function ReportCard({
       {/* 6. SOCIAL ACTION BAR (UPVOTE, COMMENT, SHARE) */}
       <div className="px-4 sm:px-5 py-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 bg-white/[0.02]">
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Upvote / Community Support Button */}
+          {/* Upvote Button */}
           <button
             type="button"
             onClick={handleUpvoteClick}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-semibold text-xs transition-all active:scale-95 cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border font-semibold text-xs transition-all active:scale-95 cursor-pointer min-h-[44px] ${
               isUpvoted
                 ? "bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30"
                 : "bg-white/5 text-slate-300 hover:bg-blue-600/20 hover:text-blue-300 border-white/10 hover:border-blue-500/30"
             }`}
-            title="I-verify at suportahan ang concern na ito"
+            title="Upvote and corroborate this community concern"
           >
             <ThumbsUp className="w-3.5 h-3.5" />
-            <span>Suportahan</span>
+            <span>Upvote</span>
             <span className="font-bold ml-0.5">({upvotes})</span>
           </button>
 
@@ -559,14 +557,14 @@ export function ReportCard({
           <button
             type="button"
             onClick={() => setCommentsOpen(!commentsOpen)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer min-h-[44px] ${
               commentsOpen
                 ? "bg-white/15 text-white border-white/20"
                 : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border-white/10"
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
-            <span>Mga Komento</span>
+            <span>Comments</span>
             <span className="font-bold ml-0.5">({comments.length})</span>
           </button>
         </div>
@@ -575,18 +573,18 @@ export function ReportCard({
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer"
-          title="Kopyahin ang link ng ulat"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer min-h-[44px]"
+          title="Copy report link"
         >
           {shareCopied ? (
             <>
               <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-semibold">Na-kopya!</span>
+              <span className="text-emerald-400 font-semibold">Copied!</span>
             </>
           ) : (
             <>
               <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">I-bahagi</span>
+              <span className="hidden sm:inline">Share</span>
             </>
           )}
         </button>
@@ -596,9 +594,9 @@ export function ReportCard({
       {commentsOpen && (
         <div className="p-4 sm:p-5 border-t border-white/10 bg-[#071126]/60 space-y-4 animate-in fade-in duration-200">
           <div className="text-xs font-bold text-slate-300 flex items-center justify-between">
-            <span>Usapan ng Komunidad at Tanggapan</span>
+            <span>Community & Official Discussion</span>
             <span className="text-[10px] text-slate-500 font-normal">
-              {comments.length} mensahe
+              {comments.length} message{comments.length === 1 ? "" : "s"}
             </span>
           </div>
 
@@ -606,7 +604,7 @@ export function ReportCard({
           <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
             {comments.length === 0 ? (
               <div className="text-center py-4 text-xs text-slate-500 italic">
-                Wala pang komento. Maging una sa pagpapatunay o pag-iwan ng tugon!
+                No comments yet. Be the first to corroborate or post an update!
               </div>
             ) : (
               comments.map((comm) => (
@@ -626,7 +624,7 @@ export function ReportCard({
                       {comm.isOfficial && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">
                           <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                          <span>Opisyal</span>
+                          <span>Official</span>
                         </span>
                       )}
                     </div>
@@ -646,20 +644,20 @@ export function ReportCard({
               onChange={(e) => setNewCommentText(e.target.value)}
               placeholder={
                 officerSession
-                  ? `Mag-iwan ng tugon bilang ${officerSession.name}...`
+                  ? `Leave official reply as ${officerSession.name}...`
                   : residentUser
-                  ? `Magkomento bilang ${residentUser.displayName || "Resident"}...`
-                  : "Magkomento o mag-iwan ng patunay..."
+                  ? `Comment as ${residentUser.displayName || "Resident"}...`
+                  : "Comment or add corroborating evidence..."
               }
-              className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none transition-all"
+              className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
             />
             <button
               type="submit"
               disabled={!newCommentText.trim()}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[44px]"
             >
               <Send className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Ipadala</span>
+              <span className="hidden sm:inline">Post</span>
             </button>
           </form>
         </div>

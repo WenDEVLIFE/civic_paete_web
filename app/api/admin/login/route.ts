@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Mangyaring ilagay ang parehong opisyal na email at password." },
+        { error: "Please provide both official email and password." },
         { status: 400 }
       );
     }
@@ -34,12 +34,12 @@ export async function POST(request: Request) {
         error.code === "auth/wrong-password"
       ) {
         return NextResponse.json(
-          { error: "Maling email o password. Pakisuri ang iyong opisyal na kredensyal." },
+          { error: "Invalid email or password. Please verify your official credentials." },
           { status: 401 }
         );
       }
       return NextResponse.json(
-        { error: error.message || "Hindi matanggap ang kredensyal sa Firebase Auth." },
+        { error: error.message || "Failed to authenticate with Firebase Auth." },
         { status: 401 }
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     // 2. Fetch role and official profile from Firestore 'users' collection
     let role: "admin" | "governor" = "admin";
     let name = userCredential.user.displayName || "Municipal Official";
-    let office = "Pamahalaang Bayan ng Paete";
+    let office = "Municipality of Paete";
     let barangayOrOffice = "Paete Municipal Hall";
 
     try {
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const err = error as Error;
     return NextResponse.json(
-      { error: err.message || "Nagkaroon ng aberya sa pagsusuri ng kredensyal." },
+      { error: err.message || "An unexpected error occurred during credential verification." },
       { status: 500 }
     );
   }

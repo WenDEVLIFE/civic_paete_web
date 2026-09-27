@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
         document.cookie = `civic_paete_role=${role}; path=/; max-age=86400`;
       }
 
-      setSuccessMsg(`Maligayang pagdating, ${name}! Nililipat sa console...`);
+      setSuccessMsg(`Welcome, ${name}! Redirecting to command console...`);
 
       setTimeout(() => {
         router.push("/admin/dashboard");
@@ -88,11 +88,11 @@ export default function AdminLoginPage() {
         authErr.code === "auth/wrong-password" ||
         authErr.code === "auth/user-not-found"
       ) {
-        setError("Maling email o password. Pakisuri ang iyong opisyal na kredensyal.");
+        setError("Invalid email or password. Please verify your official credentials.");
       } else if (authErr.code === "auth/too-many-requests") {
-        setError("Masyadong maraming nabigong pagsubok. Pakisubukang muli mamaya.");
+        setError("Too many failed login attempts. Please try again later.");
       } else {
-        setError(authErr.message || "Nagkaroon ng aberya sa pag-login.");
+        setError(authErr.message || "An error occurred during authentication.");
       }
     }
   };
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-[#071126] px-4 py-12 relative overflow-hidden text-white">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-[#071126] px-4 py-12 relative overflow-hidden text-white civic-ukit-pattern">
       {/* Background Radial Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-600/10 blur-[130px] pointer-events-none rounded-full" />
 
@@ -112,10 +112,10 @@ export default function AdminLoginPage() {
       <div className="absolute top-6 left-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl border border-white/10 transition-all"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl border border-white/10 transition-all min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Bumalik sa Portal ng Mamamayan</span>
+          <span>Back to Citizen Portal</span>
         </Link>
       </div>
 
@@ -125,13 +125,13 @@ export default function AdminLoginPage() {
           <CivicPaeteLogo size="lg" variant="full" theme="dark" className="justify-center mb-4" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Shield className="w-3.5 h-3.5" />
-            <span>Portal ng mga Opisyal at Pamunuan</span>
+            <span>Official & Governance Console</span>
           </div>
           <h1 className="text-2xl font-bold font-heading text-white">
-            Municipal & Provincial Governance
+            Municipal & Provincial Command
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Eksklusibo para sa awtorisadong kawani ng Bayan ng Paete at Lalawigan ng Laguna.
+          <p className="text-xs text-slate-400 mt-1 font-sans">
+            Restricted access for authorized personnel of the Municipality of Paete and Province of Laguna.
           </p>
         </div>
 
@@ -153,8 +153,8 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Opisyal na Email o Staff ID
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
+                Official Email or Staff ID
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -162,15 +162,15 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@paete.gov.ph o governor@laguna.gov.ph"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                  placeholder="admin@paete.gov.ph or governor@laguna.gov.ph"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all min-h-[44px]"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
                 Password
               </label>
               <div className="relative">
@@ -180,7 +180,7 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all min-h-[44px]"
                   required
                 />
               </div>
@@ -189,48 +189,48 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer min-h-[44px] font-heading"
             >
               <Shield className="w-4 h-4" />
-              <span>{isLoading ? "Bini-beripika sa Firebase Auth..." : "Mag-login bilang Opisyal"}</span>
+              <span>{isLoading ? "Verifying Credentials..." : "Sign In to Official Console"}</span>
             </button>
           </form>
 
           {/* Quick Click Credentials for Admin & Governor */}
           <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
-            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              I-click para i-load ang Verified Firebase Account:
+            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-sans">
+              Quick Test Credentials:
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => autofillCredentials("admin@paete.gov.ph", "PaeteAdmin2026!")}
-                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-blue-600/20 hover:border-blue-500/40 transition-all group cursor-pointer"
+                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-blue-600/20 hover:border-blue-500/40 transition-all group cursor-pointer min-h-[44px]"
               >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-blue-300">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-blue-300 font-heading">
                   <KeyRound className="w-3.5 h-3.5 text-blue-400" />
                   <span>Admin</span>
                 </div>
-                <div className="text-[10px] text-slate-400 truncate">admin@paete.gov.ph</div>
+                <div className="text-[10px] text-slate-400 truncate font-mono">admin@paete.gov.ph</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => autofillCredentials("governor@laguna.gov.ph", "LagunaGov2026!")}
-                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-amber-600/20 hover:border-amber-500/40 transition-all group cursor-pointer"
+                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-amber-600/20 hover:border-amber-500/40 transition-all group cursor-pointer min-h-[44px]"
               >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-amber-300">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-amber-300 font-heading">
                   <Landmark className="w-3.5 h-3.5 text-amber-400" />
                   <span>Governor</span>
                 </div>
-                <div className="text-[10px] text-slate-400 truncate">governor@laguna.gov.ph</div>
+                <div className="text-[10px] text-slate-400 truncate font-mono">governor@laguna.gov.ph</div>
               </button>
             </div>
           </div>
 
           {/* Security Notice */}
-          <div className="mt-4 pt-3 border-t border-white/5 text-center text-[10px] text-slate-500 leading-relaxed">
-            Ang pag-access ay protektado ng Firebase Authentication at Role-Based Access Control sa Cloud Firestore.
+          <div className="mt-4 pt-3 border-t border-white/5 text-center text-[10px] text-slate-500 leading-relaxed font-sans">
+            Protected by Cloud Firestore Role-Based Access Control & Philippine RA 10173 compliance standards.
           </div>
         </div>
       </div>

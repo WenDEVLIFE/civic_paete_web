@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,16 +14,9 @@ interface IdentityShieldBadgeProps {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 /**
- * Reusable "Protektado ang Iyong Pagkakakilanlan" security badge.
- * Embed in any form or modal where user identity is at stake (report submission,
- * account registration, anonymous reporting, etc.).
- *
- * @example
- * // Compact chip (navbar, card footer)
- * <IdentityShieldBadge variant="compact" />
- *
- * // Banner panel (report submission form, verification flow)
- * <IdentityShieldBadge variant="banner" />
+ * Reusable "Your Identity is Protected" civic security badge.
+ * Embed in any form or modal where citizen identity is at stake (report submission,
+ * account registration, whistleblower reporting, etc.).
  */
 export default function IdentityShieldBadge({
   variant = "banner",
@@ -32,30 +26,11 @@ export default function IdentityShieldBadge({
     return (
       <Link
         href="/legal/safety"
-        className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full transition-opacity hover:opacity-80 ${className}`}
-        style={{
-          background: "rgba(16,185,129,0.1)",
-          color: "#10B981",
-          border: "1px solid rgba(16,185,129,0.2)",
-          fontFamily: "var(--font-heading)",
-        }}
-        aria-label="Protektado ang inyong pagkakakilanlan — Tingnan ang detalye"
+        className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full transition-opacity hover:opacity-80 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-heading min-h-[36px] ${className}`}
+        aria-label="Your identity is protected — View safety details"
       >
-        <svg
-          className="w-3 h-3 flex-shrink-0"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-          />
-        </svg>
-        <span>Protektado ang Inyong Pagkakakilanlan</span>
+        <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0 text-emerald-400" />
+        <span>Identity Shield Active</span>
       </Link>
     );
   }
@@ -63,59 +38,32 @@ export default function IdentityShieldBadge({
   // ── Banner variant ─────────────────────────────────────────────────────────
   return (
     <div
-      className={`rounded-xl px-4 py-3 flex items-start gap-3 ${className}`}
+      className={`rounded-xl px-4 py-3 flex items-start gap-3 bg-gradient-to-r from-emerald-500/10 via-[#0A1931] to-emerald-500/5 border border-emerald-500/25 ${className}`}
       role="note"
-      aria-label="Impormasyon tungkol sa proteksyon ng pagkakakilanlan"
-      style={{
-        background:
-          "linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(17,35,71,0.5) 100%)",
-        border: "1px solid rgba(16,185,129,0.2)",
-      }}
+      aria-label="Identity protection information"
     >
       {/* Shield icon */}
       <div
-        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5"
-        style={{
-          background: "rgba(16,185,129,0.15)",
-          border: "1px solid rgba(16,185,129,0.25)",
-        }}
+        className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400"
         aria-hidden="true"
       >
-        <svg
-          className="w-4 h-4"
-          style={{ color: "#10B981" }}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-          />
-        </svg>
+        <ShieldCheck className="w-4 h-4" />
       </div>
 
       {/* Text */}
       <div className="flex-1 min-w-0">
-        <p
-          className="text-xs font-semibold mb-0.5"
-          style={{ color: "#34D399", fontFamily: "var(--font-heading)" }}
-        >
-          🛡️ Protektado ang Inyong Pagkakakilanlan
+        <p className="text-xs font-semibold mb-0.5 text-emerald-400 font-heading">
+          🛡️ Your Identity is Legally Protected
         </p>
-        <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
-          Ang inyong personal na impormasyon ay hindi ipapakita sa publiko.
-          Protektado kayo ng{" "}
-          <span style={{ color: "#34D399" }}>RA 10173</span> at ng{" "}
-          <span style={{ color: "#34D399" }}>Civic Paete Whistleblower Policy</span>.{" "}
+        <p className="text-xs leading-relaxed text-slate-300 font-sans">
+          Your personal identity is strictly shielded on public feeds. You are safeguarded under{" "}
+          <span className="text-emerald-400 font-medium">RA 10173</span> and the{" "}
+          <span className="text-emerald-400 font-medium">Paete Whistleblower Protection Protocol</span>.{" "}
           <Link
             href="/legal/safety"
-            className="underline underline-offset-2 transition-opacity hover:opacity-80"
-            style={{ color: "#10B981" }}
+            className="underline underline-offset-2 text-emerald-300 hover:text-emerald-200 transition-colors"
           >
-            Alamin ang inyong mga karapatan
+            Learn about citizen legal protections
           </Link>
         </p>
       </div>

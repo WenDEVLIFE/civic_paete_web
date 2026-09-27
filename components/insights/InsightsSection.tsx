@@ -4,19 +4,19 @@ export function InsightsSection() {
   const recommendations = [
     {
       id: "rec-1",
-      trigger: "5 ulat ng sirang ilaw sa loob ng 7 araw",
-      location: "Brgy. Bagumbayan (J. Rizal St.)",
-      action: "Iminumungkahing magsagawa ng komprehensibong inspeksyon sa electrical circuit ng poste.",
-      priority: "Mataas (High Priority)",
-      category: "Ilaw sa Kalsada",
+      trigger: "5 recurring streetlight failure reports within 7 days",
+      location: "Brgy. Bagumbayan (J. Rizal St. Corridor)",
+      action: "Recommended: Conduct comprehensive electrical circuit diagnosis and replace aged overhead wiring along the street sector.",
+      priority: "High Priority",
+      category: "Streetlights & Power",
     },
     {
       id: "rec-2",
-      trigger: "Paulit-ulit na pagkaipon ng basura tuwing Biyernes",
-      location: "Brgy. Maytoong (Kanto ng Pamilihan)",
-      action: "Rekomendasyon: Magdagdag ng regular na iskedyul ng hakot ng basura o magtalaga ng monitoring tanod.",
-      priority: "Katamtaman (Moderate)",
-      category: "Kalinisan",
+      trigger: "Recurring solid waste accumulation every Friday afternoon",
+      location: "Brgy. Maytoong (Public Market Perimeter)",
+      action: "Recommended: Deploy dedicated auxiliary collection vehicle on Friday afternoons and station barangay environmental marshals.",
+      priority: "Moderate Priority",
+      category: "Solid Waste & Sanitation",
     },
   ];
 
@@ -30,10 +30,10 @@ export function InsightsSection() {
               <span>Data-Driven Decision Support</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
-              Mga Rekomendasyon ng Sistema
+              Automated Civic Recommendations
             </h2>
-            <p className="text-sm sm:text-base text-slate-400 mt-2 max-w-xl">
-              Batay sa statistical pattern ng mga naisumiteng ulat ng mamamayan ng Paete upang gabayan ang pamahalaang bayan sa prioritization.
+            <p className="text-sm sm:text-base text-slate-400 mt-2 max-w-xl font-sans">
+              Generated from incident clustering across Paete barangays to assist municipal departments in resource allocation and preemptive maintenance.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export function InsightsSection() {
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white/5 text-blue-300 border border-white/10">
                   {rec.category}
                 </span>
-                <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
+                <span className="text-xs font-bold text-amber-400 flex items-center gap-1 font-heading">
                   <ShieldAlert className="w-3.5 h-3.5" />
                   {rec.priority}
                 </span>
@@ -64,12 +64,12 @@ export function InsightsSection() {
                 {rec.location}
               </h3>
 
-              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 my-3 text-xs text-slate-300">
-                <span className="font-semibold text-slate-400 block mb-0.5">Napansing Pattern:</span>
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 my-3 text-xs text-slate-300 font-sans">
+                <span className="font-semibold text-slate-400 block mb-0.5">Detected Pattern:</span>
                 {rec.trigger}
               </div>
 
-              <div className="flex items-start gap-2.5 text-sm text-slate-200">
+              <div className="flex items-start gap-2.5 text-sm text-slate-200 font-sans">
                 <Lightbulb className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{rec.action}</p>
               </div>

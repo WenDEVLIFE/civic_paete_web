@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { Shield, X, ExternalLink } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -12,7 +13,7 @@ interface PrivacyModalProps {
   onClose: () => void;
   /**
    * Optional context label shown in the header.
-   * E.g. "Bago Mag-ulat" or "Pagpapatunay ng Account"
+   * E.g. "Pre-Submission Review" or "Account Verification"
    */
   context?: string;
 }
@@ -22,23 +23,23 @@ interface PrivacyModalProps {
 const SUMMARY_POINTS = [
   {
     icon: "📋",
-    title: "Ano ang Kinokolekta Namin",
-    body: "Pangalan, e-mail (mula sa Google), barangay, mga ulat na isinumite, at teknikal na datos ng session.",
+    title: "Data Collected",
+    body: "Resident name, email (via Google Auth), Paete barangay location, submitted community reports, and technical session logs.",
   },
   {
     icon: "🎯",
-    title: "Para Saan ang Datos",
-    body: "Pagpoproseso ng inyong mga ulat, pagpapadala ng mga abiso, at pagpapabuti ng serbisyo ng LGU. Hindi namin ibinibenta ang inyong datos.",
+    title: "Purpose of Processing",
+    body: "Triage and remediation of civic concerns, automated municipal status notifications, and municipal resource planning. Resident data is never sold.",
   },
   {
     icon: "🤝",
-    title: "Sino ang May Access",
-    body: "Mga opisyal ng Paete at Laguna LGU (para sa inyong mga ulat lamang) at Firebase/Google Cloud bilang aming imprastruktura.",
+    title: "Authorized Access",
+    body: "Authorized officials of Paete LGU and Laguna Provincial Government (incident handling only), hosted on secure Firebase & Google Cloud infrastructure.",
   },
   {
     icon: "🛡️",
-    title: "Inyong mga Karapatan (RA 10173)",
-    body: "Karapatang mag-access, itama, burahin, at ilipat ang inyong datos. Makipag-ugnayan sa dpo@paete.gov.ph.",
+    title: "Citizen Rights (RA 10173)",
+    body: "Full statutory rights to access, rectify, erase, or object under the Philippine Data Privacy Act. Contact dpo@paete.gov.ph for privacy inquiries.",
   },
 ];
 
@@ -63,7 +64,6 @@ export default function PrivacyModal({
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
 
-    // Focus the panel for screen-reader entry
     panelRef.current?.focus();
 
     return () => {
@@ -72,7 +72,6 @@ export default function PrivacyModal({
     };
   }, [isOpen, onClose]);
 
-  // Click-outside to close
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === overlayRef.current) onClose();
   }
@@ -85,82 +84,34 @@ export default function PrivacyModal({
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
-      aria-label="Patakaran sa Privacy — Buod"
+      aria-label="Privacy Policy Summary"
       id="privacy-modal"
-      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4"
-      style={{ background: "rgba(7,17,38,0.8)", backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-[#071126]/80 backdrop-blur-md"
     >
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl outline-none overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(160deg, #0D1F3C 0%, #112347 100%)",
-          border: "1px solid rgba(96,165,250,0.15)",
-          boxShadow:
-            "0 -8px 60px rgba(7,17,38,0.8), 0 0 0 1px rgba(96,165,250,0.08)",
-          maxHeight: "92vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl outline-none overflow-hidden bg-gradient-to-br from-[#0D1F3C] to-[#112347] border border-blue-400/20 shadow-2xl max-h-[92vh] flex flex-col text-white"
       >
         {/* ── Header ─────────────────────────────────────────── */}
-        <div
-          className="flex items-start justify-between px-5 pt-5 pb-4 flex-shrink-0"
-          style={{ borderBottom: "1px solid rgba(96,165,250,0.1)" }}
-        >
+        <div className="flex items-start justify-between px-5 pt-5 pb-4 flex-shrink-0 border-b border-blue-400/10">
           <div className="flex items-center gap-3">
-            {/* Shield icon */}
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{
-                background: "rgba(37,99,235,0.15)",
-                border: "1px solid rgba(37,99,235,0.25)",
-              }}
-            >
-              <svg
-                className="w-5 h-5"
-                style={{ color: "#60A5FA" }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-                />
-              </svg>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-600/15 border border-blue-500/30 text-blue-400">
+              <Shield className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <h2
-                  className="text-sm font-bold"
-                  style={{
-                    color: "#F8FAFC",
-                    fontFamily: "var(--font-heading)",
-                  }}
-                >
-                  Patakaran sa Privacy
+                <h2 className="text-sm font-bold font-heading text-white">
+                  Privacy Policy Overview
                 </h2>
                 {context && (
-                  <span
-                    className="text-xs px-1.5 py-0.5 rounded font-medium"
-                    style={{
-                      background: "rgba(245,158,11,0.12)",
-                      color: "#F59E0B",
-                      border: "1px solid rgba(245,158,11,0.2)",
-                    }}
-                  >
+                  <span className="text-[10px] px-2 py-0.5 rounded font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/25">
                     {context}
                   </span>
                 )}
               </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
-                Civic Paete • RA 10173 Compliant
+              <p className="text-xs mt-0.5 text-slate-400 font-sans">
+                Civic Paete • RA 10173 & NPC Compliant
               </p>
             </div>
           </div>
@@ -170,47 +121,17 @@ export default function PrivacyModal({
             type="button"
             id="privacy-modal-close-btn"
             onClick={onClose}
-            aria-label="Isara"
-            className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
-            style={{
-              color: "#64748B",
-              border: "1px solid rgba(100,116,139,0.2)",
-              background: "transparent",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = "#F8FAFC";
-              (e.currentTarget as HTMLButtonElement).style.background =
-                "rgba(248,250,252,0.08)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = "#64748B";
-              (e.currentTarget as HTMLButtonElement).style.background =
-                "transparent";
-            }}
+            aria-label="Close"
+            className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 border border-slate-700/50 transition-colors cursor-pointer"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* ── Scrollable body ────────────────────────────────── */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
-          {/* Intro */}
-          <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
-            Bago kayo magpatuloy, nais naming ipaalam kung paano namin
-            pinoprotektahan ang inyong personal na impormasyon bilang mamamayan
-            ng Paete, Laguna.
+        <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3 font-sans">
+          <p className="text-xs leading-relaxed text-slate-300">
+            Before proceeding, review how your civic records and identifying data are safeguarded under Philippine statutory standards in Paete, Laguna.
           </p>
 
           {/* Summary cards */}
@@ -218,29 +139,16 @@ export default function PrivacyModal({
             {SUMMARY_POINTS.map((point) => (
               <div
                 key={point.title}
-                className="rounded-xl px-4 py-3 flex items-start gap-3"
-                style={{
-                  background: "rgba(10,25,49,0.6)",
-                  border: "1px solid rgba(96,165,250,0.08)",
-                }}
+                className="rounded-xl px-4 py-3 flex items-start gap-3 bg-[#0A1931]/70 border border-blue-400/10"
               >
-                <span
-                  className="text-base flex-shrink-0 mt-0.5"
-                  aria-hidden="true"
-                >
+                <span className="text-base flex-shrink-0 mt-0.5" aria-hidden="true">
                   {point.icon}
                 </span>
                 <div>
-                  <p
-                    className="text-xs font-semibold mb-0.5"
-                    style={{
-                      color: "#E2E8F0",
-                      fontFamily: "var(--font-heading)",
-                    }}
-                  >
+                  <p className="text-xs font-semibold mb-0.5 font-heading text-slate-200">
                     {point.title}
                   </p>
-                  <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
+                  <p className="text-xs leading-relaxed text-slate-400">
                     {point.body}
                   </p>
                 </div>
@@ -253,48 +161,23 @@ export default function PrivacyModal({
             href="/legal/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs transition-opacity hover:opacity-80 self-start"
-            style={{ color: "#60A5FA" }}
+            className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition-colors self-start mt-1"
             onClick={onClose}
           >
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-              />
-            </svg>
-            Basahin ang buong Patakaran sa Privacy
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Read Complete Statutory Privacy Policy</span>
           </Link>
         </div>
 
         {/* ── Footer actions ─────────────────────────────────── */}
-        <div
-          className="flex-shrink-0 px-5 py-4 flex flex-col sm:flex-row gap-2"
-          style={{ borderTop: "1px solid rgba(96,165,250,0.1)" }}
-        >
+        <div className="flex-shrink-0 px-5 py-4 flex flex-col sm:flex-row gap-2 border-t border-blue-400/10">
           <button
             type="button"
             id="privacy-modal-dismiss-btn"
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[44px]"
-            style={{
-              background:
-                "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
-              color: "#FFFFFF",
-              border: "none",
-              boxShadow: "0 2px 12px rgba(37,99,235,0.35)",
-              fontFamily: "var(--font-heading)",
-            }}
+            className="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white transition-all shadow-md shadow-blue-600/30 cursor-pointer min-h-[44px] flex items-center justify-center font-heading"
           >
-            Naiintindihan Ko — Magpatuloy
+            I Understand — Proceed
           </button>
         </div>
       </div>

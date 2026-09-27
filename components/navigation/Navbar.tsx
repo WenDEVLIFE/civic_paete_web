@@ -35,7 +35,7 @@ export function Navbar() {
           doc(db, "users", loggedUser.uid),
           {
             uid: loggedUser.uid,
-            name: loggedUser.displayName || "Mamamayan ng Paete",
+            name: loggedUser.displayName || "Paete Resident",
             email: loggedUser.email || "",
             photoURL: loggedUser.photoURL || "",
             role: "resident",
@@ -77,27 +77,27 @@ export function Navbar() {
               href="/"
               className="px-3.5 py-2 rounded-lg text-white hover:bg-white/10 transition-colors"
             >
-              Tahanan
+              Home
             </Link>
             <Link
-              href="#mga-ulat"
+              href="/#community-reports"
               className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
             >
               <FileText className="w-4 h-4 text-blue-400" />
-              Mga Ulat
+              Community Reports
             </Link>
             <Link
-              href="#mag-ulat"
+              href="/"
               className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
             >
               <PlusCircle className="w-4 h-4 text-blue-400" />
-              Magsumite ng Ulat
+              Submit Report
             </Link>
             <Link
               href="/#insights"
               className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
             >
-              Rekomendasyon
+              AI Insights
             </Link>
             <div className="relative group">
               <Link
@@ -105,7 +105,7 @@ export function Navbar() {
                 className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1"
               >
                 <span>Transparency</span>
-                <span className="text-[10px] text-amber-400 font-semibold px-1.5 py-0.2 rounded bg-amber-400/10 border border-amber-400/20">
+                <span className="text-[10px] text-amber-400 font-semibold px-1.5 py-0.2 rounded bg-amber-400/10 border border-amber-400/20 font-heading">
                   Hub
                 </span>
               </Link>
@@ -116,19 +116,19 @@ export function Navbar() {
                     href="/transparency/projects"
                     className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    🚧 Mga Proyekto ng Bayan
+                    🚧 Public Works & Projects
                   </Link>
                   <Link
                     href="/transparency/officials"
                     className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    🏛️ Direktoryo ng mga Opisyal
+                    🏛️ Officials Directory
                   </Link>
                   <Link
                     href="/transparency/reports"
                     className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    📊 Mga Ulat at Open Data
+                    📊 Open Data & Reports
                   </Link>
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function Navbar() {
               className="px-3.5 py-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors text-xs font-semibold flex items-center gap-1"
             >
               <Shield className="w-3.5 h-3.5" />
-              Proteksyon
+              Protection Hub
             </Link>
           </nav>
 
@@ -150,7 +150,7 @@ export function Navbar() {
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-lg border border-white/10 hover:border-blue-400/40 hover:bg-blue-950/40 transition-all"
             >
               <Shield className="w-3.5 h-3.5 text-blue-400" />
-              Opisyal ng Bayan
+              Officials Portal
             </Link>
 
             {/* Google Resident Auth State */}
@@ -168,17 +168,17 @@ export function Navbar() {
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 font-bold text-xs flex items-center justify-center">
-                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "RM"}
+                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "CP"}
                       </div>
                     )}
 
                     <div className="flex flex-col text-left">
                       <span className="text-xs font-semibold text-white max-w-[130px] truncate">
-                        {user.displayName || "Mamamayan"}
+                        {user.displayName || "Resident"}
                       </span>
                       <span className="text-[10px] text-emerald-400 flex items-center gap-1">
                         <UserCheck className="w-2.5 h-2.5" />
-                        <span>Rehistrado</span>
+                        <span>Verified</span>
                       </span>
                     </div>
 
@@ -186,7 +186,7 @@ export function Navbar() {
                       type="button"
                       onClick={handleSignOut}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                      title="Mag-sign out sa Google"
+                      title="Sign out of account"
                     >
                       <LogOut className="w-4 h-4" />
                     </button>
@@ -196,12 +196,12 @@ export function Navbar() {
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={isSigningIn}
-                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50 min-h-[40px]"
                   >
                     <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
                       <path d="M12.24 10.285V13.8h6.887C18.2 16.14 16.08 18 12.24 18c-3.32 0-6-2.69-6-6s2.68-6 6-6c1.49 0 2.85.54 3.9 1.44l2.6-2.6C17.18 3.32 14.88 2.5 12.24 2.5 7.02 2.5 2.78 6.75 2.78 12s4.24 9.5 9.46 9.5c5.46 0 9.1-3.84 9.1-9.26 0-.62-.06-1.22-.17-1.74h-8.93z" />
                     </svg>
-                    <span>{isSigningIn ? "Kumukonekta..." : "Mag-login sa Google"}</span>
+                    <span>{isSigningIn ? "Connecting..." : "Sign in with Google"}</span>
                   </button>
                 )}
               </>
@@ -213,8 +213,8 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-              aria-label="Buksan ang menu"
+              className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Open navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -230,32 +230,32 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10"
           >
-            Tahanan
+            Home
           </Link>
           <Link
-            href="#mga-ulat"
+            href="/#community-reports"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10"
           >
-            Mga Ulat ng Komunidad
+            Community Reports
           </Link>
           <Link
-            href="#mag-ulat"
+            href="/"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10"
           >
-            Magsumite ng Ulat
+            Submit Report
           </Link>
           <Link
             href="/#insights"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10"
           >
-            Rekomendasyon ng Sistema
+            AI Insights
           </Link>
 
           <div className="pt-2 pb-1 border-t border-white/10">
-            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-amber-400">
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-amber-400 font-heading">
               Transparency Hub
             </span>
             <Link
@@ -263,27 +263,27 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              🚧 Mga Proyekto ng Bayan
+              🚧 Public Works & Projects
             </Link>
             <Link
               href="/transparency/officials"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              🏛️ Direktoryo ng mga Opisyal
+              🏛️ Officials Directory
             </Link>
             <Link
               href="/transparency/reports"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              📊 Mga Ulat at Open Data
+              📊 Open Data & Reports
             </Link>
           </div>
 
           <div className="pt-2 pb-1 border-t border-white/10">
-            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-              Batas at Proteksyon
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-heading">
+              Legal & Protection
             </span>
             <Link
               href="/legal/safety"
@@ -297,14 +297,14 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              📜 Patakaran sa Privacy (RA 10173)
+              📜 Privacy Policy (RA 10173)
             </Link>
             <Link
               href="/legal/terms"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              ⚖️ Mga Tuntunin at Kundisyon
+              ⚖️ Terms of Service
             </Link>
           </div>
 
@@ -322,11 +322,11 @@ export function Navbar() {
                     />
                   ) : (
                     <div className="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 font-bold text-xs flex items-center justify-center">
-                      {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "RM"}
+                      {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "CP"}
                     </div>
                   )}
                   <div className="min-w-0 flex-1 text-left">
-                    <div className="text-xs font-bold text-white truncate">{user.displayName || "Mamamayan"}</div>
+                    <div className="text-xs font-bold text-white truncate">{user.displayName || "Resident"}</div>
                     <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
                   </div>
                 </div>
@@ -334,10 +334,10 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 font-semibold py-2 rounded-lg text-xs transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-pointer min-h-[44px]"
                 >
                   <LogOut className="w-4 h-4 text-red-400" />
-                  <span>Mag-sign out sa Google</span>
+                  <span>Sign out</span>
                 </button>
               </div>
             ) : (
@@ -345,20 +345,20 @@ export function Navbar() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isSigningIn}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
               >
                 <LogIn className="w-4 h-4" />
-                <span>{isSigningIn ? "Kumukonekta..." : "Mag-sign in gamit ang Google"}</span>
+                <span>{isSigningIn ? "Connecting..." : "Sign in with Google"}</span>
               </button>
             )}
 
             <Link
               href="/admin/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 border border-white/15 text-slate-200 hover:bg-white/10 font-medium py-2.5 rounded-lg text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 border border-white/15 text-slate-200 hover:bg-white/10 font-medium py-2.5 rounded-xl text-sm transition-all min-h-[44px]"
             >
               <Shield className="w-4 h-4 text-blue-400" />
-              Portal ng mga Opisyal ng Bayan
+              Municipal Officials Portal
             </Link>
           </div>
         </div>

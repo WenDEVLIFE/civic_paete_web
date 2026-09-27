@@ -65,30 +65,30 @@ export function AdminSidebar({
   }[] = [
     {
       id: "overview",
-      label: "Buod at Estadistika",
-      description: "Executive radar at metrics",
+      label: "Overview & Analytics",
+      description: "Executive radar & civic metrics",
       icon: BarChart3,
     },
     {
       id: "reports",
-      label: "Mga Ulat ng Komunidad",
-      description: "Triage at disposisyon",
+      label: "Community Reports",
+      description: "Triage & official dispositions",
       icon: FileText,
       badge: reportsCount,
       badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     },
     {
       id: "users",
-      label: "Direktoryo ng Opisyal",
-      description: "Kawani at mamamayan",
+      label: "Officials & Directory",
+      description: "Staff & verified citizens",
       icon: Users,
       badge: usersCount,
       badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     },
     {
       id: "audit",
-      label: "Audit Trail at Talaan",
-      description: "Opisyal na logs ng aksyon",
+      label: "Audit Trail & Logs",
+      description: "Immutable government records",
       icon: History,
       badge: auditCount,
       badgeColor: "bg-slate-500/20 text-slate-300 border-slate-500/30",
@@ -99,7 +99,7 @@ export function AdminSidebar({
     navItems.splice(1, 0, {
       id: "provincial",
       label: "Laguna Provincial Oversight",
-      description: "Inter-LGU at priority alerts",
+      description: "Inter-LGU & emergency alerts",
       icon: Landmark,
       badge: urgentCount,
       badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
@@ -137,8 +137,8 @@ export function AdminSidebar({
         <button
           type="button"
           onClick={() => setMobileOpen(false)}
-          className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-          aria-label="Isara ang menu"
+          className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+          aria-label="Close menu"
         >
           <X className="w-5 h-5" />
         </button>
@@ -148,7 +148,7 @@ export function AdminSidebar({
       <div className="p-4 mx-3 my-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div
-            className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm shadow-md ${
+            className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm shadow-md font-heading ${
               isGovernor
                 ? "bg-amber-600/30 text-amber-300 border border-amber-500/40"
                 : "bg-blue-600/30 text-blue-300 border border-blue-500/40"
@@ -159,11 +159,11 @@ export function AdminSidebar({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm text-white truncate">
+              <span className="font-bold text-sm text-white truncate font-heading">
                 {currentUser?.name || (isGovernor ? "Hon. Provincial Governor" : "Municipal Administrator")}
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 truncate">
+            <div className="text-[11px] text-slate-400 truncate font-mono">
               {currentUser?.email || (isGovernor ? "governor@laguna.gov.ph" : "admin@paete.gov.ph")}
             </div>
             <div className="text-[10px] text-slate-500 truncate mt-0.5">
@@ -175,7 +175,7 @@ export function AdminSidebar({
         <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-emerald-300 font-medium">Firebase Auth Active</span>
+            <span className="text-emerald-300 font-medium">Auth Session Active</span>
           </div>
           <span className="text-[10px] font-mono text-slate-500">
             {isGovernor ? "LAGUNA-HQ" : "PAETE-LGU"}
@@ -186,7 +186,7 @@ export function AdminSidebar({
       {/* Navigation Section */}
       <div className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
         <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-          Pangunahing Navigasyon
+          Main Navigation
         </div>
 
         {navItems.map((item) => {
@@ -201,7 +201,7 @@ export function AdminSidebar({
                 setActiveTab(item.id);
                 setMobileOpen(false);
               }}
-              className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group cursor-pointer ${
+              className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group cursor-pointer min-h-[44px] ${
                 isActive
                   ? isGovernor
                     ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
@@ -220,7 +220,7 @@ export function AdminSidebar({
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold truncate leading-tight">
+                  <div className="text-xs font-semibold truncate leading-tight font-heading">
                     {item.label}
                   </div>
                   <div
@@ -251,12 +251,12 @@ export function AdminSidebar({
         {/* Governor Directive Alert Hint */}
         {isGovernor && (
           <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200 space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-amber-300">
+            <div className="flex items-center gap-1.5 font-bold text-amber-300 font-heading">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Provincial Directives</span>
             </div>
-            <p className="text-[10px] text-amber-200/90 leading-snug">
-              Naka-highlight ang mga emergency reports at cluster incidents sa Munisipyo ng Paete para sa agarang koordinasyon.
+            <p className="text-[10px] text-amber-200/90 leading-snug font-sans">
+              Critical hazards and clustered municipal incidents in Paete are elevated for provincial coordination.
             </p>
           </div>
         )}
@@ -272,24 +272,24 @@ export function AdminSidebar({
         </div>
         <Link
           href="/transparency/projects"
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
           <span className="text-sm">🚧</span>
-          <span>Proyekto & Badyet Audit</span>
+          <span>Public Works & Budget Audit</span>
         </Link>
         <Link
           href="/transparency/officials"
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
           <span className="text-sm">🏛️</span>
-          <span>Direktoryo ng Opisyal</span>
+          <span>Officials & Governance Directory</span>
         </Link>
         <Link
           href="/transparency/reports"
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
           <span className="text-sm">📊</span>
-          <span>Open Data at Metriko</span>
+          <span>Open Data & Civic Metrics</span>
         </Link>
       </div>
 
@@ -297,11 +297,11 @@ export function AdminSidebar({
       <div className="p-3 border-t border-white/10 space-y-2 bg-[#071126]/60">
         <Link
           href="/"
-          className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[44px]"
         >
           <div className="flex items-center gap-2">
             <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-            <span>Portal ng Mamamayan</span>
+            <span>Citizen Portal</span>
           </div>
           <span className="text-[10px] text-slate-500 font-mono">Public View</span>
         </Link>
@@ -310,10 +310,10 @@ export function AdminSidebar({
           type="button"
           onClick={onLogout}
           disabled={isLoggingOut}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 hover:text-red-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-300 hover:text-red-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
         >
           <LogOut className="w-4 h-4 text-red-400" />
-          <span>{isLoggingOut ? "Lumalabas sa Session..." : "Mag-logout sa Console"}</span>
+          <span>{isLoggingOut ? "Ending Session..." : "Sign Out of Console"}</span>
         </button>
       </div>
     </div>

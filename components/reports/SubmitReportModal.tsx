@@ -11,6 +11,8 @@ import {
   Trash2,
   FileCheck,
   Tag,
+  Shield,
+  User,
 } from "lucide-react";
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
@@ -19,12 +21,12 @@ import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
 
 /**
  * Generates a stable public-facing alias for anonymous reports.
- * The number is derived from the current minute so it feels unique
- * per submission session but never exposes the real UID.
+ * The number is derived from random seed so it feels unique
+ * per submission session while never exposing the resident's true UID.
  */
 function generateAnonymousAlias(): string {
   const seed = Math.floor(Math.random() * 9000) + 100;
-  return `Protektadong Mamamayan #${seed}`;
+  return `Protected Citizen #${seed}`;
 }
 
 interface SubmitReportModalProps {
@@ -46,11 +48,11 @@ const PAETE_BARANGAYS = [
 ];
 
 const CATEGORIES = [
-  { value: "waste", label: "Kalinisan at Basura (Waste Management)" },
-  { value: "lighting", label: "Ilaw sa Kalsada (Streetlight Issues)" },
-  { value: "road", label: "Kalsada at Potholes (Road Maintenance)" },
-  { value: "drainage", label: "Kanal at Tubig-Baha (Drainage)" },
-  { value: "safety", label: "Kaligtasan ng Publiko (Public Safety)" },
+  { value: "waste", label: "Solid Waste & Sanitation" },
+  { value: "lighting", label: "Streetlights & Electrical Grid" },
+  { value: "road", label: "Road Maintenance & Potholes" },
+  { value: "drainage", label: "Drainage & Flood Channels" },
+  { value: "safety", label: "Public Safety & Physical Hazards" },
 ] as const;
 
 // ─── Paete Landmark Quick-Tags ────────────────────────────────────────────────
@@ -94,12 +96,12 @@ export function SubmitReportModal({
 
   const handleFileProcess = (file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("Mangyaring pumili ng wastong format ng larawan (JPEG, PNG, o WEBP).");
+      alert("Please select a valid image format (JPEG, PNG, or WEBP).");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Ang sukat ng larawan ay hindi dapat lumagpas sa 5MB.");
+      alert("Image file size must not exceed 5MB.");
       return;
     }
 
@@ -144,13 +146,12 @@ export function SubmitReportModal({
 
     onSubmit({
       title: title.trim(),
-      description: `${description.trim()} (Lokasyon: ${locationDetail || "Hindi tinukoy"})`,
+      description: `${description.trim()} (Location: ${locationDetail || "Unspecified"})`,
       category,
       barangay,
       imageUrl: previewUrl || undefined,
       isAnonymous,
       anonymousAlias: isAnonymous ? anonymousAlias : undefined,
-      // When anonymous, strip real identity from the public payload
       authorName: isAnonymous ? undefined : undefined,
       authorAvatar: isAnonymous ? undefined : undefined,
     });
@@ -167,13 +168,14 @@ export function SubmitReportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
       <div className="relative w-full max-w-xl rounded-2xl border border-white/15 bg-[#0A1931] p-6 sm:p-7 shadow-2xl text-white my-8 max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+          aria-label="Close modal"
+          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -184,24 +186,24 @@ export function SubmitReportModal({
               <Check className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-bold font-heading">
-              Matagumpay na Naisumite!
+              Report Submitted Successfully
             </h3>
             <p className="text-sm text-slate-300 max-w-xs mx-auto">
-              Ang iyong ulat at patunay na larawan ay naitala na para sa beripikasyon ng mga opisyal ng Paete.
+              Your community concern and photo evidence have been logged for official verification by Paete municipal authorities.
             </p>
           </div>
         ) : (
           <>
-            <div className="mb-5">
+            <div className="mb-5 pr-8">
               <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Mamamayan ng Paete</span>
+                <span>Municipality of Paete, Laguna</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight font-heading">
-                Magsumite ng Community Concern
+                Submit Community Concern
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-                Iulat ang mga suliranin sa inyong komunidad kalakip ang patunay na larawan.
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                Directly report infrastructure hazards, public sanitation, or community issues with photo evidence.
               </p>
             </div>
 
@@ -211,12 +213,12 @@ export function SubmitReportModal({
                 {/* Barangay Selection */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                    Barangay sa Paete *
+                    Paete Barangay *
                   </label>
                   <select
                     value={barangay}
                     onChange={(e) => setBarangay(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
                     required
                   >
                     {PAETE_BARANGAYS.map((brgy) => (
@@ -230,14 +232,14 @@ export function SubmitReportModal({
                 {/* Category Selection */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                    Kategorya *
+                    Concern Category *
                   </label>
                   <select
                     value={category}
                     onChange={(e) =>
                       setCategory(e.target.value as CommunityReport["category"])
                     }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
                     required
                   >
                     {CATEGORIES.map((cat) => (
@@ -252,14 +254,14 @@ export function SubmitReportModal({
               {/* Title */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Pamagat ng Concern *
+                  Concern Title *
                 </label>
                 <input
                   type="text"
-                  placeholder="Halimbawa: Pundidong ilaw sa may kanto ng F. Sario St."
+                  placeholder="e.g., Non-functional streetlights along F. Sario Street"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
                   required
                 />
               </div>
@@ -269,7 +271,7 @@ export function SubmitReportModal({
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-red-400" aria-hidden="true" />
-                    Eksaktong Lokasyon o Landmark
+                    Specific Location or Landmark
                   </span>
                 </label>
 
@@ -288,14 +290,14 @@ export function SubmitReportModal({
                               : prev ? `${prev}, ${lm}` : lm
                           )
                         }
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium transition-all duration-150 cursor-pointer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-150 cursor-pointer min-h-[36px]"
                         style={{
-                          background: isTagged ? "rgba(37,99,235,0.2)" : "rgba(255,255,255,0.05)",
-                          border: isTagged ? "1px solid rgba(37,99,235,0.4)" : "1px solid rgba(255,255,255,0.1)",
+                          background: isTagged ? "rgba(37,99,235,0.25)" : "rgba(255,255,255,0.05)",
+                          border: isTagged ? "1px solid rgba(37,99,235,0.5)" : "1px solid rgba(255,255,255,0.1)",
                           color: isTagged ? "#60A5FA" : "#94A3B8",
                         }}
                         aria-pressed={isTagged}
-                        aria-label={`${isTagged ? "Alisin" : "Idagdag"} ang landmark: ${lm}`}
+                        aria-label={`${isTagged ? "Remove" : "Add"} landmark tag: ${lm}`}
                       >
                         <Tag className="w-2.5 h-2.5 flex-shrink-0" aria-hidden="true" />
                         {lm}
@@ -308,21 +310,21 @@ export function SubmitReportModal({
                 <input
                   type="text"
                   id="location-detail-input"
-                  placeholder="O i-type ang lokasyon nang manu-mano..."
+                  placeholder="Or enter specific street corner / house number..."
                   value={locationDetail}
                   onChange={(e) => setLocationDetail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
                 />
               </div>
 
               {/* Description */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Detalyadong Paliwanag *
+                  Detailed Description *
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Ilarawan ang problema upang mas madaling masuri ng lokal na pamahalaan..."
+                  placeholder="Provide comprehensive details about the issue to assist municipal engineers and field workers..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none resize-none"
@@ -333,7 +335,7 @@ export function SubmitReportModal({
               {/* PHOTO EVIDENCE CONTAINER & PREVIEW */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Patunay na Larawan (Photo Evidence)
+                  Photo Evidence (Recommended)
                 </label>
 
                 <input
@@ -358,8 +360,8 @@ export function SubmitReportModal({
                       <button
                         type="button"
                         onClick={handleRemoveImage}
-                        className="absolute top-2 right-2 p-2 rounded-lg bg-red-600/90 hover:bg-red-700 text-white shadow-lg backdrop-blur-sm transition-all"
-                        title="Tanggalin ang larawan"
+                        className="absolute top-2 right-2 p-2 rounded-lg bg-red-600/90 hover:bg-red-700 text-white shadow-lg backdrop-blur-sm transition-all min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+                        title="Remove photo"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -372,7 +374,7 @@ export function SubmitReportModal({
                         <span className="text-slate-500">({fileSize})</span>
                       </div>
                       <span className="text-emerald-400 text-[11px] font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                        Nakahandang I-attach
+                        Ready to Attach
                       </span>
                     </div>
                   </div>
@@ -397,10 +399,10 @@ export function SubmitReportModal({
                         <Camera className="w-5 h-5" />
                       </div>
                       <div className="text-xs sm:text-sm font-semibold text-slate-200">
-                        Pindutin para mag-attach ng litrato o i-drag dito
+                        Click to attach photo evidence or drag and drop
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        Sinusuportahan ang JPEG, PNG, WEBP (Hanggang 5MB)
+                        Supports JPEG, PNG, WEBP (up to 5MB)
                       </p>
                     </div>
                   </div>
@@ -422,7 +424,7 @@ export function SubmitReportModal({
               >
                 <div className="flex items-start gap-2.5">
                   <div
-                    className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center mt-0.5"
+                    className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center mt-0.5"
                     style={{
                       background: isAnonymous
                         ? "rgba(148,163,184,0.12)"
@@ -433,29 +435,19 @@ export function SubmitReportModal({
                     }}
                   >
                     {isAnonymous ? (
-                      <svg className="w-3.5 h-3.5" style={{ color: "#94A3B8" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
+                      <Shield className="w-4 h-4 text-slate-400" />
                     ) : (
-                      <svg className="w-3.5 h-3.5" style={{ color: "#60A5FA" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                      </svg>
+                      <User className="w-4 h-4 text-blue-400" />
                     )}
                   </div>
                   <div>
-                    <p
-                      className="text-xs font-semibold leading-tight"
-                      style={{
-                        color: isAnonymous ? "#94A3B8" : "#E2E8F0",
-                        fontFamily: "var(--font-heading)",
-                      }}
-                    >
-                      {isAnonymous ? "Mag-ulat nang Hindi Kilala" : "Mag-ulat gamit ang Iyong Pangalan"}
+                    <p className="text-xs font-semibold leading-tight font-heading text-white">
+                      {isAnonymous ? "Report Anonymously (Identity Shield)" : "Report with Verified Resident Profile"}
                     </p>
-                    <p className="text-[11px] mt-0.5" style={{ color: "#64748B" }}>
+                    <p className="text-[11px] mt-0.5 text-slate-400">
                       {isAnonymous
-                        ? `Lilitaw bilang: ${anonymousAlias}`
-                        : "Ipapakita ang inyong verified na pangalan sa feed"}
+                        ? `Public Feed Alias: ${anonymousAlias}`
+                        : "Displays your verified citizen name on the public feed"}
                     </p>
                   </div>
                 </div>
@@ -467,19 +459,19 @@ export function SubmitReportModal({
                   role="switch"
                   aria-checked={isAnonymous}
                   onClick={() => setIsAnonymous((prev) => !prev)}
-                  className="relative flex-shrink-0 w-10 h-5 rounded-full transition-all duration-200 cursor-pointer focus:outline-none"
+                  className="relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-200 cursor-pointer focus:outline-none min-h-[44px] flex items-center"
                   style={{
                     background: isAnonymous ? "#475569" : "#2563EB",
                     boxShadow: isAnonymous
                       ? "none"
                       : "0 0 8px rgba(37,99,235,0.4)",
                   }}
-                  aria-label={isAnonymous ? "I-off ang anonymous mode" : "I-on ang anonymous mode"}
+                  aria-label={isAnonymous ? "Disable anonymous mode" : "Enable anonymous mode"}
                 >
                   <span
-                    className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200"
+                    className="block w-4 h-4 rounded-full bg-white transition-transform duration-200 ml-1"
                     style={{
-                      transform: isAnonymous ? "translateX(20px)" : "translateX(0)",
+                      transform: isAnonymous ? "translateX(22px)" : "translateX(0)",
                       boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
                     }}
                   />
@@ -493,16 +485,16 @@ export function SubmitReportModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all"
+                  className="px-4 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer"
                 >
-                  Kanselahin
+                  Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Isumite ang Ulat</span>
+                  <span>Submit Community Report</span>
                 </button>
               </div>
             </form>
