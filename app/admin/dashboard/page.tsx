@@ -24,9 +24,12 @@ import {
   Mail,
   ShieldCheck,
   UserCheck,
+  Menu,
+  Landmark,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { AdminSidebar, AdminTab } from "@/components/admin/AdminSidebar";
 
 interface AdminReport extends CommunityReport {
   officialNotes?: string;
@@ -297,8 +300,8 @@ export default function AdminDashboardPage() {
     }
     router.replace("/admin/login");
   };
-
-  const [activeTab, setActiveTab] = useState<"reports" | "users" | "audit">("reports");
+  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [reports, setReports] = useState<AdminReport[]>(INITIAL_ADMIN_REPORTS);
   const [users] = useState<CivicUser[]>(INITIAL_USERS);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
@@ -399,127 +402,337 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#071126] text-white">
-      {/* Top Admin Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#0A1931]/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-[#071126] text-white">
+      {/* Dynamic Governor / Admin Sidebar */}
+      <AdminSidebar
+        currentUser={currentUser}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        reportsCount={reports.length}
+        usersCount={users.length}
+        auditCount={auditLogs.length}
+        urgentCount={urgentReports}
+        onLogout={handleLogout}
+        isLoggingOut={isLoggingOut}
+        mobileOpen={mobileSidebarOpen}
+        setMobileOpen={setMobileSidebarOpen}
+      />
+
+      {/* Main Content Area Offset for Sidebar */}
+      <div className="lg:pl-72 flex flex-col min-h-screen">
+        {/* Top Header Bar for Desktop & Mobile */}
+        <header className="sticky top-0 z-20 w-full border-b border-white/10 bg-[#0A1931]/95 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CivicPaeteLogo size="sm" variant="full" theme="dark" />
-            <span className="hidden sm:inline-block h-5 w-[1px] bg-white/20" />
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin & Monitoring Console</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs">
-            <div className="hidden md:flex flex-col text-right">
-              <div className="flex items-center justify-end gap-1.5">
-                {currentUser?.role === "governor" && (
-                  <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase tracking-wider border border-amber-500/30">
-                    Provincial Governor
-                  </span>
-                )}
-                {currentUser?.role === "admin" && (
-                  <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold text-[10px] uppercase tracking-wider border border-blue-500/30">
-                    Municipal Admin
-                  </span>
-                )}
-                <span className="font-bold text-white">
-                  {currentUser?.name || "LGU Paete Official"}
-                </span>
-              </div>
-              <span className="text-slate-400">
-                {currentUser?.email || "admin@paete.gov.ph"} • {currentUser?.barangayOrOffice || "Paete Municipal Hall"}
-              </span>
-            </div>
-
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-            >
-              <span>Portal ng Mamamayan</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
-
+            {/* Mobile Hamburger Button */}
             <button
               type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 transition-all cursor-pointer disabled:opacity-50"
-              title="Mag-logout sa Console"
+              onClick={() => setMobileSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Buksan ang menu"
             >
-              <LogOut className="w-3.5 h-3.5 text-red-400" />
-              <span className="font-semibold text-xs">
-                {isLoggingOut ? "Lumalabas..." : "Logout"}
-              </span>
+              <Menu className="w-5 h-5" />
             </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline">
+                {currentUser?.role === "governor" ? "Provincial Command" : "Municipal Console"}
+              </span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <h2 className="text-sm sm:text-base font-bold text-white capitalize">
+                {activeTab === "overview" && "Buod at Estadistika"}
+                {activeTab === "provincial" && "Panlalawigang Pagmamasid (Laguna)"}
+                {activeTab === "reports" && "Pamamahala ng mga Ulat"}
+                {activeTab === "users" && "Direktoryo ng Opisyal at Mamamayan"}
+                {activeTab === "audit" && "Audit Trail & Talaan ng Pamahalaan"}
+              </h2>
+            </div>
           </div>
-        </div>
-      </header>
 
-      {/* Main Admin Console Container */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-7">
-        {/* Title & Recommendations Banner */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-              Municipal Command & Monitoring Console
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Pamahalaang Bayan ng Paete, Laguna — Opisyal na Portal ng Administrasyon
-            </p>
+          <div className="flex items-center gap-3">
+            {/* Role Chip */}
+            <div
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                currentUser?.role === "governor"
+                  ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                  : "bg-blue-500/15 text-blue-300 border-blue-500/30"
+              }`}
+            >
+              {currentUser?.role === "governor" ? (
+                <>
+                  <Landmark className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Hon. Provincial Governor</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Municipal Administrator</span>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="hidden md:inline text-slate-300">Firebase Active</span>
+            </div>
           </div>
+        </header>
 
-          <div className="inline-flex items-center gap-2 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200">
-            <Sparkles className="w-4 h-4 text-sky-400 shrink-0" />
-            <span>
-              <strong>Rule Engine:</strong> May 3 recurring streetlight concerns sa Brgy. Bagumbayan na inirerekomenda para sa electrical assessment.
-            </span>
-          </div>
-        </div>
+        {/* Main Console Content */}
+        <main className="flex-1 max-w-7xl px-4 sm:px-6 lg:px-8 py-6 w-full space-y-7">
+          {/* TAB: OVERVIEW */}
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              {/* Overview Title Banner */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-[#0A1931] via-[#112347] to-[#0A1931] border border-white/10 shadow-lg">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/25 text-blue-400 text-xs font-semibold mb-2">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>
+                      {currentUser?.role === "governor"
+                        ? "Provincial High Command Overview"
+                        : "Municipal Operations Overview"}
+                    </span>
+                  </div>
+                  <h1 className="text-2xl font-black font-heading text-white">
+                    {currentUser?.role === "governor"
+                      ? "Laguna Provincial Capitol Oversight"
+                      : "Pamahalaang Bayan ng Paete, Laguna"}
+                  </h1>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Centralized command console para sa pagsubaybay ng imprastraktura, kaligtasan, at serbisyo publiko.
+                  </p>
+                </div>
 
-        {/* Navigation Tabs (Reports | User Management | Audit Logs) */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-          <button
-            type="button"
-            onClick={() => setActiveTab("reports")}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-              activeTab === "reports"
-                ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Pamamahala ng mga Ulat ({reports.length})</span>
-          </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("reports")}
+                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-md shadow-blue-600/30 transition-all cursor-pointer"
+                  >
+                    Tingnan ang Lahat ng Ulat ({reports.length})
+                  </button>
+                </div>
+              </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("users")}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-              activeTab === "users"
-                ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>User Management ({users.length})</span>
-          </button>
+              {/* Metric KPI Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Kabuuang Ulat</span>
+                    <FileText className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-white">{totalReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Lahat ng isinumite</p>
+                </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("audit")}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-              activeTab === "audit"
-                ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <History className="w-4 h-4" />
-            <span>Audit Trail & Reports ({auditLogs.length})</span>
-          </button>
-        </div>
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Nangangailangan</span>
+                    <Clock className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-amber-400">{pendingReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Bago at for review</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Isinasagawa</span>
+                    <AlertTriangle className="w-4 h-4 text-sky-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-sky-400">{inProgressReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">May nakatalagang opisina</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Nalutas Na</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-emerald-400">{resolvedReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Matagumpay na natapos</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Kritikal / Hazard</span>
+                    <Shield className="w-4 h-4 text-red-400" />
+                  </div>
+                  <div className="text-2xl font-black font-heading text-red-400">{urgentReports}</div>
+                  <p className="text-[11px] text-slate-500 mt-1">Nangangailangan ng agarang pansin</p>
+                </div>
+              </div>
+
+              {/* Quick Urgent Concerns & Rule Engine Alert */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="p-5 rounded-2xl bg-[#0A1931] border border-red-500/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-red-400 font-bold text-sm">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>Mga Urgent Concerns ({urgentReports})</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter("urgent");
+                        setActiveTab("reports");
+                      }}
+                      className="text-xs text-red-400 hover:text-red-300 font-semibold underline cursor-pointer"
+                    >
+                      Tingnan Lahat
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {reports
+                      .filter((r) => r.status === "urgent")
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between"
+                        >
+                          <div className="min-w-0 pr-3">
+                            <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
+                            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                              <MapPin className="w-3 h-3 text-red-400 shrink-0" />
+                              <span>Brgy. {item.barangay}</span>
+                              <span>•</span>
+                              <span>{item.date}</span>
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedReport(item);
+                              setNoteInput(item.officialNotes || "");
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium shrink-0 cursor-pointer"
+                          >
+                            Disposisyon
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* Rule Engine & Municipal Health Panel */}
+                <div className="p-5 rounded-2xl bg-[#0A1931] border border-blue-500/20 space-y-4">
+                  <div className="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Civic AI Rule Engine & Cluster Insights</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-slate-300 leading-relaxed">
+                    <span className="font-semibold text-white block mb-1">
+                      Streetlight Infrastructure Alert:
+                    </span>
+                    May na-detect na 3 magkakaugnay na concern sa kahabaan ng Quesada Street sa loob ng 7 araw. Inirerekomenda ang pag-dispatch ng Municipal Engineering electrical bucket truck.
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-slate-300 leading-relaxed">
+                    <span className="font-semibold text-white block mb-1">
+                      Flood Mitigation & Drainage:
+                    </span>
+                    Matagumpay na natapos ang clearing operation sa Ilaya del Norte. Inirerekomenda ang regular na monthly desilting schedule bago ang tag-ulan.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PROVINCIAL OVERSIGHT (GOVERNOR ONLY) */}
+          {activeTab === "provincial" && (
+            <div className="space-y-6">
+              <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/40 via-[#0A1931] to-amber-950/30 border border-amber-500/30 space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                  <Landmark className="w-3.5 h-3.5" />
+                  <span>Panlalawigang Tanggapan ng Gobernador — Lalawigan ng Laguna</span>
+                </div>
+                <h1 className="text-2xl font-black font-heading text-white">
+                  Provincial Oversight & Inter-LGU Coordination Console
+                </h1>
+                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                  Eksklusibong panel para sa Tanggapan ng Gobernador upang mabilis na ma-monitor ang mga kritikal na ulat sa Bayan ng Paete, mag-dispatch ng suportang panlalawigan, at makipag-ugnayan sa PDRRMO at Provincial Engineering Office.
+                </p>
+              </div>
+
+              {/* Provincial Metric Summary */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-amber-500/20">
+                  <div className="text-xs font-semibold text-amber-400 uppercase">Kritikal sa Paete</div>
+                  <div className="text-3xl font-black text-white mt-1">{urgentReports}</div>
+                  <p className="text-[11px] text-slate-400 mt-1">Nangangailangan ng suportang panlalawigan</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Kabuuang Ulat ng Bayan</div>
+                  <div className="text-3xl font-black text-white mt-1">{totalReports}</div>
+                  <p className="text-[11px] text-slate-400 mt-1">Mula sa 9 na barangay ng Paete</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-emerald-500/20">
+                  <div className="text-xs font-semibold text-emerald-400 uppercase">LGU Resolution Rate</div>
+                  <div className="text-3xl font-black text-emerald-400 mt-1">
+                    {totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0}%
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">{resolvedReports} na resolbang concern</p>
+                </div>
+              </div>
+
+              {/* Urgent Reports table for Provincial Intervention */}
+              <div className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
+                    <span>Mga Ulat na Nangangailangan ng Provincial Dispatch o Escalation</span>
+                  </h3>
+                  <span className="text-xs text-slate-400">
+                    {reports.filter((r) => r.status === "urgent" || r.status === "pending").length} aktibo
+                  </span>
+                </div>
+
+                <div className="divide-y divide-white/10">
+                  {reports
+                    .filter((r) => r.status === "urgent" || r.status === "pending")
+                    .map((rep) => (
+                      <div key={rep.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                rep.status === "urgent"
+                                  ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                                  : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              }`}
+                            >
+                              {rep.status}
+                            </span>
+                            <span className="text-xs text-slate-400 font-medium">Brgy. {rep.barangay}</span>
+                          </div>
+                          <h4 className="text-sm font-semibold text-white">{rep.title}</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">{rep.description}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedReport(rep);
+                              setNoteInput(
+                                rep.officialNotes ||
+                                  "Mula sa Tanggapan ng Gobernador: I-prioritize ang aksyon at ipagbigay-alam sa Provincial Engineering."
+                              );
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+                          >
+                            Maglagay ng Provincial Directive
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          )}
 
         {/* TAB 1: REPORTS MANAGEMENT */}
         {activeTab === "reports" && (
@@ -954,6 +1167,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
