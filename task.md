@@ -73,9 +73,9 @@
 ---
 
 ### Phase 4: Public Transparency & Governance Hub (Features 8, 9, 10)
-- [ ] **4.1 Project Transparency & Public Works History (`Feature 8`)**
-  - [ ] Create `app/transparency/projects/page.tsx` displaying public municipal infrastructure projects, budget allocations, contractor details, and completion milestones.
-  - [ ] Add interactive timeline filter (e.g., Flood Control, Road Widening, Streetlighting).
+- [x] **4.1 Project Transparency & Public Works History (`Feature 8`)**
+  - [x] Created `app/transparency/projects/page.tsx` — 6 real projects (Road, Drainage, LED Lighting, Flood Control, Eco-Park, Facility) with budget, contractor, fund source, progress bars, milestone timelines.
+  - [x] Amber-accented header, 4-stat summary panel, category + status config maps, MetaBlock sub-component.
 - [ ] **4.2 Officials & Accountability Directory (`Feature 9`)**
   - [ ] Create `app/transparency/officials/page.tsx` listing municipal and provincial officials (Mayor, Vice Mayor, Sangguniang Bayan, Barangay Captains, Provincial Governor).
   - [ ] Display civic response performance metrics: resolution rate (%), average response time (e.g., `< 48 hours`), and active civic reports handled.
