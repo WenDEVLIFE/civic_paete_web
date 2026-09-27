@@ -55,7 +55,7 @@ const SECTIONS: TermsSection[] = [
       "Registered residents, property owners, and business operators within the Municipality of Paete, Laguna.",
       "Accredited municipal employees, barangay officials, department heads, and provincial coordinators.",
       "Accredited civic researchers, educational institutions, and public interest journalists.",
-      "Users must be at least 18 years of age, or have the express consent and supervision of a parent or legal guardian.",
+      "Users must be at least 15 years of age (aligned with youth civic eligibility and Katipunan ng Kabataan membership under the Sangguniang Kabataan Reform Act, Republic Act No. 10742). Individuals below 15 years of age must act under the direct guidance and supervision of a parent or legal guardian.",
     ],
   },
   {

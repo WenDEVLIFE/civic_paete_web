@@ -199,9 +199,24 @@ const SECTIONS: PrivacySection[] = [
     ],
   },
   {
+    id: "youth-eligibility",
+    icon: ShieldCheck,
+    title: "9. Youth Civic Participation & Minor Privacy (15+ Age Policy)",
+    badge: "RA 10742 & RA 10173",
+    content: [
+      "Pursuant to the Sangguniang Kabataan Reform Act (Republic Act No. 10742), youth aged fifteen (15) to thirty (30) possess statutory Katipunan ng Kabataan civic representation rights in their respective barangays. Civic Paete extends digital reporting and civic assembly participation to youth residents aged 15 and above:",
+    ],
+    list: [
+      "Minimum Age Eligibility: Individuals who are at least 15 years old may independently register, verify residency, submit community reports, and participate in civic feed discussions.",
+      "Minors Below 15: Children younger than 15 years old may not register independently and must act under the direct authorization and supervision of a parent or court-appointed legal guardian.",
+      "Default Protective Shield: Youth and student residents may toggle Identity Shield to publish reports under pseudonymous aliases ('Protected Citizen #NNN') to safeguard student safety.",
+      "Parental Rights: Parents or guardians of minors may exercise statutory Data Subject rights (access, correction, erasure) on behalf of their children by contacting dpo@paete.gov.ph.",
+    ],
+  },
+  {
     id: "contact",
     icon: Mail,
-    title: "9. Data Protection Officer (DPO) Contact",
+    title: "10. Data Protection Officer (DPO) Contact",
     badge: "NPC Compliance",
     content: [
       "For inquiries, clarification, or to exercise your statutory rights as a Data Subject, please contact the designated Data Protection Officer of the Municipal Government of Paete:",

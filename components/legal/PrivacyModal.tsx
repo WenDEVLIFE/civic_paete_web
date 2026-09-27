@@ -38,8 +38,8 @@ const SUMMARY_POINTS = [
   },
   {
     icon: "🛡️",
-    title: "Citizen Rights (RA 10173)",
-    body: "Full statutory rights to access, rectify, erase, or object under the Philippine Data Privacy Act. Contact dpo@paete.gov.ph for privacy inquiries.",
+    title: "Citizen Rights & Age Eligibility (15+)",
+    body: "Full statutory rights under RA 10173. Open to residents aged 15 and above (Katipunan ng Kabataan civic eligibility under RA 10742). Identity Shield masks youth identities on public feeds. Contact dpo@paete.gov.ph.",
   },
 ];
 

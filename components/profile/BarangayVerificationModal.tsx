@@ -55,6 +55,7 @@ export function BarangayVerificationModal({
   onVerificationSubmitted,
 }: BarangayVerificationModalProps) {
   const [fullName, setFullName] = useState(userName || "");
+  const [birthDate, setBirthDate] = useState("");
   const [barangay, setBarangay] = useState(PAETE_BARANGAYS[0]);
   const [address, setAddress] = useState("");
   const [method, setMethod] = useState<"certificate" | "gov_id">("certificate");
@@ -66,6 +67,12 @@ export function BarangayVerificationModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const maxEligibleDate = new Date(
+    new Date().setFullYear(new Date().getFullYear() - 15)
+  )
+    .toISOString()
+    .split("T")[0];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,13 +108,28 @@ export function BarangayVerificationModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !address.trim() || !documentNumber.trim()) {
-      setErrorMessage("Please fill out all required fields.");
+    if (!fullName.trim() || !address.trim() || !documentNumber.trim() || !birthDate) {
+      setErrorMessage("Please fill out all required fields including your date of birth.");
+      return;
+    }
+
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    if (age < 15) {
+      setErrorMessage(
+        "Applicants must be at least 15 years of age to register for civic verification (Katipunan ng Kabataan eligibility under RA 10742)."
+      );
       return;
     }
 
     if (!consentChecked) {
-      setErrorMessage("You must accept the Data Privacy declaration under RA 10173.");
+      setErrorMessage("You must accept the Data Privacy and Age 15+ statutory declaration.");
       return;
     }
 
@@ -133,6 +155,7 @@ export function BarangayVerificationModal({
             method,
             documentNumber,
             address,
+            birthDate,
             submittedAt: new Date().toISOString(),
           })
         );
@@ -197,19 +220,40 @@ export function BarangayVerificationModal({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
-              {/* Full Legal Name */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
-                  Full Legal Name (as shown on official document) *
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g., Juan Santos Dela Cruz"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
-                  required
-                />
+              {/* Full Legal Name & Date of Birth */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
+                    Full Legal Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="e.g., Juan Santos Dela Cruz"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-sans">
+                      Date of Birth *
+                    </label>
+                    <span className="text-[10px] text-blue-400 font-semibold px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 font-mono">
+                      15+ Years Old
+                    </span>
+                  </div>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    max={maxEligibleDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Barangay & Street Address Grid */}
@@ -407,8 +451,8 @@ export function BarangayVerificationModal({
                 )}
               </div>
 
-              {/* Data Privacy Consent Declaration */}
-              <div className="p-3 rounded-xl bg-blue-950/30 border border-blue-500/20 space-y-2">
+              {/* Data Privacy & 15+ Age Consent Declaration */}
+              <div className="p-3.5 rounded-xl bg-blue-950/30 border border-blue-500/20 space-y-2">
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
@@ -417,7 +461,7 @@ export function BarangayVerificationModal({
                     className="w-4 h-4 mt-0.5 rounded text-blue-600 bg-white/5 border-white/20 focus:ring-blue-500 shrink-0 cursor-pointer"
                   />
                   <span className="text-[11px] text-slate-300 leading-relaxed font-sans">
-                    I declare under penalty of perjury that the information and documents submitted are true and correct. I authorize the Paete Municipal Government to verify this credential solely for residency verification pursuant to Republic Act No. 10173 (Data Privacy Act of 2012).
+                    I affirm that I am a resident of Paete, Laguna aged 15 or older (Katipunan ng Kabataan / SK civic eligibility under RA 10742). I declare under penalty of perjury that the information and documents submitted are true and correct, and authorize the Paete Municipal Government to verify this credential solely for residency verification pursuant to Republic Act No. 10173.
                   </span>
                 </label>
               </div>
