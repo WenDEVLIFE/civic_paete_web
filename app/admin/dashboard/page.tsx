@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CivicPaeteLogo } from "@/components/brand/CivicPaeteLogo";
 import { CommunityReport, ReportStatus } from "@/components/reports/ReportCard";
 import {
@@ -250,6 +251,9 @@ function generateLogId() {
 }
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [currentUser, setCurrentUser] = useState<{
     name: string;
     email: string;
@@ -261,17 +265,27 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("civic_paete_admin_session");
-      if (stored) {
-        try {
-          setCurrentUser(JSON.parse(stored));
-        } catch {
-          // ignore parsing error
+      if (!stored) {
+        // Redirect to login if no active session
+        router.replace("/admin/login");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(stored);
+        if (!parsed || !parsed.email) {
+          router.replace("/admin/login");
+          return;
         }
+        setCurrentUser(parsed);
+        setIsAuthChecking(false);
+      } catch {
+        router.replace("/admin/login");
       }
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await signOut(auth);
     } catch {
@@ -281,6 +295,7 @@ export default function AdminDashboardPage() {
       localStorage.removeItem("civic_paete_admin_session");
       document.cookie = "civic_paete_role=; path=/; max-age=0";
     }
+    router.replace("/admin/login");
   };
 
   const [activeTab, setActiveTab] = useState<"reports" | "users" | "audit">("reports");
@@ -371,6 +386,18 @@ export default function AdminDashboardPage() {
     return matchesRole && matchesSearch;
   });
 
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#071126] text-white">
+        <CivicPaeteLogo size="lg" variant="full" theme="dark" className="mb-4" />
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <Shield className="w-4 h-4 text-blue-400 animate-pulse" />
+          <span>Bini-beripika ang awtorisasyon ng opisyal...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#071126] text-white">
       {/* Top Admin Header */}
@@ -415,14 +442,18 @@ export default function AdminDashboardPage() {
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
 
-            <Link
-              href="/admin/login"
+            <button
+              type="button"
               onClick={handleLogout}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-              title="Mag-logout"
+              disabled={isLoggingOut}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 transition-all cursor-pointer disabled:opacity-50"
+              title="Mag-logout sa Console"
             >
-              <LogOut className="w-4 h-4" />
-            </Link>
+              <LogOut className="w-3.5 h-3.5 text-red-400" />
+              <span className="font-semibold text-xs">
+                {isLoggingOut ? "Lumalabas..." : "Logout"}
+              </span>
+            </button>
           </div>
         </div>
       </header>
