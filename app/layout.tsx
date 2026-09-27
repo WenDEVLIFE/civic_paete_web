@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import CookieConsentBanner from "@/components/legal/CookieConsentBanner";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -30,7 +31,10 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${plusJakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <CookieConsentBanner />
+      </body>
     </html>
   );
 }
