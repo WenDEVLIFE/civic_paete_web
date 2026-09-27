@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CivicPaeteLogo } from "@/components/brand/CivicPaeteLogo";
-import { Shield, Lock, Mail, ArrowLeft, AlertCircle } from "lucide-react";
+import { Shield, Lock, Mail, ArrowLeft, AlertCircle, KeyRound, Landmark, CheckCircle2 } from "lucide-react";
+import { auth, db } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -12,22 +15,92 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccessMsg("");
 
-    // Simulate municipal staff credential check
-    setTimeout(() => {
-      setIsLoading(false);
-      // Allows demo access with any municipal address or standard credentials
-      if (email.trim() && password.trim()) {
-        router.push("/admin/dashboard");
-      } else {
-        setError("Mangyaring ilagay ang iyong Opisyal na Email at Password.");
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPassword = password.trim();
+
+      // 1. Authenticate directly via Firebase Auth Client
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        cleanEmail,
+        cleanPassword
+      );
+
+      const firebaseUser = userCredential.user;
+
+      // 2. Fetch role and profile from Firestore
+      let role: "admin" | "governor" = cleanEmail.includes("governor") ? "governor" : "admin";
+      let name = firebaseUser.displayName || (role === "governor" ? "Hon. Provincial Governor" : "Municipal Administrator");
+      let office = role === "governor" ? "Office of the Provincial Governor - Laguna" : "Office of the Municipal Mayor";
+      let barangayOrOffice = role === "governor" ? "Provincial Capitol, Laguna" : "Paete Municipal Hall";
+
+      try {
+        const userDocRef = doc(db, "users", firebaseUser.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (userSnap.exists()) {
+          const docData = userSnap.data();
+          if (docData.role === "governor" || docData.role === "admin") {
+            role = docData.role;
+          }
+          if (docData.name) name = docData.name;
+          if (docData.office) office = docData.office;
+          if (docData.barangayOrOffice) barangayOrOffice = docData.barangayOrOffice;
+        }
+      } catch (fsErr) {
+        console.warn("Firestore profile lookup notice:", fsErr);
       }
-    }, 600);
+
+      // 3. Store active session
+      const sessionData = {
+        uid: firebaseUser.uid,
+        email: cleanEmail,
+        name,
+        role,
+        office,
+        barangayOrOffice,
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("civic_paete_admin_session", JSON.stringify(sessionData));
+        document.cookie = `civic_paete_role=${role}; path=/; max-age=86400`;
+      }
+
+      setSuccessMsg(`Maligayang pagdating, ${name}! Nililipat sa console...`);
+
+      setTimeout(() => {
+        router.push("/admin/dashboard");
+      }, 500);
+    } catch (err: unknown) {
+      setIsLoading(false);
+      const authErr = err as { code?: string; message?: string };
+
+      if (
+        authErr.code === "auth/invalid-credential" ||
+        authErr.code === "auth/wrong-password" ||
+        authErr.code === "auth/user-not-found"
+      ) {
+        setError("Maling email o password. Pakisuri ang iyong opisyal na kredensyal.");
+      } else if (authErr.code === "auth/too-many-requests") {
+        setError("Masyadong maraming nabigong pagsubok. Pakisubukang muli mamaya.");
+      } else {
+        setError(authErr.message || "Nagkaroon ng aberya sa pag-login.");
+      }
+    }
+  };
+
+  const autofillCredentials = (selectedEmail: string, selectedPass: string) => {
+    setEmail(selectedEmail);
+    setPassword(selectedPass);
+    setError("");
   };
 
   return (
@@ -52,13 +125,13 @@ export default function AdminLoginPage() {
           <CivicPaeteLogo size="lg" variant="full" theme="dark" className="justify-center mb-4" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Shield className="w-3.5 h-3.5" />
-            <span>Portal ng mga Opisyal ng Bayan</span>
+            <span>Portal ng mga Opisyal at Pamunuan</span>
           </div>
           <h1 className="text-2xl font-bold font-heading text-white">
-            Municipal Administration
+            Municipal & Provincial Governance
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Eksklusibo para sa awtorisadong kawani ng Pamahalaang Bayan ng Paete.
+            Eksklusibo para sa awtorisadong kawani ng Bayan ng Paete at Lalawigan ng Laguna.
           </p>
         </div>
 
@@ -71,10 +144,17 @@ export default function AdminLoginPage() {
             </div>
           )}
 
+          {successMsg && (
+            <div className="mb-5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Opisyal na Municipal Email o Staff ID
+                Opisyal na Email o Staff ID
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -82,7 +162,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="halimbawa: admin@paete.gov.ph"
+                  placeholder="admin@paete.gov.ph o governor@laguna.gov.ph"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                   required
                 />
@@ -109,16 +189,48 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-50"
+              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer"
             >
               <Shield className="w-4 h-4" />
-              <span>{isLoading ? "Bini-beripika..." : "Mag-login bilang Opisyal"}</span>
+              <span>{isLoading ? "Bini-beripika sa Firebase Auth..." : "Mag-login bilang Opisyal"}</span>
             </button>
           </form>
 
-          {/* Audit Notice */}
-          <div className="mt-6 pt-5 border-t border-white/10 text-center text-[11px] text-slate-500 leading-relaxed">
-            Ang lahat ng aktibidad at pagbabago ng report status sa portal na ito ay itinatala sa opisyal na audit log ng Pamahalaang Bayan ng Paete.
+          {/* Quick Click Credentials for Admin & Governor */}
+          <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
+            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              I-click para i-load ang Verified Firebase Account:
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => autofillCredentials("admin@paete.gov.ph", "PaeteAdmin2026!")}
+                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-blue-600/20 hover:border-blue-500/40 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-blue-300">
+                  <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Admin</span>
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">admin@paete.gov.ph</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => autofillCredentials("governor@laguna.gov.ph", "LagunaGov2026!")}
+                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-amber-600/20 hover:border-amber-500/40 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-amber-300">
+                  <Landmark className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Governor</span>
+                </div>
+                <div className="text-[10px] text-slate-400 truncate">governor@laguna.gov.ph</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Security Notice */}
+          <div className="mt-4 pt-3 border-t border-white/5 text-center text-[10px] text-slate-500 leading-relaxed">
+            Ang pag-access ay protektado ng Firebase Authentication at Role-Based Access Control sa Cloud Firestore.
           </div>
         </div>
       </div>

@@ -24,6 +24,8 @@ import {
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 interface AdminReport extends CommunityReport {
   officialNotes?: string;
@@ -269,9 +271,15 @@ export default function AdminDashboardPage() {
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      // ignore
+    }
     if (typeof window !== "undefined") {
       localStorage.removeItem("civic_paete_admin_session");
+      document.cookie = "civic_paete_role=; path=/; max-age=0";
     }
   };
 
