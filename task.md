@@ -18,7 +18,7 @@
 | **8** | Project Transparency & History (LGU Audits) | 🟡 Queued | `app/transparency/projects/page.tsx` |
 | **9** | Officials & Accountability Directory | 🟡 Queued | `app/transparency/officials/page.tsx` |
 | **10** | Open Data & Civic Reports (CSV/PDF Exports) | 🟡 Queued | `app/transparency/reports/page.tsx` |
-| **11** | Safety & Whistleblower Legal Protection | 🟡 Queued | `app/legal/safety/page.tsx` + Submission Shield Banner |
+| **11** | Safety & Whistleblower Legal Protection | 🟢 Done | `app/legal/safety/page.tsx` + `components/legal/IdentityShieldBadge.tsx` |
 
 ---
 
@@ -34,9 +34,9 @@
   - [x] Create `components/legal/PrivacyModal.tsx` — quick-reference slide-over with 4-point summary, embedded during signup and report submission.
 - [x] **1.3 Terms & Conditions (`Feature 3`)**
   - [x] Build `app/legal/terms/page.tsx` with community guidelines (Pinapayagan/Ipinagbabawal), false report liabilities, LGU response SLA table (URGENT/HIGH/STANDARD/LOW), IP clauses, and contact block.
-- [ ] **1.4 Safety & Legal Protection Hub (`Feature 11`)**
-  - [ ] Build `app/legal/safety/page.tsx` covering Whistleblower Protection, Anti-Harassment safeguards, and direct escalation contacts with the Provincial Ombudsman & DILG.
-  - [ ] Add "Protektado ang Iyong Pagkakakilanlan" security badge inside report submission forms.
+- [x] **1.4 Safety & Legal Protection Hub (`Feature 11`)**
+  - [x] Build `app/legal/safety/page.tsx` covering Whistleblower Rights (6 provisions), Anti-Harassment laws (RA 11313, RA 10175, RA 9262, CSC MC 01-2001), and 4 escalation contacts (Ombudsman, DILG Laguna, NPC, PNP Laguna).
+  - [x] Created `components/legal/IdentityShieldBadge.tsx` (compact + banner variants) and embedded in `SubmitReportModal.tsx`.
 
 ---
 

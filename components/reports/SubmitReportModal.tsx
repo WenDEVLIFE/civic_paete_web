@@ -13,6 +13,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import { CommunityReport } from "./ReportCard";
+import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
 
 interface SubmitReportModalProps {
   isOpen: boolean;
@@ -333,13 +334,7 @@ export function SubmitReportModal({
                 )}
               </div>
 
-              {/* Verified Identity Note */}
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-950/40 border border-blue-500/20 text-xs text-blue-200">
-                <AlertCircle className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <span>
-                  Awtomatikong maiuugnay ang iyong beripikadong Google Identity at petsa sa ulat at patunay na larawan na ito.
-                </span>
-              </div>
+              <IdentityShieldBadge variant="banner" />
 
               {/* Submit Buttons */}
               <div className="pt-2 flex items-center justify-end gap-3">
