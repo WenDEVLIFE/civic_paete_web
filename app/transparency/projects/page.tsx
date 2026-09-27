@@ -224,14 +224,6 @@ const CATEGORIES: { value: ProjectCategory | "all"; label: string }[] = [
   { value: "environment", label: "🌿 Kalikasan" },
 ];
 
-const STATUSES: { value: ProjectStatus | "all"; label: string }[] = [
-  { value: "all", label: "Lahat" },
-  { value: "completed", label: "✅ Tapos Na" },
-  { value: "ongoing", label: "🔵 Isinasagawa" },
-  { value: "bidding", label: "🟡 Bidding" },
-  { value: "planned", label: "⚪ Nakaplanong" },
-];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatBudget(amount: number): string {

@@ -16,7 +16,7 @@ interface ProvisionAccount {
   barangayOrOffice: string;
 }
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const adminEmail = (process.env.ADMIN_EMAIL || "admin@paete.gov.ph").trim();
     const adminPassword = (process.env.ADMIN_PASSWORD || "PaeteAdmin2026!").trim();
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
             );
             uid = credential.user.uid;
             status = "already_existed_updated";
-          } catch (signInErr) {
+          } catch {
             results.push({
               email: acc.email,
               status: "failed",

@@ -6,7 +6,6 @@ import {
   X,
   Send,
   MapPin,
-  AlertCircle,
   Check,
   Camera,
   Trash2,

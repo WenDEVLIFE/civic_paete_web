@@ -348,14 +348,14 @@ export default function OpenDataReportsPage() {
               <Filter className="w-3.5 h-3.5" /> Panahon ng Datos:
             </span>
             {[
-              { id: "2026-ALL", label: "2026 Buong Taon (YTD)" },
-              { id: "2026-Q3", label: "Q3 (Hulyo – Setyembre)" },
-              { id: "2026-Q2", label: "Q2 (Abril – Hunyo)" },
-              { id: "2026-Q1", label: "Q1 (Enero – Marso)" },
+              { id: "2026-ALL" as const, label: "2026 Buong Taon (YTD)" },
+              { id: "2026-Q3" as const, label: "Q3 (Hulyo – Setyembre)" },
+              { id: "2026-Q2" as const, label: "Q2 (Abril – Hunyo)" },
+              { id: "2026-Q1" as const, label: "Q1 (Enero – Marso)" },
             ].map((p) => (
               <button
                 key={p.id}
-                onClick={() => setSelectedPeriod(p.id as any)}
+                onClick={() => setSelectedPeriod(p.id)}
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
                   selectedPeriod === p.id
                     ? "bg-[#38BDF8] text-[#070D18] font-bold shadow-md shadow-[#38BDF8]/20"

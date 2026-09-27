@@ -2,7 +2,6 @@
 
 import React, { use, useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import {
@@ -24,7 +23,6 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
-  Sparkles,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";

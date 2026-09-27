@@ -18,10 +18,8 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
-  Landmark,
   Check,
   UserCheck,
-  Award,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
