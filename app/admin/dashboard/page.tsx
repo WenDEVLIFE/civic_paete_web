@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { CivicPaeteLogo } from "@/components/brand/CivicPaeteLogo";
 import { CommunityReport, ReportStatus } from "@/components/reports/ReportCard";
@@ -127,6 +127,26 @@ const INITIAL_ADMIN_REPORTS: AdminReport[] = [
 
 const INITIAL_USERS: CivicUser[] = [
   {
+    id: "usr-admin",
+    name: "Municipal Administrator",
+    email: "admin@paete.gov.ph",
+    role: "official",
+    barangayOrOffice: "Office of the Municipal Mayor / Hall",
+    reportsCount: 0,
+    registeredDate: "Sept 27, 2026",
+    authProvider: "municipal_credentials",
+  },
+  {
+    id: "usr-gov",
+    name: "Hon. Provincial Governor",
+    email: "governor@laguna.gov.ph",
+    role: "official",
+    barangayOrOffice: "Office of the Provincial Governor - Laguna",
+    reportsCount: 0,
+    registeredDate: "Sept 27, 2026",
+    authProvider: "municipal_credentials",
+  },
+  {
     id: "usr-1",
     name: "Juan Dela Cruz",
     email: "juan.delacruz@gmail.com",
@@ -228,6 +248,33 @@ function generateLogId() {
 }
 
 export default function AdminDashboardPage() {
+  const [currentUser, setCurrentUser] = useState<{
+    name: string;
+    email: string;
+    role: "admin" | "governor";
+    office: string;
+    barangayOrOffice: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("civic_paete_admin_session");
+      if (stored) {
+        try {
+          setCurrentUser(JSON.parse(stored));
+        } catch {
+          // ignore parsing error
+        }
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("civic_paete_admin_session");
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<"reports" | "users" | "audit">("reports");
   const [reports, setReports] = useState<AdminReport[]>(INITIAL_ADMIN_REPORTS);
   const [users] = useState<CivicUser[]>(INITIAL_USERS);
@@ -332,8 +379,24 @@ export default function AdminDashboardPage() {
 
           <div className="flex items-center gap-4 text-xs">
             <div className="hidden md:flex flex-col text-right">
-              <span className="font-bold text-white">LGU Paete Official</span>
-              <span className="text-slate-400">admin@paete.gov.ph</span>
+              <div className="flex items-center justify-end gap-1.5">
+                {currentUser?.role === "governor" && (
+                  <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase tracking-wider border border-amber-500/30">
+                    Provincial Governor
+                  </span>
+                )}
+                {currentUser?.role === "admin" && (
+                  <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold text-[10px] uppercase tracking-wider border border-blue-500/30">
+                    Municipal Admin
+                  </span>
+                )}
+                <span className="font-bold text-white">
+                  {currentUser?.name || "LGU Paete Official"}
+                </span>
+              </div>
+              <span className="text-slate-400">
+                {currentUser?.email || "admin@paete.gov.ph"} • {currentUser?.barangayOrOffice || "Paete Municipal Hall"}
+              </span>
             </div>
 
             <Link
@@ -346,6 +409,7 @@ export default function AdminDashboardPage() {
 
             <Link
               href="/admin/login"
+              onClick={handleLogout}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
               title="Mag-logout"
             >
