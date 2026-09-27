@@ -10,6 +10,7 @@ import {
   Calendar,
   Layers,
   Award,
+  HardHat,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -337,9 +338,10 @@ export default function OfficialsDirectoryPage() {
           <div className="flex items-center gap-2 text-xs">
             <Link
               href="/transparency/projects"
-              className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 font-medium transition-all min-h-[44px] flex items-center"
+              className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 font-medium transition-all min-h-[44px] flex items-center gap-1.5"
             >
-              🚧 Public Works
+              <HardHat className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Public Works</span>
             </Link>
             <Link
               href="/transparency/reports"

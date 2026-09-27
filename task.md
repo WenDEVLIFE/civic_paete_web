@@ -11,13 +11,13 @@
 | **1** | Privacy Policy (RA 10173 compliance) | 🟢 Done | `app/legal/privacy/page.tsx` + `components/legal/PrivacyModal.tsx` |
 | **2** | Cookie Consent Banner & Preferences | 🟢 Done | `components/legal/CookieConsentBanner.tsx` |
 | **3** | Terms & Conditions | 🟢 Done | `app/legal/terms/page.tsx` |
-| **4** | User Data Management & Export | 🟡 Queued | `app/profile/data/page.tsx` / `UserDataModal.tsx` |
-| **5** | User Account & Barangay Verification System | 🟡 Queued | `components/auth/VerificationBadge.tsx` & Verification Flow |
+| **4** | User Data Management & Export | 🟢 Done | `components/profile/UserProfileModal.tsx` (Data Portability & Erasure) |
+| **5** | User Account & Barangay Verification System | 🟢 Done | `components/profile/VerificationBadge.tsx` + `BarangayVerificationModal.tsx` + Admin Queue |
 | **6** | Nickname / Anonymous Reporting Option | 🟢 Done | `components/reports/SubmitReportModal.tsx` + `ReportCard.tsx` |
-| **7** | Community Reporting Module (Feed + Comments) | 🟢 In Progress | `components/reports/ReportCard.tsx` + `app/page.tsx` |
-| **8** | Project Transparency & History (LGU Audits) | 🟡 Queued | `app/transparency/projects/page.tsx` |
-| **9** | Officials & Accountability Directory | 🟡 Queued | `app/transparency/officials/page.tsx` |
-| **10** | Open Data & Civic Reports (CSV/PDF Exports) | 🟡 Queued | `app/transparency/reports/page.tsx` |
+| **7** | Community Reporting Module (Feed + Comments) | 🟢 Done | `components/reports/ReportCard.tsx` + `app/page.tsx` |
+| **8** | Project Transparency & History (LGU Audits) | 🟢 Done | `app/transparency/projects/page.tsx` |
+| **9** | Officials & Accountability Directory | 🟢 Done | `app/transparency/officials/page.tsx` |
+| **10** | Open Data & Civic Reports (CSV/PDF Exports) | 🟢 Done | `app/transparency/reports/page.tsx` |
 | **11** | Safety & Whistleblower Legal Protection | 🟢 Done | `app/legal/safety/page.tsx` + `components/legal/IdentityShieldBadge.tsx` |
 
 ---
@@ -33,7 +33,7 @@
   - [x] Create `app/legal/privacy/page.tsx` detailing RA 10173 compliance, DPO contact for Paete LGU, data retention, and resident rights.
   - [x] Create `components/legal/PrivacyModal.tsx` — quick-reference slide-over with 4-point summary, embedded during signup and report submission.
 - [x] **1.3 Terms & Conditions (`Feature 3`)**
-  - [x] Build `app/legal/terms/page.tsx` with community guidelines (Pinapayagan/Ipinagbabawal), false report liabilities, LGU response SLA table (URGENT/HIGH/STANDARD/LOW), IP clauses, and contact block.
+  - [x] Build `app/legal/terms/page.tsx` with community guidelines (Permitted/Prohibited), false report liabilities, LGU response SLA table (URGENT/HIGH/STANDARD/LOW), IP clauses, and contact block.
 - [x] **1.4 Safety & Legal Protection Hub (`Feature 11`)**
   - [x] Build `app/legal/safety/page.tsx` covering Whistleblower Rights (6 provisions), Anti-Harassment laws (RA 11313, RA 10175, RA 9262, CSC MC 01-2001), and 4 escalation contacts (Ombudsman, DILG Laguna, NPC, PNP Laguna).
   - [x] Created `components/legal/IdentityShieldBadge.tsx` (compact + banner variants) and embedded in `SubmitReportModal.tsx`.
@@ -43,16 +43,16 @@
 ### Phase 2: User Account, Verification & Privacy Shield (Features 4, 5, 6)
 - [x] **2.1 Anonymous / Alias Reporting Shield (`Feature 6`)**
   - [x] Added `isAnonymous` toggle with live alias preview in `components/reports/SubmitReportModal.tsx`.
-  - [x] `generateAnonymousAlias()` generates a stable `Protektadong Mamamayan #NNN` alias per session; `anonymousAlias` stored in the report payload while real identity is omitted from public data.
-  - [x] `ReportCard.tsx` renders grey shield avatar + "Nakaprotektang Ulat" badge when `isAnonymous` is true; real name/avatar and verified dot hidden.
-- [ ] **2.2 Barangay Verification System (`Feature 5`)**
-  - [ ] Design verification state badges (`Unverified Resident`, `Barangay Verified`, `Community Leader`, `Municipal Officer`).
-  - [ ] Create Barangay Residency verification modal in resident profile (ID upload / Barangay Certificate number entry).
-  - [ ] Add verification approval review queue in `app/admin/dashboard/page.tsx` (under the Users tab).
-- [ ] **2.3 User Data & Privacy Dashboard (`Feature 4`)**
-  - [ ] Build resident settings tab / modal allowing users to view all submitted reports, upvotes, and comments.
-  - [ ] Provide "Download My Civic Data" JSON/PDF export feature (Data Portability under RA 10173).
-  - [ ] Provide "Request Data Deletion / Account Closure" flow.
+  - [x] `generateAnonymousAlias()` generates a stable `Protected Citizen #NNN` alias per session; `anonymousAlias` stored in report payload while real identity is omitted from public feeds.
+  - [x] `ReportCard.tsx` renders shield avatar + "Protected Report" badge when `isAnonymous` is true; real name/avatar and verified dot hidden.
+- [x] **2.2 Barangay Verification System (`Feature 5`)**
+  - [x] Designed verification state badges (`Unverified Resident`, `Barangay Verified`, `Community Leader`, `Municipal Officer`) in `components/profile/VerificationBadge.tsx`.
+  - [x] Created Barangay Residency verification modal in `components/profile/BarangayVerificationModal.tsx` (ID upload / Barangay Certificate number entry, file drag-and-drop, RA 10173 statutory consent).
+  - [x] Added verification approval review queue in `app/admin/dashboard/page.tsx` (under the Users tab with sub-tab filter, stats, Approve/Promote/Reject actions, and audit log integration).
+- [x] **2.3 User Data & Privacy Dashboard (`Feature 4`)**
+  - [x] Built resident profile modal `components/profile/UserProfileModal.tsx` accessible via Navbar with tabs for Identity & Verification, Civic Activity (reports, upvotes, comments), and Data Rights.
+  - [x] Provided "Download My Civic Data" JSON export feature adhering to RA 10173 Sec. 18 (Right to Data Portability).
+  - [x] Provided "Request Data Deletion / Account Closure" flow adhering to RA 10173 Sec. 16 (Right to Erasure/Blocking) with confirmation safeguards.
 
 ---
 

@@ -4,16 +4,32 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CivicPaeteLogo } from "../brand/CivicPaeteLogo";
-import { Shield, PlusCircle, FileText, Menu, X, LogIn, LogOut, UserCheck } from "lucide-react";
+import {
+  Shield,
+  PlusCircle,
+  FileText,
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+  UserCheck,
+  HardHat,
+  Landmark,
+  BarChart3,
+  ShieldCheck,
+  Scale,
+} from "lucide-react";
 import { auth, db, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { UserProfileModal } from "@/components/profile/UserProfileModal";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -63,7 +79,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A1931]/90 backdrop-blur-md transition-all">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A1931]/90 backdrop-blur-md transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand Logo */}
@@ -114,21 +131,24 @@ export function Navbar() {
                 <div className="rounded-xl bg-[#0A1931] border border-white/15 p-2 shadow-2xl backdrop-blur-xl space-y-1">
                   <Link
                     href="/transparency/projects"
-                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    🚧 Public Works & Projects
+                    <HardHat className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Public Works & Projects</span>
                   </Link>
                   <Link
                     href="/transparency/officials"
-                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    🏛️ Officials Directory
+                    <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>Officials Directory</span>
                   </Link>
                   <Link
                     href="/transparency/reports"
-                    className="block px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-colors"
                   >
-                    📊 Open Data & Reports
+                    <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Open Data & Reports</span>
                   </Link>
                 </div>
               </div>
@@ -157,35 +177,42 @@ export function Navbar() {
             {!isLoading && (
               <>
                 {user ? (
-                  <div className="flex items-center gap-2.5 pl-2 border-l border-white/15">
-                    {user.photoURL ? (
-                      <Image
-                        src={user.photoURL}
-                        alt={user.displayName || "User"}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full border border-blue-400/40 object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 font-bold text-xs flex items-center justify-center">
-                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "CP"}
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 pl-2 border-l border-white/15">
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileModalOpen(true)}
+                      className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/5 transition-all text-left cursor-pointer min-h-[44px]"
+                      title="Open Profile & Privacy Dashboard"
+                    >
+                      {user.photoURL ? (
+                        <Image
+                          src={user.photoURL}
+                          alt={user.displayName || "User"}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full border border-blue-400/40 object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-600/30 border border-blue-400/40 text-blue-300 font-bold text-xs flex items-center justify-center">
+                          {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : "PR"}
+                        </div>
+                      )}
 
-                    <div className="flex flex-col text-left">
-                      <span className="text-xs font-semibold text-white max-w-[130px] truncate">
-                        {user.displayName || "Resident"}
-                      </span>
-                      <span className="text-[10px] text-emerald-400 flex items-center gap-1">
-                        <UserCheck className="w-2.5 h-2.5" />
-                        <span>Verified</span>
-                      </span>
-                    </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-xs font-semibold text-white max-w-[120px] truncate">
+                          {user.displayName || "Paete Resident"}
+                        </span>
+                        <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-heading">
+                          <UserCheck className="w-2.5 h-2.5" />
+                          <span>Profile & Rights</span>
+                        </span>
+                      </div>
+                    </button>
 
                     <button
                       type="button"
                       onClick={handleSignOut}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                       title="Sign out of account"
                     >
                       <LogOut className="w-4 h-4" />
@@ -261,23 +288,26 @@ export function Navbar() {
             <Link
               href="/transparency/projects"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              🚧 Public Works & Projects
+              <HardHat className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>Public Works & Projects</span>
             </Link>
             <Link
               href="/transparency/officials"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              🏛️ Officials Directory
+              <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
+              <span>Officials Directory</span>
             </Link>
             <Link
               href="/transparency/reports"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              📊 Open Data & Reports
+              <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Open Data & Reports</span>
             </Link>
           </div>
 
@@ -288,23 +318,26 @@ export function Navbar() {
             <Link
               href="/legal/safety"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              🛡️ Whistleblower & Legal Protection
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Whistleblower & Legal Protection</span>
             </Link>
             <Link
               href="/legal/privacy"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              📜 Privacy Policy (RA 10173)
+              <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+              <span>Privacy Policy (RA 10173)</span>
             </Link>
             <Link
               href="/legal/terms"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-1.5 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10"
             >
-              ⚖️ Terms of Service
+              <Scale className="w-4 h-4 text-purple-400 shrink-0" />
+              <span>Terms of Service</span>
             </Link>
           </div>
 
@@ -363,6 +396,16 @@ export function Navbar() {
           </div>
         </div>
       )}
-    </header>
+      </header>
+
+      {/* User Profile & Privacy Dashboard Modal */}
+      {user && (
+        <UserProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          user={user}
+        />
+      )}
+    </>
   );
 }

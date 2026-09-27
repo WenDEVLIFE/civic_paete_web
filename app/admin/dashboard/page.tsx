@@ -24,10 +24,16 @@ import {
   UserCheck,
   Menu,
   Landmark,
+  BadgeCheck,
+  Award,
+  XCircle,
+  Check,
+  HardHat,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { AdminSidebar, AdminTab } from "@/components/admin/AdminSidebar";
+import { VerificationBadge, VerificationStatus } from "@/components/profile/VerificationBadge";
 
 interface AdminReport extends CommunityReport {
   officialNotes?: string;
@@ -43,6 +49,21 @@ interface CivicUser {
   reportsCount: number;
   registeredDate: string;
   authProvider: "google" | "municipal_credentials";
+  verificationStatus: VerificationStatus;
+}
+
+interface VerificationRequest {
+  id: string;
+  userId: string;
+  applicantName: string;
+  email: string;
+  barangay: string;
+  address: string;
+  method: "certificate" | "gov_id";
+  documentType: string;
+  documentNumber: string;
+  submittedAt: string;
+  status: "pending" | "approved" | "rejected";
 }
 
 interface AuditLog {
@@ -139,6 +160,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 0,
     registeredDate: "Sept 27, 2026",
     authProvider: "municipal_credentials",
+    verificationStatus: "municipal_officer",
   },
   {
     id: "usr-gov",
@@ -149,6 +171,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 0,
     registeredDate: "Sept 27, 2026",
     authProvider: "municipal_credentials",
+    verificationStatus: "municipal_officer",
   },
   {
     id: "usr-1",
@@ -159,6 +182,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 4,
     registeredDate: "Sept 12, 2026",
     authProvider: "google",
+    verificationStatus: "unverified",
   },
   {
     id: "usr-2",
@@ -169,6 +193,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 2,
     registeredDate: "Sept 15, 2026",
     authProvider: "google",
+    verificationStatus: "unverified",
   },
   {
     id: "usr-3",
@@ -179,6 +204,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 0,
     registeredDate: "Aug 01, 2026",
     authProvider: "municipal_credentials",
+    verificationStatus: "municipal_officer",
   },
   {
     id: "usr-4",
@@ -189,6 +215,7 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 0,
     registeredDate: "Aug 10, 2026",
     authProvider: "municipal_credentials",
+    verificationStatus: "municipal_officer",
   },
   {
     id: "usr-5",
@@ -199,6 +226,49 @@ const INITIAL_USERS: CivicUser[] = [
     reportsCount: 3,
     registeredDate: "Sept 18, 2026",
     authProvider: "google",
+    verificationStatus: "unverified",
+  },
+];
+
+const INITIAL_VERIFICATION_REQUESTS: VerificationRequest[] = [
+  {
+    id: "vreq-101",
+    userId: "usr-1",
+    applicantName: "Juan Dela Cruz",
+    email: "juan.delacruz@gmail.com",
+    barangay: "Bagumbayan",
+    address: "142 Quesada St., Purok 2",
+    method: "certificate",
+    documentType: "Barangay Clearance Certificate",
+    documentNumber: "BC-2026-0891",
+    submittedAt: "Sept 26, 2026 • 11:20 AM",
+    status: "pending",
+  },
+  {
+    id: "vreq-102",
+    userId: "usr-2",
+    applicantName: "Maria Santos-Reyes",
+    email: "maria.reyes@gmail.com",
+    barangay: "Maytoong",
+    address: "88 J. Rizal St., Maytoong",
+    method: "gov_id",
+    documentType: "PhilSys National ID",
+    documentNumber: "9182-3847-1920-4821",
+    submittedAt: "Sept 25, 2026 • 02:15 PM",
+    status: "pending",
+  },
+  {
+    id: "vreq-103",
+    userId: "usr-5",
+    applicantName: "Roberto Fadul",
+    email: "roberto.fadul@gmail.com",
+    barangay: "Bangkusay",
+    address: "Kanto ng Ilaya, Bangkusay",
+    method: "gov_id",
+    documentType: "COMELEC Voter's ID",
+    documentNumber: "VOT-4016-PAETE-02",
+    submittedAt: "Sept 24, 2026 • 04:40 PM",
+    status: "pending",
   },
 ];
 
@@ -301,7 +371,11 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [reports, setReports] = useState<AdminReport[]>(INITIAL_ADMIN_REPORTS);
-  const [users] = useState<CivicUser[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<CivicUser[]>(INITIAL_USERS);
+  const [verificationRequests, setVerificationRequests] = useState<VerificationRequest[]>(
+    INITIAL_VERIFICATION_REQUESTS
+  );
+  const [userSubTab, setUserSubTab] = useState<"directory" | "verification_queue">("directory");
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
 
   // Reports state
@@ -321,6 +395,57 @@ export default function AdminDashboardPage() {
   const inProgressReports = reports.filter((r) => r.status === "in_progress").length;
   const resolvedReports = reports.filter((r) => r.status === "resolved").length;
   const urgentReports = reports.filter((r) => r.status === "urgent").length;
+  const pendingVerificationsCount = verificationRequests.filter((v) => v.status === "pending").length;
+
+  const handleApproveVerification = (
+    req: VerificationRequest,
+    targetLevel: "barangay_verified" | "community_leader" = "barangay_verified"
+  ) => {
+    // 1. Update verification requests state
+    setVerificationRequests((prev) =>
+      prev.map((item) => (item.id === req.id ? { ...item, status: "approved" } : item))
+    );
+
+    // 2. Promote the user's verificationStatus in the users state
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === req.userId || u.email === req.email
+          ? { ...u, verificationStatus: targetLevel }
+          : u
+      )
+    );
+
+    // 3. Log to Immutable Audit Trail
+    const newLog: AuditLog = {
+      id: generateLogId(),
+      timestamp: "Just now",
+      actorName: currentUser?.name || "Municipal Administrator",
+      actorRole: currentUser?.office || "Municipal Official",
+      action: "VERIFICATION_APPROVED",
+      reportId: req.id,
+      barangay: req.barangay,
+      details: `Approved ${targetLevel === "barangay_verified" ? "Barangay Verified" : "Community Leader"} status for resident ${req.applicantName} (${req.barangay}). Verified document: ${req.documentType} #${req.documentNumber}.`,
+    };
+    setAuditLogs([newLog, ...auditLogs]);
+  };
+
+  const handleRejectVerification = (req: VerificationRequest) => {
+    setVerificationRequests((prev) =>
+      prev.map((item) => (item.id === req.id ? { ...item, status: "rejected" } : item))
+    );
+
+    const newLog: AuditLog = {
+      id: generateLogId(),
+      timestamp: "Just now",
+      actorName: currentUser?.name || "Municipal Administrator",
+      actorRole: currentUser?.office || "Municipal Official",
+      action: "VERIFICATION_REJECTED",
+      reportId: req.id,
+      barangay: req.barangay,
+      details: `Rejected residency verification request for ${req.applicantName} in Brgy. ${req.barangay}. Requirement document discrepancy noted.`,
+    };
+    setAuditLogs([newLog, ...auditLogs]);
+  };
 
   const handleStatusChange = (id: string, newStatus: ReportStatus) => {
     const target = reports.find((r) => r.id === id);
@@ -657,7 +782,10 @@ export default function AdminDashboardPage() {
                     className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-amber-400 font-heading">🚧 Public Works & Budget</span>
+                      <div className="flex items-center gap-1.5">
+                        <HardHat className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span className="text-xs font-bold text-amber-400 font-heading">Public Works & Budget</span>
+                      </div>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium">Infrastructure Project History</p>
@@ -669,7 +797,10 @@ export default function AdminDashboardPage() {
                     className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-blue-400 font-heading">🏛️ Municipal & Provincial Leaders</span>
+                      <div className="flex items-center gap-1.5">
+                        <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
+                        <span className="text-xs font-bold text-blue-400 font-heading">Municipal & Provincial Leaders</span>
+                      </div>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium">Accountability Directory</p>
@@ -681,7 +812,10 @@ export default function AdminDashboardPage() {
                     className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 transition-all group min-h-[44px]"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-emerald-400 font-heading">📊 Open Data Hub</span>
+                      <div className="flex items-center gap-1.5">
+                        <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="text-xs font-bold text-emerald-400 font-heading">Open Data Hub</span>
+                      </div>
                       <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium">Open Datasets & CSV/JSON Export</p>
@@ -978,138 +1112,296 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
-          {/* TAB: USERS MANAGEMENT */}
+          {/* TAB: USERS MANAGEMENT & VERIFICATION QUEUE */}
           {activeTab === "users" && (
             <div className="space-y-6">
               {/* User Overview KPIs */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-1">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Total Registered Accounts</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Total Registered</span>
                     <Users className="w-4 h-4 text-blue-400" />
                   </div>
                   <div className="text-2xl font-bold font-heading text-white">{users.length}</div>
-                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Verified residents and administrative staff</p>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Citizens & staff</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-1">
-                    <span className="text-xs font-semibold uppercase tracking-wider">Residents (Google Verified)</span>
-                    <UserCheck className="w-4 h-4 text-sky-400" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">Pending Verification</span>
+                    <BadgeCheck className="w-4 h-4 text-amber-400" />
                   </div>
-                  <div className="text-2xl font-bold font-heading text-sky-400">
-                    {users.filter((u) => u.role === "resident").length}
+                  <div className="text-2xl font-bold font-heading text-amber-400">{pendingVerificationsCount}</div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Awaiting review</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
+                  <div className="flex items-center justify-between text-slate-400 mb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider">Barangay Verified</span>
+                    <UserCheck className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Authenticated community reporters</p>
+                  <div className="text-2xl font-bold font-heading text-emerald-400">
+                    {users.filter((u) => u.verificationStatus === "barangay_verified" || u.verificationStatus === "community_leader").length}
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Authenticated residents</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10">
                   <div className="flex items-center justify-between text-slate-400 mb-1">
                     <span className="text-xs font-semibold uppercase tracking-wider">Authorized Officials</span>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <ShieldCheck className="w-4 h-4 text-blue-400" />
                   </div>
-                  <div className="text-2xl font-bold font-heading text-emerald-400">
+                  <div className="text-2xl font-bold font-heading text-blue-400">
                     {users.filter((u) => u.role === "official").length}
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Authorized status modification permissions</p>
+                  <p className="text-[11px] text-slate-500 mt-1 font-sans">Administrative console access</p>
                 </div>
               </div>
 
-              {/* Filter Bar */}
-              <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search accounts by name, email, or department..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
-                  />
-                </div>
-
-                <select
-                  value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
-                  className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none min-h-[44px]"
+              {/* Sub-Tabs Switcher */}
+              <div className="flex border-b border-white/10 bg-[#0A1931]/60 px-4 rounded-2xl border border-white/10 gap-3 text-xs font-semibold overflow-x-auto font-heading">
+                <button
+                  type="button"
+                  onClick={() => setUserSubTab("directory")}
+                  className={`py-3.5 px-3 border-b-2 transition-all cursor-pointer whitespace-nowrap min-h-[44px] flex items-center gap-2 ${
+                    userSubTab === "directory"
+                      ? "border-blue-500 text-blue-400"
+                      : "border-transparent text-slate-400 hover:text-white"
+                  }`}
                 >
-                  <option value="all" className="bg-[#0A1931]">All Account Roles</option>
-                  <option value="resident" className="bg-[#0A1931]">Verified Resident</option>
-                  <option value="official" className="bg-[#0A1931]">Government Official</option>
-                </select>
+                  <Users className="w-4 h-4" />
+                  <span>Account Directory ({users.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setUserSubTab("verification_queue")}
+                  className={`py-3.5 px-3 border-b-2 transition-all cursor-pointer whitespace-nowrap min-h-[44px] flex items-center gap-2 ${
+                    userSubTab === "verification_queue"
+                      ? "border-amber-500 text-amber-400"
+                      : "border-transparent text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <BadgeCheck className="w-4 h-4" />
+                  <span>Barangay Verification Queue</span>
+                  {pendingVerificationsCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      {pendingVerificationsCount}
+                    </span>
+                  )}
+                </button>
               </div>
 
-              {/* Users Table */}
-              <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs sm:text-sm">
-                    <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
-                      <tr>
-                        <th className="px-5 py-3.5">Name / Account</th>
-                        <th className="px-5 py-3.5">Role</th>
-                        <th className="px-5 py-3.5">Barangay / Department</th>
-                        <th className="px-5 py-3.5">Auth Provider</th>
-                        <th className="px-5 py-3.5">Reports Logged</th>
-                        <th className="px-5 py-3.5">Registered Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {filteredUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-5 py-3.5">
-                            <div className="font-bold text-white font-heading">{user.name}</div>
-                            <div className="text-slate-400 text-xs flex items-center gap-1 font-mono">
-                              <Mail className="w-3 h-3 text-slate-500" />
-                              <span>{user.email}</span>
-                            </div>
-                          </td>
+              {/* SUB-VIEW 1: DIRECTORY */}
+              {userSubTab === "directory" && (
+                <div className="space-y-4">
+                  {/* Filter Bar */}
+                  <div className="p-4 rounded-2xl bg-[#0A1931] border border-white/10 flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search accounts by name, email, or department..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
+                      />
+                    </div>
 
-                          <td className="px-5 py-3.5 whitespace-nowrap">
-                            {user.role === "official" ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 font-heading">
-                                <ShieldCheck className="w-3 h-3" />
-                                Official
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-heading">
-                                <UserCheck className="w-3 h-3" />
-                                Resident
-                              </span>
-                            )}
-                          </td>
+                    <select
+                      value={userRoleFilter}
+                      onChange={(e) => setUserRoleFilter(e.target.value)}
+                      className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:border-blue-500 focus:outline-none min-h-[44px]"
+                    >
+                      <option value="all" className="bg-[#0A1931]">All Account Roles</option>
+                      <option value="resident" className="bg-[#0A1931]">Verified Resident</option>
+                      <option value="official" className="bg-[#0A1931]">Government Official</option>
+                    </select>
+                  </div>
 
-                          <td className="px-5 py-3.5 whitespace-nowrap">
-                            <div className="flex items-center gap-1 text-slate-300 font-sans">
-                              {user.role === "official" ? (
-                                <Building2 className="w-3.5 h-3.5 text-blue-400" />
-                              ) : (
-                                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                              )}
-                              <span>{user.barangayOrOffice}</span>
-                            </div>
-                          </td>
+                  {/* Users Table */}
+                  <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs sm:text-sm">
+                        <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+                          <tr>
+                            <th className="px-5 py-3.5">Name / Account</th>
+                            <th className="px-5 py-3.5">Verification Badge</th>
+                            <th className="px-5 py-3.5">Barangay / Department</th>
+                            <th className="px-5 py-3.5">Auth Provider</th>
+                            <th className="px-5 py-3.5">Reports Logged</th>
+                            <th className="px-5 py-3.5">Registered Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {filteredUsers.map((user) => (
+                            <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
+                              <td className="px-5 py-3.5">
+                                <div className="font-bold text-white font-heading">{user.name}</div>
+                                <div className="text-slate-400 text-xs flex items-center gap-1 font-mono">
+                                  <Mail className="w-3 h-3 text-slate-500" />
+                                  <span>{user.email}</span>
+                                </div>
+                              </td>
 
-                          <td className="px-5 py-3.5 whitespace-nowrap text-slate-300 text-xs font-sans">
-                            {user.authProvider === "google" ? (
-                              <span className="text-sky-300 font-medium">Google Auth</span>
-                            ) : (
-                              <span className="text-amber-300 font-medium">Municipal ID</span>
-                            )}
-                          </td>
+                              <td className="px-5 py-3.5 whitespace-nowrap">
+                                <VerificationBadge status={user.verificationStatus} size="sm" />
+                              </td>
 
-                          <td className="px-5 py-3.5 whitespace-nowrap font-semibold text-white font-mono">
-                            {user.role === "resident" ? user.reportsCount : "N/A"}
-                          </td>
+                              <td className="px-5 py-3.5 whitespace-nowrap">
+                                <div className="flex items-center gap-1 text-slate-300 font-sans">
+                                  {user.role === "official" ? (
+                                    <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                                  ) : (
+                                    <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                                  )}
+                                  <span>{user.barangayOrOffice}</span>
+                                </div>
+                              </td>
 
-                          <td className="px-5 py-3.5 whitespace-nowrap text-slate-400 text-xs font-mono">
-                            {user.registeredDate}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                              <td className="px-5 py-3.5 whitespace-nowrap text-slate-300 text-xs font-sans">
+                                {user.authProvider === "google" ? (
+                                  <span className="text-sky-300 font-medium">Google Auth</span>
+                                ) : (
+                                  <span className="text-amber-300 font-medium">Municipal ID</span>
+                                )}
+                              </td>
+
+                              <td className="px-5 py-3.5 whitespace-nowrap font-semibold text-white font-mono">
+                                {user.role === "resident" ? user.reportsCount : "N/A"}
+                              </td>
+
+                              <td className="px-5 py-3.5 whitespace-nowrap text-slate-400 text-xs font-mono">
+                                {user.registeredDate}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* SUB-VIEW 2: VERIFICATION APPROVAL REVIEW QUEUE */}
+              {userSubTab === "verification_queue" && (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-sans">
+                    <div className="flex items-center gap-2 text-amber-200">
+                      <BadgeCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>
+                        <strong>Barangay Verification Review Queue:</strong> Inspect submitted Barangay Clearances and Valid IDs to authenticate residents of Paete. Approved accounts gain official trust badges and priority report triage.
+                      </span>
+                    </div>
+                    <span className="font-mono text-amber-300 font-bold shrink-0">
+                      {pendingVerificationsCount} Pending Application{pendingVerificationsCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-[#0A1931] overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs sm:text-sm">
+                        <thead className="border-b border-white/10 bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+                          <tr>
+                            <th className="px-5 py-3.5">Applicant / Email</th>
+                            <th className="px-5 py-3.5">Paete Residence</th>
+                            <th className="px-5 py-3.5">Document Proof</th>
+                            <th className="px-5 py-3.5">Submitted At</th>
+                            <th className="px-5 py-3.5">Status</th>
+                            <th className="px-5 py-3.5">Verification Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {verificationRequests.map((req) => (
+                            <tr key={req.id} className="hover:bg-white/[0.02] transition-colors">
+                              <td className="px-5 py-4">
+                                <div className="font-bold text-white font-heading">{req.applicantName}</div>
+                                <div className="text-slate-400 text-xs font-mono">{req.email}</div>
+                              </td>
+
+                              <td className="px-5 py-4">
+                                <div className="flex items-center gap-1.5 font-semibold text-white">
+                                  <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                  <span>Brgy. {req.barangay}</span>
+                                </div>
+                                <span className="text-[11px] text-slate-400 block truncate max-w-[200px]">
+                                  {req.address}
+                                </span>
+                              </td>
+
+                              <td className="px-5 py-4">
+                                <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-white/5 border border-white/10 text-slate-200">
+                                  {req.documentType}
+                                </span>
+                                <span className="text-[11px] font-mono text-blue-300 block mt-1">
+                                  #{req.documentNumber}
+                                </span>
+                              </td>
+
+                              <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
+                                {req.submittedAt}
+                              </td>
+
+                              <td className="px-5 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                    req.status === "approved"
+                                      ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/25"
+                                      : req.status === "rejected"
+                                      ? "bg-red-500/15 text-red-400 border-red-500/25"
+                                      : "bg-amber-500/15 text-amber-300 border-amber-500/25"
+                                  }`}
+                                >
+                                  {req.status}
+                                </span>
+                              </td>
+
+                              <td className="px-5 py-4 whitespace-nowrap">
+                                {req.status === "pending" ? (
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleApproveVerification(req, "barangay_verified")}
+                                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-all cursor-pointer min-h-[36px]"
+                                      title="Approve as Barangay Verified"
+                                    >
+                                      <Check className="w-3.5 h-3.5" />
+                                      <span>Verify Resident</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleApproveVerification(req, "community_leader")}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-semibold transition-all cursor-pointer min-h-[36px]"
+                                      title="Designate as Community Leader"
+                                    >
+                                      <Award className="w-3.5 h-3.5" />
+                                      <span>Make Leader</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRejectVerification(req)}
+                                      className="p-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-all cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                                      title="Reject / Discrepancy"
+                                    >
+                                      <XCircle className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-slate-500 italic">
+                                    Action completed & logged
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

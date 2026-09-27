@@ -6,6 +6,11 @@ import {
   Clock,
   Layers,
   TrendingUp,
+  Droplets,
+  Zap,
+  CloudRain,
+  Landmark,
+  Trees,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -209,13 +214,16 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const CATEGORY_CONFIG: Record<ProjectCategory, { label: string; icon: string }> = {
-  road: { label: "Road Works", icon: "🚧" },
-  drainage: { label: "Storm Drainage", icon: "🌊" },
-  lighting: { label: "LED Lighting", icon: "💡" },
-  flood: { label: "Flood Defense", icon: "🌧️" },
-  facility: { label: "Civic Facilities", icon: "🏛️" },
-  environment: { label: "Eco-Park & DENR", icon: "🌿" },
+const CATEGORY_CONFIG: Record<
+  ProjectCategory,
+  { label: string; icon: React.ComponentType<{ className?: string }> }
+> = {
+  road: { label: "Road Works", icon: HardHat },
+  drainage: { label: "Storm Drainage", icon: Droplets },
+  lighting: { label: "LED Lighting", icon: Zap },
+  flood: { label: "Flood Defense", icon: CloudRain },
+  facility: { label: "Civic Facilities", icon: Landmark },
+  environment: { label: "Eco-Park & DENR", icon: Trees },
 };
 
 function formatBudget(amount: number): string {
@@ -246,9 +254,10 @@ export default function TransparencyProjectsPage() {
           <div className="flex items-center gap-2 text-xs">
             <Link
               href="/transparency/officials"
-              className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 font-medium transition-all min-h-[44px] flex items-center"
+              className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 font-medium transition-all min-h-[44px] flex items-center gap-1.5"
             >
-              🏛️ Officials Directory
+              <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span>Officials Directory</span>
             </Link>
             <Link
               href="/transparency/reports"
@@ -355,7 +364,7 @@ export default function TransparencyProjectsPage() {
                   {/* Category & Status Badges */}
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300">
-                      <span>{catMeta.icon}</span>
+                      <catMeta.icon className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       <span>{catMeta.label}</span>
                     </span>
 

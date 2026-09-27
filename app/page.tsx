@@ -12,7 +12,20 @@ import {
 } from "../components/reports/ReportCard";
 import { SubmitReportModal } from "../components/reports/SubmitReportModal";
 import { InsightsSection } from "../components/insights/InsightsSection";
-import { Search, PlusCircle, Sparkles, MessageSquare } from "lucide-react";
+import {
+  Search,
+  PlusCircle,
+  Sparkles,
+  MessageSquare,
+  MapPin,
+  Building2,
+  LayoutGrid,
+  Zap,
+  Droplets,
+  Construction,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react";
 
 const INITIAL_REPORTS: CommunityReport[] = [
   {
@@ -281,7 +294,7 @@ export default function Home() {
               </span>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 {[
-                  { value: "all", label: "🏘️ All Barangays" },
+                  { value: "all", label: "All Barangays" },
                   { value: "Bagumbayan", label: "Bagumbayan" },
                   { value: "Bangkusay", label: "Bangkusay" },
                   { value: "Ermita", label: "Ermita" },
@@ -291,23 +304,30 @@ export default function Home() {
                   { value: "Ilaya del Sur", label: "Ilaya del Sur" },
                   { value: "Maytoong", label: "Maytoong" },
                   { value: "Quinale", label: "Quinale" },
-                ].map((brgy) => (
-                  <button
-                    key={brgy.value}
-                    id={"barangay-filter-" + brgy.value}
-                    type="button"
-                    onClick={() => setSelectedBarangay(brgy.value)}
-                    className={[
-                      "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer text-xs min-h-[40px] flex items-center",
-                      selectedBarangay === brgy.value
-                        ? "bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
-                        : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
-                    ].join(" ")}
-                  >
-                    {brgy.value !== "all" && <span className="mr-1 opacity-50">📍</span>}
-                    {brgy.label}
-                  </button>
-                ))}
+                ].map((brgy) => {
+                  const isSelected = selectedBarangay === brgy.value;
+                  return (
+                    <button
+                      key={brgy.value}
+                      id={"barangay-filter-" + brgy.value}
+                      type="button"
+                      onClick={() => setSelectedBarangay(brgy.value)}
+                      className={[
+                        "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer text-xs min-h-[40px] flex items-center gap-1.5",
+                        isSelected
+                          ? "bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
+                          : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
+                      ].join(" ")}
+                    >
+                      {brgy.value === "all" ? (
+                        <Building2 className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                      ) : (
+                        <MapPin className="w-3 h-3 text-red-400/80 shrink-0" />
+                      )}
+                      <span>{brgy.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -318,28 +338,33 @@ export default function Home() {
               </span>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
                 {[
-                  { id: "all", label: "All Categories" },
-                  { id: "lighting", label: "⚡ Streetlights & Power" },
-                  { id: "drainage", label: "🌊 Drainage & Flooding" },
-                  { id: "road", label: "🚧 Roads & Potholes" },
-                  { id: "waste", label: "🗑️ Solid Waste" },
-                  { id: "safety", label: "🚨 Public Safety" },
-                ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    id={"category-filter-" + cat.id}
-                    type="button"
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={[
-                      "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer min-h-[40px] flex items-center",
-                      activeCategory === cat.id
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                        : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
-                    ].join(" ")}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+                  { id: "all", label: "All Categories", icon: LayoutGrid },
+                  { id: "lighting", label: "Streetlights & Power", icon: Zap },
+                  { id: "drainage", label: "Drainage & Flooding", icon: Droplets },
+                  { id: "road", label: "Roads & Potholes", icon: Construction },
+                  { id: "waste", label: "Solid Waste", icon: Trash2 },
+                  { id: "safety", label: "Public Safety", icon: AlertTriangle },
+                ].map((cat) => {
+                  const isSelected = activeCategory === cat.id;
+                  const Icon = cat.icon;
+                  return (
+                    <button
+                      key={cat.id}
+                      id={"category-filter-" + cat.id}
+                      type="button"
+                      onClick={() => setActiveCategory(cat.id)}
+                      className={[
+                        "px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer min-h-[40px] flex items-center gap-1.5",
+                        isSelected
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                          : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
+                      ].join(" ")}
+                    >
+                      <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-white" : "text-blue-400"}`} />
+                      <span>{cat.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -348,14 +373,15 @@ export default function Home() {
               <div className="flex items-center gap-2 pt-2 border-t border-white/5 flex-wrap">
                 <span className="text-[11px] text-slate-500 shrink-0">Active Filters:</span>
                 {selectedBarangay !== "all" && (
-                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-red-500/10 text-red-300 border border-red-500/20">
-                    📍 {selectedBarangay}
+                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-red-500/10 text-red-300 border border-red-500/20">
+                    <MapPin className="w-3 h-3 text-red-400 shrink-0" />
+                    <span>{selectedBarangay}</span>
                     <button type="button" onClick={() => setSelectedBarangay("all")} className="ml-1 hover:text-white cursor-pointer" aria-label="Clear barangay filter">×</button>
                   </span>
                 )}
                 {activeCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                    {activeCategory}
+                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                    <span className="capitalize">{activeCategory}</span>
                     <button type="button" onClick={() => setActiveCategory("all")} className="ml-1 hover:text-white cursor-pointer" aria-label="Clear category filter">×</button>
                   </span>
                 )}

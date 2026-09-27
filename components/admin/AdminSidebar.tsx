@@ -14,6 +14,7 @@ import {
   ExternalLink,
   X,
   Sparkles,
+  HardHat,
 } from "lucide-react";
 
 export type AdminTab = "overview" | "reports" | "users" | "audit" | "provincial";
@@ -274,21 +275,21 @@ export function AdminSidebar({
           href="/transparency/projects"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
-          <span className="text-sm">🚧</span>
+          <HardHat className="w-4 h-4 text-amber-400 shrink-0" />
           <span>Public Works & Budget Audit</span>
         </Link>
         <Link
           href="/transparency/officials"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
-          <span className="text-sm">🏛️</span>
+          <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
           <span>Officials & Governance Directory</span>
         </Link>
         <Link
           href="/transparency/reports"
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-all min-h-[36px]"
         >
-          <span className="text-sm">📊</span>
+          <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>Open Data & Civic Metrics</span>
         </Link>
       </div>

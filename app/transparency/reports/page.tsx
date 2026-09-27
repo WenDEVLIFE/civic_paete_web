@@ -15,6 +15,11 @@ import {
   ShieldCheck,
   Building2,
   Filter,
+  HardHat,
+  Landmark,
+  Droplets,
+  Trash2,
+  Zap,
 } from "lucide-react";
 
 // ─── Mock Data & Datasets ───────────────────────────────────────────────────
@@ -41,7 +46,7 @@ const MONTHLY_TRENDS_2026: MonthlyData[] = [
 interface CategorySummary {
   id: string;
   name: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   count: number;
   resolvedCount: number;
   percentage: number;
@@ -52,7 +57,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "infra",
     name: "Roads & Physical Infrastructure",
-    icon: "🚧",
+    icon: HardHat,
     count: 215,
     resolvedCount: 191,
     percentage: 33.5,
@@ -61,7 +66,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "drainage",
     name: "Drainage, Canals & Flood Mitigation",
-    icon: "🌊",
+    icon: Droplets,
     count: 148,
     resolvedCount: 132,
     percentage: 23.1,
@@ -70,7 +75,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "waste",
     name: "Solid Waste & Ecological Sanitation",
-    icon: "🗑️",
+    icon: Trash2,
     count: 112,
     resolvedCount: 104,
     percentage: 17.5,
@@ -79,7 +84,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "lighting",
     name: "Streetlights & Electrical Hazards",
-    icon: "💡",
+    icon: Zap,
     count: 86,
     resolvedCount: 80,
     percentage: 13.4,
@@ -88,7 +93,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "safety",
     name: "Public Safety & Peace and Order",
-    icon: "🛡️",
+    icon: ShieldCheck,
     count: 47,
     resolvedCount: 41,
     percentage: 7.3,
@@ -97,7 +102,7 @@ const CATEGORY_DATA: CategorySummary[] = [
   {
     id: "others",
     name: "General Municipal Facilities",
-    icon: "🏛️",
+    icon: Landmark,
     count: 33,
     resolvedCount: 29,
     percentage: 5.2,
@@ -292,15 +297,17 @@ export default function OpenDataReportsPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/transparency/projects"
-              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center"
+              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center gap-1.5"
             >
-              🚧 Public Works
+              <HardHat className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Public Works</span>
             </Link>
             <Link
               href="/transparency/officials"
-              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center"
+              className="text-xs px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium transition-all min-h-[44px] flex items-center gap-1.5"
             >
-              🏛️ Officials Directory
+              <Landmark className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span>Officials Directory</span>
             </Link>
           </div>
         </div>
@@ -490,9 +497,15 @@ export default function OpenDataReportsPage() {
                 className="p-5 rounded-2xl bg-[#0A1931] border border-white/10 hover:border-white/20 transition-all shadow-lg"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl" aria-hidden="true">
-                    {cat.icon}
-                  </span>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{
+                      backgroundColor: `${cat.color}15`,
+                      border: `1px solid ${cat.color}30`,
+                    }}
+                  >
+                    <cat.icon className="w-5 h-5 shrink-0" style={{ color: cat.color }} />
+                  </div>
                   <span
                     className="text-xs font-bold px-2 py-0.5 rounded-full font-mono"
                     style={{
