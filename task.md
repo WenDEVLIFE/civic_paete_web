@@ -8,7 +8,7 @@
 
 | # | Feature Domain | Status | Target Module / Component |
 |---|---|:---:|---|
-| **1** | Privacy Policy (RA 10173 compliance) | 🟡 Queued | `app/legal/privacy/page.tsx` + `components/legal/` |
+| **1** | Privacy Policy (RA 10173 compliance) | 🟢 Done | `app/legal/privacy/page.tsx` + `components/legal/PrivacyModal.tsx` |
 | **2** | Cookie Consent Banner & Preferences | 🟢 Done | `components/legal/CookieConsentBanner.tsx` |
 | **3** | Terms & Conditions | 🟡 Queued | `app/legal/terms/page.tsx` + Modal preview |
 | **4** | User Data Management & Export | 🟡 Queued | `app/profile/data/page.tsx` / `UserDataModal.tsx` |
@@ -29,9 +29,9 @@
   - [x] Implement floating accessible consent drawer in `components/legal/CookieConsentBanner.tsx`.
   - [x] Store user preferences in `localStorage` (`civic_cookie_consent_v1`) with "Accept All", "Essential Only", and "Customize" options.
   - [x] Integrate into root layout `app/layout.tsx`.
-- [ ] **1.2 Privacy Policy Page & Modal (`Feature 1`)**
-  - [ ] Create `app/legal/privacy/page.tsx` detailing RA 10173 compliance, DPO contact for Paete LGU, data retention, and resident rights.
-  - [ ] Create quick-reference slide-over or modal for embedded viewing during signup and report submission.
+- [x] **1.2 Privacy Policy Page & Modal (`Feature 1`)**
+  - [x] Create `app/legal/privacy/page.tsx` detailing RA 10173 compliance, DPO contact for Paete LGU, data retention, and resident rights.
+  - [x] Create `components/legal/PrivacyModal.tsx` — quick-reference slide-over with 4-point summary, embedded during signup and report submission.
 - [ ] **1.3 Terms & Conditions (`Feature 3`)**
   - [ ] Build `app/legal/terms/page.tsx` outlining community guidelines, false report liabilities, official municipal response SLAs, and intellectual property.
 - [ ] **1.4 Safety & Legal Protection Hub (`Feature 11`)**
