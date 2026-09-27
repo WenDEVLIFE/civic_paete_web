@@ -259,68 +259,113 @@ export default function Home() {
           </div>
 
           {/* Search and Barangay Filters */}
-          <div className="bg-[#0A1931]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 mb-8 space-y-4 shadow-xl">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-              {/* Search input */}
-              <div className="md:col-span-8 relative">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Maghanap ng ulat ayon sa pamagat, detalye, o kalye..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
+          <div className="bg-[#0A1931]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10 mb-8 space-y-3 shadow-xl">
+            {/* Search input — full width */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                id="feed-search-input"
+                placeholder="Maghanap ng ulat ayon sa pamagat, detalye, o kalye..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition-all"
+              />
+            </div>
 
-              {/* Barangay dropdown */}
-              <div className="md:col-span-4">
-                <select
-                  value={selectedBarangay}
-                  onChange={(e) => setSelectedBarangay(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0A1931] border border-white/10 text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-blue-500 transition-all cursor-pointer"
-                >
-                  <option value="all">Lahat ng Barangay sa Paete</option>
-                  <option value="Bagumbayan">Brgy. Bagumbayan</option>
-                  <option value="Bangkusay">Brgy. Bangkusay</option>
-                  <option value="Ermita">Brgy. Ermita</option>
-                  <option value="Ibaba del Norte">Brgy. Ibaba del Norte</option>
-                  <option value="Ibaba del Sur">Brgy. Ibaba del Sur</option>
-                  <option value="Ilaya del Norte">Brgy. Ilaya del Norte</option>
-                  <option value="Ilaya del Sur">Brgy. Ilaya del Sur</option>
-                  <option value="Maytoong">Brgy. Maytoong</option>
-                  <option value="Quinale">Brgy. Quinale</option>
-                </select>
+            {/* Barangay chip-row */}
+            <div>
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-1.5">
+                Barangay:
+              </span>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                {[
+                  { value: "all", label: "🏘️ Lahat" },
+                  { value: "Bagumbayan", label: "Bagumbayan" },
+                  { value: "Bangkusay", label: "Bangkusay" },
+                  { value: "Ermita", label: "Ermita" },
+                  { value: "Ibaba del Norte", label: "Ibaba del Norte" },
+                  { value: "Ibaba del Sur", label: "Ibaba del Sur" },
+                  { value: "Ilaya del Norte", label: "Ilaya del Norte" },
+                  { value: "Ilaya del Sur", label: "Ilaya del Sur" },
+                  { value: "Maytoong", label: "Maytoong" },
+                  { value: "Quinale", label: "Quinale" },
+                ].map((brgy) => (
+                  <button
+                    key={brgy.value}
+                    id={"barangay-filter-" + brgy.value}
+                    type="button"
+                    onClick={() => setSelectedBarangay(brgy.value)}
+                    className={[
+                      "px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer text-xs",
+                      selectedBarangay === brgy.value
+                        ? "bg-red-500/20 text-red-300 border border-red-500/30 shadow-sm"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
+                    ].join(" ")}
+                  >
+                    {brgy.value !== "all" && <span className="mr-1 opacity-50">📍</span>}
+                    {brgy.label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Category pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] mr-2 shrink-0">
+            {/* Category chip-row */}
+            <div>
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[11px] block mb-1.5">
                 Kategorya:
               </span>
-              {[
-                { id: "all", label: "Lahat" },
-                { id: "lighting", label: "⚡ Ilaw sa Kalsada" },
-                { id: "drainage", label: "🌊 Kanal at Baha" },
-                { id: "road", label: "🚧 Kalsada at Pothole" },
-                { id: "waste", label: "🗑️ Basura at Kalinisan" },
-                { id: "safety", label: "🚨 Kaligtasan ng Publiko" },
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer ${
-                    activeCategory === cat.id
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
-                      : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5"
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+                {[
+                  { id: "all", label: "Lahat" },
+                  { id: "lighting", label: "⚡ Ilaw sa Kalsada" },
+                  { id: "drainage", label: "🌊 Kanal at Baha" },
+                  { id: "road", label: "🚧 Kalsada at Pothole" },
+                  { id: "waste", label: "🗑️ Basura at Kalinisan" },
+                  { id: "safety", label: "🚨 Kaligtasan ng Publiko" },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    id={"category-filter-" + cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={[
+                      "px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all cursor-pointer",
+                      activeCategory === cat.id
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5",
+                    ].join(" ")}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Active filter summary */}
+            {(selectedBarangay !== "all" || activeCategory !== "all" || searchQuery) && (
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5 flex-wrap">
+                <span className="text-[11px] text-slate-500 shrink-0">Aktibong filter:</span>
+                {selectedBarangay !== "all" && (
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-300 border border-red-500/20">
+                    📍 {selectedBarangay}
+                    <button type="button" onClick={() => setSelectedBarangay("all")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang barangay filter">×</button>
+                  </span>
+                )}
+                {activeCategory !== "all" && (
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                    {activeCategory}
+                    <button type="button" onClick={() => setActiveCategory("all")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang kategorya filter">×</button>
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">
+                    &ldquo;{searchQuery}&rdquo;
+                    <button type="button" onClick={() => setSearchQuery("")} className="ml-0.5 hover:text-white cursor-pointer" aria-label="Alisin ang search">×</button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Social Media Civic Feed Grid */}

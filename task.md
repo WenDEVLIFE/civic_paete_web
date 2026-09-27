@@ -66,9 +66,9 @@
 - [x] **3.3 Community Discussion Thread**
   - [x] Expandable comments with role badges (`Opisyal ng Pamahalaan` vs `Resident`).
   - [x] Live local state dispatch for instant comment appending and status updates.
-- [ ] **3.4 Media Attachments & Geotagging**
-  - [ ] Camera / photo upload preview with Paete landmark / street tagging.
-  - [ ] Filter reports by Barangay (e.g., Bagumbayan, Bangkusay, Ibaba del Sur, Ilaya del Norte, etc.).
+- [x] **3.4 Media Attachments & Geotagging**
+  - [x] Upgraded location field in `SubmitReportModal.tsx` to Paete landmark quick-tag chips (12 landmarks: Church, Municipal Hall, Market, Schools, Laguna de Bay, streets) + free-text input. Toggle state per chip.
+  - [x] Replaced plain barangay `<select>` in feed with scrollable chip-row (red/location accent) + dismissible active filter summary strip.
 
 ---
 
