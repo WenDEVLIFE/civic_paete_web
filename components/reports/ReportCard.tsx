@@ -55,6 +55,10 @@ export interface CommunityReport {
   officialActorName?: string;
   officialActorRole?: string;
   comments?: ReportComment[];
+  /** True when the submitter chose to post anonymously */
+  isAnonymous?: boolean;
+  /** Public-facing alias shown instead of the real name (e.g. "Protektadong Mamamayan #104") */
+  anonymousAlias?: string;
 }
 
 interface ReportCardProps {
@@ -254,7 +258,15 @@ export function ReportCard({
         <div className="flex items-center gap-3">
           {/* Author Avatar */}
           <div className="relative">
-            {report.authorAvatar ? (
+            {report.isAnonymous ? (
+              /* Anonymous masked avatar */
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center border border-slate-600/40"
+                style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}
+              >
+                <Shield className="w-5 h-5 text-slate-400" aria-hidden="true" />
+              </div>
+            ) : report.authorAvatar ? (
               <Image
                 src={report.authorAvatar}
                 alt={report.authorName || "Resident"}
@@ -267,21 +279,40 @@ export function ReportCard({
                 {report.authorName ? report.authorName.slice(0, 2).toUpperCase() : "MP"}
               </div>
             )}
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0A1931] flex items-center justify-center text-[9px] text-white">
-              ✓
-            </span>
+            {/* Verified dot — hidden for anonymous */}
+            {!report.isAnonymous && (
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0A1931] flex items-center justify-center text-[9px] text-white">
+                ✓
+              </span>
+            )}
           </div>
 
           {/* Author Name, Barangay, & Time */}
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-white hover:text-blue-300 transition-colors">
-                {report.authorName || "Mamamayan ng Paete"}
+                {report.isAnonymous
+                  ? (report.anonymousAlias || "Protektadong Mamamayan")
+                  : (report.authorName || "Mamamayan ng Paete")}
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                <UserCheck className="w-3 h-3" />
-                <span>Verified Resident</span>
-              </span>
+              {report.isAnonymous ? (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  style={{
+                    background: "rgba(148,163,184,0.1)",
+                    color: "#94A3B8",
+                    border: "1px solid rgba(148,163,184,0.2)",
+                  }}
+                >
+                  <Shield className="w-3 h-3" aria-hidden="true" />
+                  <span>Nakaprotektang Ulat</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <UserCheck className="w-3 h-3" aria-hidden="true" />
+                  <span>Verified Resident</span>
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5 flex-wrap">

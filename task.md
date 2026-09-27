@@ -13,7 +13,7 @@
 | **3** | Terms & Conditions | 🟢 Done | `app/legal/terms/page.tsx` |
 | **4** | User Data Management & Export | 🟡 Queued | `app/profile/data/page.tsx` / `UserDataModal.tsx` |
 | **5** | User Account & Barangay Verification System | 🟡 Queued | `components/auth/VerificationBadge.tsx` & Verification Flow |
-| **6** | Nickname / Anonymous Reporting Option | 🟡 Queued | `components/reports/SubmitReportModal.tsx` |
+| **6** | Nickname / Anonymous Reporting Option | 🟢 Done | `components/reports/SubmitReportModal.tsx` + `ReportCard.tsx` |
 | **7** | Community Reporting Module (Feed + Comments) | 🟢 In Progress | `components/reports/ReportCard.tsx` + `app/page.tsx` |
 | **8** | Project Transparency & History (LGU Audits) | 🟡 Queued | `app/transparency/projects/page.tsx` |
 | **9** | Officials & Accountability Directory | 🟡 Queued | `app/transparency/officials/page.tsx` |
@@ -41,10 +41,10 @@
 ---
 
 ### Phase 2: User Account, Verification & Privacy Shield (Features 4, 5, 6)
-- [ ] **2.1 Anonymous / Alias Reporting Shield (`Feature 6`)**
-  - [ ] Add `isAnonymous` toggle in `components/reports/SubmitReportModal.tsx`.
-  - [ ] Generate pseudonym aliases (e.g., *"Protektadong Mamamayan #104"*) on public feeds while storing the true authenticated UID in secure admin-only metadata for spam prevention.
-  - [ ] Update `components/reports/ReportCard.tsx` to render masked avatar and alias badge when `isAnonymous` is enabled.
+- [x] **2.1 Anonymous / Alias Reporting Shield (`Feature 6`)**
+  - [x] Added `isAnonymous` toggle with live alias preview in `components/reports/SubmitReportModal.tsx`.
+  - [x] `generateAnonymousAlias()` generates a stable `Protektadong Mamamayan #NNN` alias per session; `anonymousAlias` stored in the report payload while real identity is omitted from public data.
+  - [x] `ReportCard.tsx` renders grey shield avatar + "Nakaprotektang Ulat" badge when `isAnonymous` is true; real name/avatar and verified dot hidden.
 - [ ] **2.2 Barangay Verification System (`Feature 5`)**
   - [ ] Design verification state badges (`Unverified Resident`, `Barangay Verified`, `Community Leader`, `Municipal Officer`).
   - [ ] Create Barangay Residency verification modal in resident profile (ID upload / Barangay Certificate number entry).

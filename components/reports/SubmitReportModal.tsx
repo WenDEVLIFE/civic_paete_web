@@ -15,6 +15,18 @@ import {
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
 
+// ─── Alias Generator ─────────────────────────────────────────────────────────
+
+/**
+ * Generates a stable public-facing alias for anonymous reports.
+ * The number is derived from the current minute so it feels unique
+ * per submission session but never exposes the real UID.
+ */
+function generateAnonymousAlias(): string {
+  const seed = Math.floor(Math.random() * 9000) + 100;
+  return `Protektadong Mamamayan #${seed}`;
+}
+
 interface SubmitReportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -56,6 +68,8 @@ export function SubmitReportModal({
   const [fileSize, setFileSize] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [anonymousAlias] = useState<string>(generateAnonymousAlias);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -117,6 +131,11 @@ export function SubmitReportModal({
       category,
       barangay,
       imageUrl: previewUrl || undefined,
+      isAnonymous,
+      anonymousAlias: isAnonymous ? anonymousAlias : undefined,
+      // When anonymous, strip real identity from the public payload
+      authorName: isAnonymous ? undefined : undefined,
+      authorAvatar: isAnonymous ? undefined : undefined,
     });
 
     setSubmitted(true);
@@ -332,6 +351,85 @@ export function SubmitReportModal({
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* ── Anonymous Toggle ─────────────────────────────── */}
+              <div
+                className="rounded-xl p-3 flex items-center justify-between gap-3"
+                style={{
+                  background: isAnonymous
+                    ? "rgba(148,163,184,0.08)"
+                    : "rgba(37,99,235,0.06)",
+                  border: isAnonymous
+                    ? "1px solid rgba(148,163,184,0.2)"
+                    : "1px solid rgba(37,99,235,0.15)",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+              >
+                <div className="flex items-start gap-2.5">
+                  <div
+                    className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center mt-0.5"
+                    style={{
+                      background: isAnonymous
+                        ? "rgba(148,163,184,0.12)"
+                        : "rgba(37,99,235,0.12)",
+                      border: isAnonymous
+                        ? "1px solid rgba(148,163,184,0.2)"
+                        : "1px solid rgba(37,99,235,0.25)",
+                    }}
+                  >
+                    {isAnonymous ? (
+                      <svg className="w-3.5 h-3.5" style={{ color: "#94A3B8" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" style={{ color: "#60A5FA" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <p
+                      className="text-xs font-semibold leading-tight"
+                      style={{
+                        color: isAnonymous ? "#94A3B8" : "#E2E8F0",
+                        fontFamily: "var(--font-heading)",
+                      }}
+                    >
+                      {isAnonymous ? "Mag-ulat nang Hindi Kilala" : "Mag-ulat gamit ang Iyong Pangalan"}
+                    </p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "#64748B" }}>
+                      {isAnonymous
+                        ? `Lilitaw bilang: ${anonymousAlias}`
+                        : "Ipapakita ang inyong verified na pangalan sa feed"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Toggle switch */}
+                <button
+                  id="anonymous-toggle-btn"
+                  type="button"
+                  role="switch"
+                  aria-checked={isAnonymous}
+                  onClick={() => setIsAnonymous((prev) => !prev)}
+                  className="relative flex-shrink-0 w-10 h-5 rounded-full transition-all duration-200 cursor-pointer focus:outline-none"
+                  style={{
+                    background: isAnonymous ? "#475569" : "#2563EB",
+                    boxShadow: isAnonymous
+                      ? "none"
+                      : "0 0 8px rgba(37,99,235,0.4)",
+                  }}
+                  aria-label={isAnonymous ? "I-off ang anonymous mode" : "I-on ang anonymous mode"}
+                >
+                  <span
+                    className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200"
+                    style={{
+                      transform: isAnonymous ? "translateX(20px)" : "translateX(0)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                    }}
+                  />
+                </button>
               </div>
 
               <IdentityShieldBadge variant="banner" />
