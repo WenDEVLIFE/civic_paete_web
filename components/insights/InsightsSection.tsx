@@ -1,4 +1,4 @@
-import { Sparkles, TrendingUp, Lightbulb, ShieldAlert } from "lucide-react";
+import { BarChart3, TrendingUp, Lightbulb, ShieldAlert } from "lucide-react";
 
 export function InsightsSection() {
   const recommendations = [
@@ -26,7 +26,7 @@ export function InsightsSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
+              <BarChart3 className="w-3.5 h-3.5" />
               <span>Data-Driven Decision Support</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">

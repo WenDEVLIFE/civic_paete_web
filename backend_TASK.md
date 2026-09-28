@@ -133,14 +133,13 @@
 
 ---
 
-### Phase 7: AI Civic Insights & Cluster Diagnostics
-- [ ] **7.1 Incident Aggregation & Hotspot Analysis**
-  - [ ] Create backend job or scheduled route (`/api/cron/generate-insights`) that runs every 6 hours.
-  - [ ] Cluster active reports by category and Paete barangay.
-  - [ ] Detect anomalies (e.g., >3 lighting reports in Bagumbayan within 48h indicates a transformer fault).
+### Phase 7: Rule-Based Civic Recommendations & Incident Aggregation (PROJECT.MD Sec. 7)
+- [ ] **7.1 Incident Aggregation & Rule-Based Clustering**
+  - [ ] Aggregate active community reports grouped by category and Paete barangay.
+  - [ ] Apply traditional deterministic logic (adhering to PROJECT.MD Sec. 7: `IF multiple reports concern the same issue/barangay THEN recommend for municipal assessment`).
 - [ ] **7.2 Dynamic Recommendations Feed**
   - [ ] Store generated advisory cards in `insights` collection.
-  - [ ] Connect `components/insights/InsightsSection.tsx` to read dynamic insights instead of hardcoded recommendations.
+  - [ ] Connect `components/insights/InsightsSection.tsx` to read live rule-based recommendations from Firestore instead of hardcoded data.
 
 ---
 
