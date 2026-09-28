@@ -108,9 +108,9 @@
 - [x] **5.2 Officials & Accountability Directory**
   - [x] Create Firestore collection `officials` with civic response metrics (`resolutionRate`, `avgResponseHours`, `activeReports`, `resolvedReports`).
   - [x] Build background aggregator to recalculate official resolution metrics dynamically when incident tickets are marked `resolved`.
-- [ ] **5.3 Automated Open Data Generator (`/api/transparency/export`)**
-  - [ ] Create route handler `app/api/transparency/export/route.ts?format=csv|json`.
-  - [ ] Query resolved reports, strip all resident PII, pseudonymize aliases, and stream clean open dataset for public download.
+- [x] **5.3 Automated Open Data Generator (`/api/transparency/export`)**
+  - [x] Create route handler `app/api/transparency/export/route.ts?format=csv|json`.
+  - [x] Query resolved reports, strip all resident PII, pseudonymize aliases, and stream clean open dataset for public download.
 
 ---
 

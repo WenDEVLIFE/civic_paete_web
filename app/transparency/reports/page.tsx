@@ -242,6 +242,16 @@ export default function OpenDataReportsPage() {
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
 
   const handleDownload = (item: DatasetItem, format: "csv" | "json") => {
+    // If reports dataset, route directly to live backend endpoint
+    if (item.id === "reports-2026") {
+      window.location.href = `/api/transparency/export?format=${format}`;
+      setDownloadSuccess(`${item.filename}.${format}`);
+      setTimeout(() => {
+        setDownloadSuccess(null);
+      }, 4000);
+      return;
+    }
+
     let content = "";
     let mimeType = "";
     let extension = "";
