@@ -137,9 +137,9 @@
 - [x] **7.1 Incident Aggregation & Rule-Based Clustering**
   - [x] Aggregate active community reports grouped by category and Paete barangay.
   - [x] Apply traditional deterministic logic (adhering to PROJECT.MD Sec. 7: `IF multiple reports concern the same issue/barangay THEN recommend for municipal assessment`).
-- [ ] **7.2 Dynamic Recommendations Feed**
-  - [ ] Store generated advisory cards in `insights` collection.
-  - [ ] Connect `components/insights/InsightsSection.tsx` to read live rule-based recommendations from Firestore instead of hardcoded data.
+- [x] **7.2 Dynamic Recommendations Feed**
+  - [x] Store generated advisory cards in `insights` collection.
+  - [x] Connect `components/insights/InsightsSection.tsx` to read live rule-based recommendations from Firestore instead of hardcoded data.
 
 ---
 
