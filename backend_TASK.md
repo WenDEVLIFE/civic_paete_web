@@ -105,9 +105,9 @@
 - [x] **5.1 Public Works Projects Collection**
   - [x] Create Firestore collection `transparency_projects` matching `Project` schema (budget, contractor, milestones, fund source).
   - [x] Connect `app/transparency/projects/page.tsx` to fetch projects from Firestore with revalidation (`next: { revalidate: 3600 }`).
-- [ ] **5.2 Officials & Accountability Directory**
-  - [ ] Create Firestore collection `officials` with civic response metrics (`resolutionRate`, `avgResponseHours`, `activeReports`, `resolvedReports`).
-  - [ ] Build background aggregator to recalculate official resolution metrics dynamically when incident tickets are marked `resolved`.
+- [x] **5.2 Officials & Accountability Directory**
+  - [x] Create Firestore collection `officials` with civic response metrics (`resolutionRate`, `avgResponseHours`, `activeReports`, `resolvedReports`).
+  - [x] Build background aggregator to recalculate official resolution metrics dynamically when incident tickets are marked `resolved`.
 - [ ] **5.3 Automated Open Data Generator (`/api/transparency/export`)**
   - [ ] Create route handler `app/api/transparency/export/route.ts?format=csv|json`.
   - [ ] Query resolved reports, strip all resident PII, pseudonymize aliases, and stream clean open dataset for public download.

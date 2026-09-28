@@ -19,292 +19,28 @@ export const metadata: Metadata = {
     "Official directory and civic response accountability metrics of municipal and provincial leaders serving the Municipality of Paete, Laguna.",
 };
 
-// ─── Types ─────────────────────────────────────────────────────────────────
+export const revalidate = 3600;
 
-type OfficialRole =
-  | "mayor"
-  | "vice_mayor"
-  | "councilor"
-  | "barangay_captain"
-  | "department_head"
-  | "provincial";
+// ─── Service & Types ──────────────────────────────────────────────────────────
 
-interface CivicMetrics {
-  resolutionRate: number; // percentage 0-100
-  avgResponseHours: number;
-  activeReports: number;
-  resolvedReports: number;
-}
+import {
+  getOfficials,
+  type Official,
+  type OfficialRole,
+  type CivicMetrics,
+} from "@/lib/services/officialService";
 
-interface Official {
-  id: string;
-  name: string;
-  title: string;
-  role: OfficialRole;
-  department?: string;
-  barangay?: string;
-  term: string;
-  email?: string;
-  officeHours?: string;
-  metrics?: CivicMetrics;
-  committee?: string;
-}
+export default async function OfficialsDirectoryPage() {
+  const allOfficials = await getOfficials();
 
-// ─── Data ───────────────────────────────────────────────────────────────────
-
-const MUNICIPAL_EXECUTIVES: Official[] = [
-  {
-    id: "off-1",
-    name: "Hon. Rosario A. Fadul",
-    title: "Municipal Mayor",
-    role: "mayor",
-    department: "Office of the Municipal Mayor",
-    term: "2022 – 2025",
-    email: "mayor@paete.gov.ph",
-    officeHours: "Monday – Friday, 8:00 AM – 5:00 PM",
-    metrics: {
-      resolutionRate: 88,
-      avgResponseHours: 36,
-      activeReports: 12,
-      resolvedReports: 94,
-    },
-  },
-  {
-    id: "off-2",
-    name: "Hon. Eduardo M. Resurreccion",
-    title: "Municipal Vice Mayor",
-    role: "vice_mayor",
-    department: "Office of the Vice Mayor / Sangguniang Bayan",
-    term: "2022 – 2025",
-    email: "vicemayor@paete.gov.ph",
-    officeHours: "Monday – Friday, 8:00 AM – 5:00 PM",
-    metrics: {
-      resolutionRate: 83,
-      avgResponseHours: 44,
-      activeReports: 8,
-      resolvedReports: 61,
-    },
-  },
-];
-
-const COUNCILORS: Official[] = [
-  {
-    id: "off-3",
-    name: "Hon. Teresita B. Saguibo",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Appropriations, Finance & Ways and Means",
-    metrics: { resolutionRate: 79, avgResponseHours: 52, activeReports: 5, resolvedReports: 38 },
-  },
-  {
-    id: "off-4",
-    name: "Hon. Danilo P. Alcantara",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Public Works, Infrastructure & Engineering",
-    metrics: { resolutionRate: 92, avgResponseHours: 28, activeReports: 9, resolvedReports: 72 },
-  },
-  {
-    id: "off-5",
-    name: "Hon. Marilou C. Enriquez",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Health, Sanitation & Social Welfare",
-    metrics: { resolutionRate: 86, avgResponseHours: 34, activeReports: 6, resolvedReports: 49 },
-  },
-  {
-    id: "off-6",
-    name: "Hon. Roberto S. Cads",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Peace and Order, Public Safety & Traffic",
-    metrics: { resolutionRate: 89, avgResponseHours: 24, activeReports: 7, resolvedReports: 65 },
-  },
-  {
-    id: "off-7",
-    name: "Hon. Arnel V. Madriñan",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Environmental Protection & Natural Resources",
-    metrics: { resolutionRate: 84, avgResponseHours: 40, activeReports: 4, resolvedReports: 43 },
-  },
-  {
-    id: "off-8",
-    name: "Hon. Jocelyn G. Balandra",
-    title: "Municipal Councilor",
-    role: "councilor",
-    term: "2022 – 2025",
-    committee: "Tourism, Culture & Arts (Woodcarving & Ukit)",
-    metrics: { resolutionRate: 91, avgResponseHours: 32, activeReports: 3, resolvedReports: 52 },
-  },
-];
-
-const BARANGAY_CAPTAINS: Official[] = [
-  {
-    id: "off-bc1",
-    name: "Hon. Francisco M. Dela Rosa",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Bagumbayan",
-    term: "2023 – 2026",
-    email: "brgy.bagumbayan@paete.gov.ph",
-    metrics: { resolutionRate: 91, avgResponseHours: 32, activeReports: 9, resolvedReports: 89 },
-  },
-  {
-    id: "off-bc2",
-    name: "Hon. Rodrigo L. Ac-ac",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Bangkusay",
-    term: "2023 – 2026",
-    email: "brgy.bangkusay@paete.gov.ph",
-    metrics: { resolutionRate: 92, avgResponseHours: 36, activeReports: 6, resolvedReports: 68 },
-  },
-  {
-    id: "off-bc3",
-    name: "Hon. Maria Elena S. Cagayat",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Ermita",
-    term: "2023 – 2026",
-    email: "brgy.ermita@paete.gov.ph",
-    metrics: { resolutionRate: 92, avgResponseHours: 40, activeReports: 5, resolvedReports: 57 },
-  },
-  {
-    id: "off-bc4",
-    name: "Hon. Victorio B. Quesada",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Ibaba del Norte",
-    term: "2023 – 2026",
-    email: "brgy.ibabanorte@paete.gov.ph",
-    metrics: { resolutionRate: 90, avgResponseHours: 34, activeReports: 8, resolvedReports: 73 },
-  },
-  {
-    id: "off-bc5",
-    name: "Hon. Antonio P. Baet",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Ibaba del Sur",
-    term: "2023 – 2026",
-    email: "brgy.ibabasur@paete.gov.ph",
-    metrics: { resolutionRate: 91, avgResponseHours: 30, activeReports: 8, resolvedReports: 82 },
-  },
-  {
-    id: "off-bc6",
-    name: "Hon. Manuel C. Baldemor",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Ilaya del Norte",
-    term: "2023 – 2026",
-    email: "brgy.ilayanorte@paete.gov.ph",
-    metrics: { resolutionRate: 90, avgResponseHours: 38, activeReports: 8, resolvedReports: 69 },
-  },
-  {
-    id: "off-bc7",
-    name: "Hon. Salvador F. Afurong",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Ilaya del Sur",
-    term: "2023 – 2026",
-    email: "brgy.ilayasur@paete.gov.ph",
-    metrics: { resolutionRate: 89, avgResponseHours: 35, activeReports: 9, resolvedReports: 76 },
-  },
-  {
-    id: "off-bc8",
-    name: "Hon. Juanita D. Fadul",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Maytoong",
-    term: "2023 – 2026",
-    email: "brgy.maytoong@paete.gov.ph",
-    metrics: { resolutionRate: 90, avgResponseHours: 42, activeReports: 4, resolvedReports: 38 },
-  },
-  {
-    id: "off-bc9",
-    name: "Hon. Gabriel R. Valdellon",
-    title: "Barangay Chairperson",
-    role: "barangay_captain",
-    barangay: "Quinale",
-    term: "2023 – 2026",
-    email: "brgy.quinale@paete.gov.ph",
-    metrics: { resolutionRate: 91, avgResponseHours: 45, activeReports: 3, resolvedReports: 29 },
-  },
-];
-
-const DEPARTMENT_HEADS: Official[] = [
-  {
-    id: "off-dh1",
-    name: "Engr. Rogelio M. Tandang",
-    title: "Municipal Engineer",
-    role: "department_head",
-    department: "Municipal Engineering Office",
-    term: "Permanent Career Executive",
-    email: "engineering@paete.gov.ph",
-    metrics: { resolutionRate: 89, avgResponseHours: 32, activeReports: 14, resolvedReports: 112 },
-  },
-  {
-    id: "off-dh2",
-    name: "Dr. Carmela L. Cosico, MD",
-    title: "Municipal Health Officer",
-    role: "department_head",
-    department: "Rural Health Unit (RHU)",
-    term: "Permanent Career Executive",
-    email: "health@paete.gov.ph",
-    metrics: { resolutionRate: 95, avgResponseHours: 18, activeReports: 4, resolvedReports: 88 },
-  },
-  {
-    id: "off-dh3",
-    name: "EnP. Maricel F. Dalena",
-    title: "Municipal Planning & Dev. Coordinator (MPDC)",
-    role: "department_head",
-    department: "Office of the MPDC",
-    term: "Permanent Career Executive",
-    email: "mpdc@paete.gov.ph",
-    metrics: { resolutionRate: 88, avgResponseHours: 42, activeReports: 5, resolvedReports: 45 },
-  },
-  {
-    id: "off-dh4",
-    name: "Mr. Rolando B. Cadawas",
-    title: "Municipal Disaster Risk Officer (MDRRMO)",
-    role: "department_head",
-    department: "MDRRM Operations Center",
-    term: "Permanent Career Executive",
-    email: "mdrrmo@paete.gov.ph",
-    metrics: { resolutionRate: 96, avgResponseHours: 12, activeReports: 7, resolvedReports: 142 },
-  },
-];
-
-const PROVINCIAL_EXECUTIVE: Official = {
-  id: "off-gov",
-  name: "Hon. Ramil L. Hernandez",
-  title: "Provincial Governor of Laguna",
-  role: "provincial",
-  department: "Provincial Capitol of Laguna, Santa Cruz",
-  term: "2022 – 2025",
-  email: "governor@laguna.gov.ph",
-  officeHours: "Monday – Friday, 8:00 AM – 5:00 PM",
-  metrics: {
-    resolutionRate: 85,
-    avgResponseHours: 48,
-    activeReports: 28,
-    resolvedReports: 186,
-  },
-};
-
-export default function OfficialsDirectoryPage() {
-  const allOfficials = [
-    ...MUNICIPAL_EXECUTIVES,
-    ...COUNCILORS,
-    ...BARANGAY_CAPTAINS,
-    ...DEPARTMENT_HEADS,
-    PROVINCIAL_EXECUTIVE,
-  ];
+  const municipalExecutives = allOfficials.filter(
+    (o) => o.role === "mayor" || o.role === "vice_mayor"
+  );
+  const councilors = allOfficials.filter((o) => o.role === "councilor");
+  const barangayCaptains = allOfficials.filter((o) => o.role === "barangay_captain");
+  const departmentHeads = allOfficials.filter((o) => o.role === "department_head");
+  const provincialExecutive =
+    allOfficials.find((o) => o.role === "provincial") || allOfficials[allOfficials.length - 1];
 
   const totalHandled = allOfficials.reduce(
     (acc, cur) => acc + (cur.metrics ? cur.metrics.resolvedReports + cur.metrics.activeReports : 0),
@@ -316,7 +52,7 @@ export default function OfficialsDirectoryPage() {
   );
   const avgSystemHours = Math.round(
     allOfficials.reduce((acc, cur) => acc + (cur.metrics ? cur.metrics.avgResponseHours : 0), 0) /
-      allOfficials.length
+      Math.max(1, allOfficials.length)
   );
 
   return (
@@ -443,7 +179,7 @@ export default function OfficialsDirectoryPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {MUNICIPAL_EXECUTIVES.map((official) => (
+            {municipalExecutives.map((official) => (
               <OfficialCard key={official.id} official={official} accent="#F59E0B" />
             ))}
           </div>
@@ -464,7 +200,7 @@ export default function OfficialsDirectoryPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {COUNCILORS.map((official) => (
+            {councilors.map((official) => (
               <OfficialCard key={official.id} official={official} accent="#60A5FA" />
             ))}
           </div>
@@ -485,7 +221,7 @@ export default function OfficialsDirectoryPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {BARANGAY_CAPTAINS.map((official) => (
+            {barangayCaptains.map((official) => (
               <OfficialCard key={official.id} official={official} accent="#10B981" />
             ))}
           </div>
@@ -506,10 +242,12 @@ export default function OfficialsDirectoryPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {DEPARTMENT_HEADS.map((official) => (
+            {departmentHeads.map((official) => (
               <OfficialCard key={official.id} official={official} accent="#A855F7" />
             ))}
-            <OfficialCard official={PROVINCIAL_EXECUTIVE} accent="#EAB308" />
+            {provincialExecutive && (
+              <OfficialCard official={provincialExecutive} accent="#EAB308" />
+            )}
           </div>
         </section>
 

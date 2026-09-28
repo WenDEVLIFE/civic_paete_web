@@ -446,6 +446,15 @@ export async function updateReportStatus(
   }
 
   await updateDoc(docRef, updatePayload);
+
+  // Trigger background official resolution metric recalculation on status changes
+  import("@/lib/services/officialService")
+    .then(({ recalculateOfficialMetrics }) => {
+      recalculateOfficialMetrics().catch((err) =>
+        console.warn("Background official metric recalculation notice:", err)
+      );
+    })
+    .catch(() => {});
 }
 
 /**
