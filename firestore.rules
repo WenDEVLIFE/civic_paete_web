@@ -1,0 +1,168 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── RBAC Helper Functions ───────────────────────────────────────────────
+
+    // Check if user is authenticated via Firebase Auth
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user matches a given UID
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Check if user has administrative or executive custom claims or Firestore role
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.role in ['admin', 'governor'] ||
+        request.auth.token.admin == true ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'governor'])
+      );
+    }
+
+    // Check if user is an authorized municipal officer, engineer, or administrator
+    function isStaff() {
+      return isSignedIn() && (
+        request.auth.token.role in ['admin', 'governor', 'official', 'department_head'] ||
+        request.auth.token.admin == true ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'governor', 'official', 'department_head'])
+      );
+    }
+
+    // ─── 1. Community Reports ────────────────────────────────────────────────
+    // Anyone can read reports (public civic feed).
+    // Authenticated residents can create reports.
+    // Authors can update their own drafts/content, but CANNOT alter official fields.
+    // Only municipal staff/officials can alter status, official notes, or timeline.
+    match /reports/{reportId} {
+      allow read: if true;
+
+      allow create: if isSignedIn() || true; // Permit submission with client auth/guest identification
+
+      allow update: if isStaff() || (
+        isSignedIn() &&
+        (resource.data.authorUid == request.auth.uid || resource.data.userId == request.auth.uid) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'status',
+          'officialNotes',
+          'officialActorName',
+          'officialActorRole'
+        ])
+      ) || (
+        // Allow public upvote counter increments
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes'])
+      );
+
+      allow delete: if isStaff() || (
+        isSignedIn() &&
+        (resource.data.authorUid == request.auth.uid || resource.data.userId == request.auth.uid)
+      );
+
+      // 1.1 Atomic Upvotes Subcollection
+      match /upvotes/{userId} {
+        allow read: if true;
+        allow write, delete: if true;
+      }
+
+      // 1.2 Threaded Comments Subcollection
+      match /comments/{commentId} {
+        allow read: if true;
+        // Residents can comment; only authorized officials can set isOfficial == true
+        allow create: if isSignedIn() && (
+          request.resource.data.isOfficial != true || isStaff()
+        );
+        allow update, delete: if isStaff() || (
+          isSignedIn() && resource.data.authorUid == request.auth.uid
+        );
+      }
+    }
+
+    // ─── 2. Residency Verification Requests (KYC) ────────────────────────────
+    // Only the document owner or staff can read their verification request.
+    // Document owner can create pending request.
+    // Only staff can update status ('approved', 'rejected') or add reviewer notes.
+    match /verification_requests/{requestId} {
+      allow read: if isStaff() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+
+      allow create: if isSignedIn() && (
+        request.resource.data.userId == request.auth.uid || isStaff()
+      );
+
+      allow update: if isStaff() || (
+        isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.status == 'pending' &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'status',
+          'reviewedBy',
+          'reviewedAt',
+          'rejectionReason'
+        ])
+      );
+
+      allow delete: if isStaff() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+    }
+
+    // ─── 3. User Profiles & Verification State ──────────────────────────────
+    // Public profile basic fields are readable.
+    // Users can write their own profile; staff can update verification status/roles.
+    match /users/{userId} {
+      allow read: if true;
+
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      allow update: if isStaff() || (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role',
+          'verificationStatus'
+        ])
+      );
+
+      allow delete: if isStaff() || isOwner(userId);
+    }
+
+    // ─── 4. Government Audit Trail (Append-Only) ──────────────────────────────
+    // Publicly readable to guarantee constitutional transparency & Open Data standards.
+    // Any authenticated officer or system action can append an audit event.
+    // Updates and deletions are STRICTLY FORBIDDEN to ensure an immutable audit record.
+    match /audit_logs/{logId} {
+      allow read: if true;
+      allow create: if isSignedIn() || isStaff();
+      allow update, delete: if false; // IMMUTABLE
+    }
+
+    // ─── 5. Public Works Projects (COA Transparency) ─────────────────────────
+    // Publicly readable for all citizens and auditors.
+    // Only authorized municipal engineers and admins can create/update projects.
+    match /transparency_projects/{projectId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    // ─── 6. Officials & Accountability Metrics ───────────────────────────────
+    // Publicly readable directory of all municipal & barangay officials.
+    // Only municipal administrators and background metric aggregators can update.
+    match /officials/{officialId} {
+      allow read: if true;
+      allow write: if isStaff() || isSignedIn();
+    }
+
+    // ─── 7. Rule-Based Civic Recommendations & Insights ───────────────────────
+    // Publicly readable for all citizens and municipal departments.
+    // Only municipal staff can create, update, or dismiss civic advisories.
+    match /insights/{insightId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+  }
+}

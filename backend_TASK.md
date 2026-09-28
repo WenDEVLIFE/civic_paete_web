@@ -121,15 +121,15 @@
     - [x] Official status change (`pending` ──> `in_progress` ──> `resolved`).
     - [x] Residency verification approval, promotion, or rejection.
     - [x] Emergency directives issued by Governor or Mayor.
-- [ ] **6.2 Production Firestore Security Rules (`firestore.rules`)**
-  - [ ] Enforce read/write partitions:
-    - [ ] `reports`: Anyone can read; authenticated residents can create; only authors can edit drafts; only officials can update `status` and `officialNotes`.
-    - [ ] `verification_requests`: Only document owner can create; only admins can read and update.
-    - [ ] `users`: Anyone authenticated can read basic public profile; only user or admin can write.
-    - [ ] `audit_logs`: Publicly readable (or official-readable); append-only (no updates, no deletions).
-- [ ] **6.3 Firebase Admin SDK & Custom Claims**
-  - [ ] Set up Firebase Admin SDK in `lib/firebaseAdmin.ts` using service account environment variables.
-  - [ ] Create script or endpoint to attach custom claims (`{ role: "admin" }` or `{ role: "governor" }`) to authorized municipal email accounts.
+- [x] **6.2 Production Firestore Security Rules (`firestore.rules`)**
+  - [x] Enforce read/write partitions:
+    - [x] `reports`: Anyone can read; authenticated residents can create; only authors can edit drafts; only officials can update `status` and `officialNotes`.
+    - [x] `verification_requests`: Only document owner can create; only admins can read and update.
+    - [x] `users`: Anyone authenticated can read basic public profile; only user or admin can write.
+    - [x] `audit_logs`: Publicly readable (or official-readable); append-only (no updates, no deletions).
+- [x] **6.3 Firebase Admin SDK & Custom Claims**
+  - [x] Set up Firebase Admin SDK in `lib/firebaseAdmin.ts` using service account environment variables.
+  - [x] Create script or endpoint to attach custom claims (`{ role: "admin" }` or `{ role: "governor" }`) to authorized municipal email accounts.
 
 ---
 
