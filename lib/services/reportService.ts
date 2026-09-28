@@ -479,6 +479,28 @@ export async function updateReportStatus(
       );
     })
     .catch(() => {});
+
+  // 3. Dispatch automated push & in-app notification to the resident author
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const authorUid = data.authorUid || data.userId;
+    const reportTitle = data.title || "Community Report";
+    if (authorUid) {
+      import("@/lib/services/notificationService")
+        .then(({ dispatchStatusChangeNotification }) => {
+          dispatchStatusChangeNotification(
+            reportId,
+            authorUid,
+            reportTitle,
+            status,
+            officerNotes
+          ).catch((err) =>
+            console.warn("Background notification dispatch notice:", err)
+          );
+        })
+        .catch(() => {});
+    }
+  }
 }
 
 /**

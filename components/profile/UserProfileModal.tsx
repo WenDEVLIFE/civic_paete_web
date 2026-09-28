@@ -15,10 +15,13 @@ import {
   CheckCircle2,
   BadgeCheck,
   LogOut,
+  Bell,
+  BellRing,
 } from "lucide-react";
 import { VerificationBadge, VerificationStatus } from "./VerificationBadge";
 import { BarangayVerificationModal } from "./BarangayVerificationModal";
 import { subscribeToUserVerification } from "@/lib/services/verificationService";
+import { requestNotificationPermissionAndSaveToken } from "@/lib/services/notificationService";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -39,6 +42,29 @@ export function UserProfileModal({
   const [exportComplete, setExportComplete] = useState(false);
   const [deletionStep, setDeletionStep] = useState<"initial" | "confirm" | "queued">("initial");
   const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
+  const [fcmEnabled, setFcmEnabled] = useState(false);
+  const [isRequestingFcm, setIsRequestingFcm] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        setFcmEnabled(true);
+      }
+    }
+  }, [isOpen]);
+
+  const handleEnablePushNotifications = async () => {
+    if (!user?.uid) return;
+    setIsRequestingFcm(true);
+    try {
+      const token = await requestNotificationPermissionAndSaveToken(user.uid);
+      if (token) {
+        setFcmEnabled(true);
+      }
+    } finally {
+      setIsRequestingFcm(false);
+    }
+  };
 
   // Sync verification status from live Firestore user record
   useEffect(() => {
@@ -331,6 +357,52 @@ export function UserProfileModal({
                     </span>
                     <p className="text-[11px] text-emerald-400 mt-0.5">Session encrypted via TLS 1.3</p>
                   </div>
+                </div>
+
+                {/* 8.1 Push Notifications via FCM */}
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2.5 rounded-xl border shrink-0 ${
+                      fcmEnabled
+                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                        : "bg-blue-500/15 border-blue-500/30 text-blue-400"
+                    }`}>
+                      {fcmEnabled ? <BellRing className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white font-heading">
+                        Push Notifications & Incident Alerts (FCM)
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed font-sans">
+                        {fcmEnabled
+                          ? "Device registered. You will receive automated alerts when officials update your report status (In Progress, Resolved)."
+                          : "Enable instant browser/device push alerts when municipal officers inspect or resolve your reports."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleEnablePushNotifications}
+                    disabled={fcmEnabled || isRequestingFcm}
+                    className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[44px] cursor-pointer font-heading ${
+                      fcmEnabled
+                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 cursor-default"
+                        : "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/30 active:scale-[0.98]"
+                    }`}
+                  >
+                    {fcmEnabled ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>Push Alerts Active</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="w-4 h-4" />
+                        <span>{isRequestingFcm ? "Registering..." : "Enable Push Alerts"}</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {/* Sign Out CTA */}

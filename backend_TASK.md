@@ -144,10 +144,10 @@
 ---
 
 ### Phase 8: Notifications & Emergency Alerts
-- [ ] **8.1 Push Notifications via FCM**
-  - [ ] Register Service Worker for Firebase Cloud Messaging (`public/firebase-messaging-sw.js`).
-  - [ ] Save resident device tokens in `users/{uid}/fcm_tokens`.
-  - [ ] Dispatch automated notification when a report submitted by the resident changes status (`In Progress` / `Resolved`).
+- [x] **8.1 Push Notifications via FCM**
+  - [x] Register Service Worker for Firebase Cloud Messaging (`public/firebase-messaging-sw.js`).
+  - [x] Save resident device tokens in `users/{uid}/fcm_tokens`.
+  - [x] Dispatch automated notification when a report submitted by the resident changes status (`In Progress` / `Resolved`).
 
 
 ---
