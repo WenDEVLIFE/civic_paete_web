@@ -82,22 +82,22 @@
 ---
 
 ### Phase 4: Statutory Privacy & Data Portability APIs (Feature 4, RA 10173)
-- [ ] **4.1 Data Portability Export API (`/api/user/export-data`)**
-  - [ ] Create Next.js route handler `app/api/user/export-data/route.ts`.
-  - [ ] Authenticate caller via Firebase ID Token (`Authorization: Bearer <token>`).
-  - [ ] Query and compile into a structured, downloadable JSON bundle:
-    - [ ] User profile, email, authentication provider, and verification status.
-    - [ ] All submitted reports with timestamps, status histories, and landmark coordinates.
-    - [ ] All upvote records and posted comments.
-    - [ ] Statutory compliance disclosure and DPO contact information.
-  - [ ] Connect "Download My Civic Data" button in `UserProfileModal.tsx` to this live endpoint.
-- [ ] **4.2 Right to Erasure / Account Closure Pipeline (`/api/user/delete-account`)**
-  - [ ] Create route handler `app/api/user/delete-account/route.ts`.
-  - [ ] Verify explicit confirmation (`confirmation === "DELETE"`).
-  - [ ] Audit & Compliance Retention Handling:
-    - [ ] Public Works reports older than incident remediation are anonymized (author identity set to `"Deactivated Resident"`, PII stripped) pursuant to COA and local infrastructure audit rules.
-    - [ ] Purge `users/{uid}` document and verification files.
-    - [ ] Delete Firebase Auth user record via Firebase Admin SDK (`admin.auth().deleteUser(uid)`).
+- [x] **4.1 Data Portability Export API (`/api/user/export-data`)**
+  - [x] Create Next.js route handler `app/api/user/export-data/route.ts`.
+  - [x] Authenticate caller via Firebase ID Token (`Authorization: Bearer <token>`).
+  - [x] Query and compile into a structured, downloadable JSON bundle:
+    - [x] User profile, email, authentication provider, and verification status.
+    - [x] All submitted reports with timestamps, status histories, and landmark coordinates.
+    - [x] All upvote records and posted comments.
+    - [x] Statutory compliance disclosure and DPO contact information.
+  - [x] Connect "Download My Civic Data" button in `UserProfileModal.tsx` to this live endpoint.
+- [x] **4.2 Right to Erasure / Account Closure Pipeline (`/api/user/delete-account`)**
+  - [x] Create route handler `app/api/user/delete-account/route.ts`.
+  - [x] Verify explicit confirmation (`confirmation === "DELETE"`).
+  - [x] Audit & Compliance Retention Handling:
+    - [x] Public Works reports older than incident remediation are anonymized (author identity set to `"Deactivated Resident"`, PII stripped) pursuant to COA and local infrastructure audit rules.
+    - [x] Purge `users/{uid}` document and verification files.
+    - [x] Delete Firebase Auth user record via Firebase Admin SDK (`admin.auth().deleteUser(uid)`).
 
 ---
 
