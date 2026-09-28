@@ -219,6 +219,8 @@ export default function ReportDetailPage({
   const [showOfficerControls, setShowOfficerControls] = useState(false);
   const [officerNoteInput, setOfficerNoteInput] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [resolveNotes, setResolveNotes] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setResidentUser(u));
@@ -779,6 +781,125 @@ export default function ReportDetailPage({
           </form>
         </section>
       </main>
+
+      {/* FIXED OFFICIAL RESOLUTION FLOATING DOCK FOR ADMIN & GOVERNOR */}
+      {isOfficer && (
+        <aside
+          aria-label="Official Resolution Action"
+          className="fixed bottom-6 right-6 z-40 animate-in fade-in slide-in-from-bottom-4 duration-300"
+        >
+          {report.status !== "resolved" ? (
+            <button
+              type="button"
+              onClick={() => {
+                setResolveNotes(
+                  officerSession?.role === "governor"
+                    ? "Remediated under the executive directive of the Office of the Provincial Governor."
+                    : "Remediated and inspected by Paete Municipal Administration and Engineering crew."
+                );
+                setShowResolveModal(true);
+              }}
+              className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-2xl shadow-emerald-950/70 border border-emerald-400/40 backdrop-blur-xl transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer font-heading"
+              title="Mark this community concern as solved"
+            >
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-200 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+              </span>
+              <CheckCircle2 className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-[10px] uppercase tracking-wider text-emerald-200 font-mono">
+                  {officerSession?.role === "governor" ? "Laguna Governor Action" : "Paete Admin Action"}
+                </div>
+                <div className="text-sm font-black">Mark as Solved</div>
+              </div>
+            </button>
+          ) : (
+            <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#0A1931]/95 border border-emerald-500/50 text-emerald-300 shadow-2xl backdrop-blur-xl font-heading">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 font-mono">
+                  Official Status
+                </div>
+                <div className="text-xs font-bold text-white">Marked as Solved</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleUpdateStatus("in_progress")}
+                className="ml-2 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] text-slate-300 hover:text-white transition-all cursor-pointer font-sans"
+                title="Reopen report for further field operations"
+              >
+                Reopen
+              </button>
+            </div>
+          )}
+        </aside>
+      )}
+
+      {/* Official Resolution Confirmation Modal */}
+      {showResolveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl border border-emerald-500/40 bg-[#0A1931] p-6 shadow-2xl text-white">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold font-heading text-white">
+                  Confirm Official Resolution
+                </h3>
+                <p className="text-xs text-slate-400 font-sans">
+                  Mark report #{report.id} as officially solved
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed font-sans mb-4">
+              You are marking this citizen concern as officially completed. This updates the civic status to{" "}
+              <strong className="text-emerald-400">Resolved</strong>, records your government audit trail, recalculates accountability resolution rates, and dispatches a notification to the resident.
+            </p>
+
+            <div className="space-y-2 mb-6">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-sans">
+                Official Resolution Notes (Public Record):
+              </label>
+              <textarea
+                rows={3}
+                value={resolveNotes}
+                onChange={(e) => setResolveNotes(e.target.value)}
+                placeholder="Describe remediation actions taken (e.g. Drainage canal desilted, new street lamp installed)..."
+                className="w-full p-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-emerald-500 focus:outline-none font-sans"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                disabled={isUpdatingStatus}
+                onClick={() => setShowResolveModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 transition-all cursor-pointer min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isUpdatingStatus}
+                onClick={async () => {
+                  setOfficerNoteInput(resolveNotes);
+                  await handleUpdateStatus("resolved");
+                  setShowResolveModal(false);
+                }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/50 transition-all cursor-pointer min-h-[44px] flex items-center gap-2 font-heading"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isUpdatingStatus ? "Resolving..." : "Confirm & Mark as Solved"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

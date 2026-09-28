@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CivicPaeteLogo } from "@/components/brand/CivicPaeteLogo";
@@ -29,6 +29,10 @@ import {
   XCircle,
   Check,
   HardHat,
+  Bell,
+  BellRing,
+  X,
+  ChevronRight,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -40,7 +44,7 @@ import {
   type GovernmentAuditLog as AuditLog,
   INITIAL_AUDIT_LOGS,
 } from "@/lib/services/auditService";
-import { updateReportStatus } from "@/lib/services/reportService";
+import { updateReportStatus, subscribeToReports } from "@/lib/services/reportService";
 import { reviewVerificationRequest } from "@/lib/services/verificationService";
 
 interface AdminReport extends CommunityReport {
@@ -332,6 +336,67 @@ export default function AdminDashboardPage() {
   const [userSubTab, setUserSubTab] = useState<"directory" | "verification_queue">("directory");
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
 
+  // Real-time Incoming Reports Notification & Audio Cue
+  const knownReportIdsRef = useRef<Set<string>>(new Set());
+  const isInitialReportsLoadRef = useRef(true);
+  const [incomingAlert, setIncomingAlert] = useState<AdminReport | null>(null);
+  const [unreadNewCount, setUnreadNewCount] = useState<number>(0);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Play subtle civic notification chime using Web Audio API
+  const playAlertChime = () => {
+    try {
+      if (typeof window !== "undefined" && (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      }
+    } catch {
+      // Audio playback fails gracefully if muted or disallowed
+    }
+  };
+
+  // Subscribe to live Firestore reports collection
+  useEffect(() => {
+    const unsub = subscribeToReports({}, (liveReports) => {
+      if (liveReports && liveReports.length > 0) {
+        const mapped: AdminReport[] = liveReports.map((r) => ({
+          ...r,
+          assignedOffice: r.officialActorRole || "Municipal Public Services",
+        }));
+
+        if (isInitialReportsLoadRef.current) {
+          isInitialReportsLoadRef.current = false;
+          mapped.forEach((r) => knownReportIdsRef.current.add(r.id));
+          setReports(mapped);
+        } else {
+          // Detect freshly posted reports
+          const newlyAdded = mapped.filter((r) => !knownReportIdsRef.current.has(r.id));
+          if (newlyAdded.length > 0) {
+            const latest = newlyAdded[0];
+            setIncomingAlert(latest);
+            setUnreadNewCount((prev) => prev + newlyAdded.length);
+            playAlertChime();
+            newlyAdded.forEach((r) => knownReportIdsRef.current.add(r.id));
+          }
+          setReports(mapped);
+        }
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
   // Emergency Directive State (Governor & Mayor)
   const [directiveModalOpen, setDirectiveModalOpen] = useState(false);
   const [directiveTitle, setDirectiveTitle] = useState("");
@@ -556,6 +621,136 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Live Notification Bell with Dropdown Feed */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setNotificationsOpen(!notificationsOpen);
+                  setUnreadNewCount(0);
+                }}
+                className={`relative p-2.5 rounded-xl border transition-all cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  unreadNewCount > 0
+                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30"
+                    : "bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border-white/10"
+                }`}
+                aria-label="View citizen report notifications"
+                title="Incoming Citizen Reports"
+              >
+                {unreadNewCount > 0 ? (
+                  <BellRing className="w-5 h-5 text-amber-400 animate-bounce" />
+                ) : (
+                  <Bell className="w-5 h-5" />
+                )}
+                {unreadNewCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-[#0A1931] animate-pulse font-mono">
+                    {unreadNewCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Live Notifications Feed Dropdown */}
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-white/15 bg-[#0A1931]/95 shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs font-bold text-white uppercase tracking-wider font-heading">
+                        Incoming Citizen Reports
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                      {pendingReports} Pending
+                    </span>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
+                    {reports.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-500 italic">
+                        No community reports logged.
+                      </div>
+                    ) : (
+                      reports.slice(0, 6).map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-3.5 hover:bg-white/[0.03] transition-colors flex flex-col gap-2"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <span className="text-xs font-bold text-white line-clamp-1 font-heading">
+                                {item.title}
+                              </span>
+                              <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                                <MapPin className="w-3 h-3 text-red-400 shrink-0" />
+                                <span>Brgy. {item.barangay}</span>
+                                <span>•</span>
+                                <span className="font-mono text-[10px]">{item.date}</span>
+                              </div>
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 border ${
+                                item.status === "resolved"
+                                  ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                                  : item.status === "in_progress"
+                                  ? "bg-blue-500/15 text-blue-300 border-blue-500/30"
+                                  : item.status === "urgent"
+                                  ? "bg-red-500/15 text-red-300 border-red-500/30"
+                                  : "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveTab("reports");
+                                setSearch(item.title);
+                                setNotificationsOpen(false);
+                              }}
+                              className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 cursor-pointer"
+                            >
+                              <span>Inspect</span>
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+
+                            {item.status !== "resolved" && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  await handleStatusChange(item.id, "resolved");
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 transition-all shadow-sm cursor-pointer"
+                                title="Mark report as solved"
+                              >
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>Mark Solved</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="p-3 border-t border-white/10 bg-white/[0.02] text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab("reports");
+                        setNotificationsOpen(false);
+                      }}
+                      className="text-xs text-slate-300 hover:text-white font-semibold cursor-pointer"
+                    >
+                      View All Reports in Queue &rarr;
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Role Chip */}
             <div
               className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border font-heading ${
@@ -583,6 +778,77 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </header>
+
+        {/* Real-time Floating Notification Banner when a Resident Posts a Report */}
+        {incomingAlert && (
+          <aside
+            aria-label="New citizen submission notification"
+            className="fixed top-20 right-4 sm:right-6 z-50 max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-300"
+          >
+            <div className="p-4 rounded-2xl bg-[#0A1931]/95 border-2 border-amber-500/60 shadow-2xl shadow-black/80 backdrop-blur-xl text-white">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shrink-0">
+                    <BellRing className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Bagong Citizen Report
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Real-time Alert</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-white mt-1 line-clamp-1 font-heading">
+                      {incomingAlert.title}
+                    </h4>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIncomingAlert(null)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 cursor-pointer"
+                  aria-label="Dismiss alert"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mt-2 text-xs text-slate-300 flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-slate-200">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span>Brgy. {incomingAlert.barangay}</span>
+                </span>
+                <span>•</span>
+                <span className="text-slate-400 line-clamp-1">{incomingAlert.description}</span>
+              </div>
+
+              <div className="mt-3.5 flex items-center justify-end gap-2 pt-2.5 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("reports");
+                    setSearch(incomingAlert.title);
+                    setIncomingAlert(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-200 transition-all cursor-pointer min-h-[36px]"
+                >
+                  View Details
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await handleStatusChange(incomingAlert.id, "resolved");
+                    setIncomingAlert(null);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-md shadow-emerald-950/50 transition-all flex items-center gap-1.5 cursor-pointer min-h-[36px] font-heading"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Mark as Solved</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        )}
 
         {/* Main Console Content */}
         <main className="flex-1 max-w-7xl px-4 sm:px-6 lg:px-8 py-6 w-full space-y-7">
@@ -1087,17 +1353,36 @@ export default function AdminDashboardPage() {
                           </td>
 
                           <td className="px-5 py-4 whitespace-nowrap">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedReport(report);
-                                setNoteInput(report.officialNotes || "");
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/20 hover:text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-medium text-slate-200 transition-all min-h-[36px] cursor-pointer"
-                            >
-                              <MessageSquare className="w-3.5 h-3.5" />
-                              <span>{report.officialNotes ? "Edit Disposition" : "Add Disposition"}</span>
-                            </button>
+                            <div className="flex items-center gap-2">
+                              {report.status !== "resolved" ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStatusChange(report.id, "resolved")}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/40 hover:border-emerald-500 text-xs font-bold text-emerald-300 hover:text-white transition-all min-h-[36px] cursor-pointer shadow-sm"
+                                  title="Mark this report as solved"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Mark Solved</span>
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-lg">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Solved</span>
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedReport(report);
+                                  setNoteInput(report.officialNotes || "");
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/20 hover:text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-medium text-slate-200 transition-all min-h-[36px] cursor-pointer"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span>{report.officialNotes ? "Edit Disposition" : "Add Disposition"}</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1488,21 +1773,52 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedReport(null)}
-                    className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 cursor-pointer min-h-[44px]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveNote}
-                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm cursor-pointer min-h-[44px] font-heading"
-                  >
-                    Save Official Note
-                  </button>
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  {selectedReport.status !== "resolved" ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await updateReportStatus(
+                          selectedReport.id,
+                          "resolved",
+                          noteInput || "Resolved and inspected by Municipal/Provincial official.",
+                          currentUser?.name || "Municipal Official",
+                          currentUser?.office || "Municipal Official"
+                        );
+                        setReports((prev) =>
+                          prev.map((r) =>
+                            r.id === selectedReport.id
+                              ? { ...r, status: "resolved", officialNotes: noteInput || r.officialNotes }
+                              : r
+                          )
+                        );
+                        setSelectedReport(null);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-md shadow-emerald-950/40 cursor-pointer min-h-[44px] flex items-center gap-1.5 font-heading"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Mark as Solved</span>
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReport(null)}
+                      className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 cursor-pointer min-h-[44px]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveNote}
+                      className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm cursor-pointer min-h-[44px] font-heading"
+                    >
+                      Save Official Note
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

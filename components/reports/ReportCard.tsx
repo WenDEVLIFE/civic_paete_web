@@ -518,14 +518,28 @@ export function ReportCard({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowOfficerPanel(!showOfficerPanel)}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer min-h-[36px]"
-          >
-            <span>{showOfficerPanel ? "Close Controls" : "Update Status"}</span>
-            {showOfficerPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {currentStatus !== "resolved" && (
+              <button
+                type="button"
+                onClick={() => handleOfficerStatusUpdate("resolved")}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-900/40 cursor-pointer min-h-[36px]"
+                title="Directly mark this report as solved"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Mark Solved</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowOfficerPanel(!showOfficerPanel)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer min-h-[36px]"
+            >
+              <span>{showOfficerPanel ? "Close Controls" : "Update Status"}</span>
+              {showOfficerPanel ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
       )}
 
