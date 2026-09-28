@@ -20,6 +20,7 @@ import {
   ChevronUp,
   Check,
   UserCheck,
+  Wrench,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -554,49 +555,53 @@ export function ReportCard({
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("pending")}
-              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 ${
                 currentStatus === "pending"
-                  ? "bg-amber-500/30 text-amber-300 border-amber-500"
-                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                  ? "bg-amber-500/30 text-amber-300 border-amber-500 shadow-sm shadow-amber-500/20"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white"
               }`}
             >
-              ⏳ Pending
+              <Clock className="w-4 h-4 text-amber-400" />
+              <span>Pending</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("in_progress")}
-              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 ${
                 currentStatus === "in_progress"
-                  ? "bg-blue-500/30 text-blue-300 border-blue-500"
-                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                  ? "bg-blue-500/30 text-blue-300 border-blue-500 shadow-sm shadow-blue-500/20"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white"
               }`}
             >
-              ⚙️ In Progress
+              <Wrench className="w-4 h-4 text-blue-400" />
+              <span>In Progress</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("resolved")}
-              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 ${
                 currentStatus === "resolved"
-                  ? "bg-emerald-500/30 text-emerald-300 border-emerald-500"
-                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                  ? "bg-emerald-500/30 text-emerald-300 border-emerald-500 shadow-sm shadow-emerald-500/20"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white"
               }`}
             >
-              ✅ Resolved
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Resolved</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleOfficerStatusUpdate("urgent")}
-              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
+              className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 ${
                 currentStatus === "urgent"
-                  ? "bg-red-500/30 text-red-300 border-red-500"
-                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                  ? "bg-red-500/30 text-red-300 border-red-500 shadow-sm shadow-red-500/20"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white"
               }`}
             >
-              🚨 Critical Hazard
+              <AlertTriangle className="w-4 h-4 text-red-400" />
+              <span>Critical Hazard</span>
             </button>
           </div>
 

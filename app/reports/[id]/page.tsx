@@ -23,6 +23,7 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
+  Wrench,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -580,33 +581,37 @@ export default function ReportDetailPage({
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("pending")}
-                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/30 text-amber-300 transition-all cursor-pointer min-h-[44px]"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/30 text-amber-300 transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    ⏳ Pending
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span>Pending</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("in_progress")}
-                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 text-blue-300 transition-all cursor-pointer min-h-[44px]"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-blue-500/20 border border-white/10 hover:border-blue-500/30 text-blue-300 transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    ⚙️ In Progress
+                    <Wrench className="w-4 h-4 text-blue-400" />
+                    <span>In Progress</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("resolved")}
-                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 text-emerald-300 transition-all cursor-pointer min-h-[44px]"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 text-emerald-300 transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    ✅ Resolved
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Resolved</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleUpdateStatus("urgent")}
-                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-red-300 transition-all cursor-pointer min-h-[44px]"
+                    className="p-2.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-red-300 transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    🚨 Critical Hazard
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span>Critical Hazard</span>
                   </button>
                 </div>
 
