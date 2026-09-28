@@ -19,164 +19,16 @@ export const metadata: Metadata = {
     "Official registry of public infrastructure, capital outlays, contractors, and budget allocations for the Municipality of Paete, Laguna.",
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+export const revalidate = 3600;
 
-type ProjectStatus = "completed" | "ongoing" | "bidding" | "planned";
-type ProjectCategory =
-  | "road"
-  | "drainage"
-  | "lighting"
-  | "flood"
-  | "facility"
-  | "environment";
+// ─── Service & Types ──────────────────────────────────────────────────────────
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category: ProjectCategory;
-  status: ProjectStatus;
-  barangay: string;
-  budget: number;
-  contractor: string;
-  startDate: string;
-  endDate: string;
-  completionPct: number;
-  fundSource: string;
-  milestones: { label: string; done: boolean; date: string }[];
-}
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const PROJECTS: Project[] = [
-  {
-    id: "proj-1",
-    title: "Drainage Expansion & Catch Basin Network — Quesada Street",
-    description:
-      "Installation of reinforced concrete pipe culverts (RCPC) and heavy-duty storm catch basins along Quesada Street to prevent flash runoff inundation during typhoons.",
-    category: "drainage",
-    status: "completed",
-    barangay: "Bagumbayan",
-    budget: 2_850_000,
-    contractor: "Reyes Construction & Civil Supply",
-    startDate: "March 2026",
-    endDate: "August 2026",
-    completionPct: 100,
-    fundSource: "20% Municipal Development Fund (2026)",
-    milestones: [
-      { label: "Site excavation and utility clearing", done: true, date: "March 15" },
-      { label: "RCPC installation (Phase 1)", done: true, date: "April 20" },
-      { label: "Catch basin masonry & inlet installation", done: true, date: "June 5" },
-      { label: "Asphalt pavement restoration", done: true, date: "August 10" },
-    ],
-  },
-  {
-    id: "proj-2",
-    title: "Solar LED Streetlighting Grid — Barangay Ilaya del Norte",
-    description:
-      "Replacement of 48 legacy sodium-vapor streetlights with 100W energy-efficient solar LED fixtures, dedicated steel poles, and automated dusk-to-dawn sensors.",
-    category: "lighting",
-    status: "ongoing",
-    barangay: "Ilaya del Norte",
-    budget: 1_920_000,
-    contractor: "SunPower Laguna Electrical Works",
-    startDate: "September 2026",
-    endDate: "November 2026",
-    completionPct: 45,
-    fundSource: "DILG Assistance to Municipalities Grant",
-    milestones: [
-      { label: "Procurement and delivery of LED units", done: true, date: "Sept. 10" },
-      { label: "Erection of 24 lighting poles", done: true, date: "Sept. 25" },
-      { label: "Wiring and junction connection", done: false, date: "Oct. 15" },
-      { label: "Commissioning and safety inspection", done: false, date: "Nov. 5" },
-    ],
-  },
-  {
-    id: "proj-3",
-    title: "Flood Defense Structure — Bangkusay Creek Retaining Wall",
-    description:
-      "Construction of a 120-linear-meter reinforced concrete retaining wall along Bangkusay Creek to mitigate riverbank erosion and protect riverside residential zones.",
-    category: "flood",
-    status: "ongoing",
-    barangay: "Bangkusay",
-    budget: 6_400_000,
-    contractor: "Dela Cruz Heavy Engineering Corp.",
-    startDate: "July 2026",
-    endDate: "December 2026",
-    completionPct: 60,
-    fundSource: "DPWH Provincial Infrastructure Allocation",
-    milestones: [
-      { label: "East bank foundation excavation", done: true, date: "July 20" },
-      { label: "Rebar installation and East wall footing", done: true, date: "August 15" },
-      { label: "Concrete pouring (East bank 60m)", done: true, date: "Sept. 18" },
-      { label: "West bank excavation and footing", done: false, date: "Oct. 30" },
-      { label: "West bank wall completion", done: false, date: "Dec. 10" },
-    ],
-  },
-  {
-    id: "proj-4",
-    title: "Barangay Road Resurfacing & Walkway Rehabilitation — Maytoong",
-    description:
-      "Sub-base repair, 2-inch asphalt overlay, and concrete sidewalk restoration across 850 linear meters of Maytoong road connecting to the agricultural highlands.",
-    category: "road",
-    status: "bidding",
-    barangay: "Maytoong",
-    budget: 4_200_000,
-    contractor: "Under Bidding (BAC Open Competitive)",
-    startDate: "November 2026",
-    endDate: "February 2027",
-    completionPct: 0,
-    fundSource: "Barangay Development Fund + Congressional Assistance",
-    milestones: [
-      { label: "BAC pre-bid conference and tender award", done: false, date: "Oct. 30" },
-      { label: "Contractor mobilization and grading", done: false, date: "Nov. 15" },
-      { label: "Aggregate base compaction", done: false, date: "Dec. 5" },
-      { label: "Asphalt overlay and thermal striping", done: false, date: "Feb. 2027" },
-    ],
-  },
-  {
-    id: "proj-5",
-    title: "Paete Lakeside Eco-Park & Waste Sorting Pavilion",
-    description:
-      "Development of a public scenic waterfront park along Laguna de Bay featuring native bamboo landscaping, a civic promenade, and an ecological materials recovery facility.",
-    category: "environment",
-    status: "planned",
-    barangay: "Ermita",
-    budget: 3_750_000,
-    contractor: "Engineering Design Phase (LGU-MPDC)",
-    startDate: "January 2027",
-    endDate: "June 2027",
-    completionPct: 0,
-    fundSource: "DENR Eco-Governance Grant & DOT-TIEZA",
-    milestones: [
-      { label: "DENR Environmental Compliance Certificate (ECC)", done: false, date: "Dec. 2026" },
-      { label: "Detailed Architectural & Engineering Design", done: false, date: "Dec. 2026" },
-      { label: "Public Procurement & Bidding", done: false, date: "Jan. 2027" },
-      { label: "Promenade construction and planting", done: false, date: "June 2027" },
-    ],
-  },
-  {
-    id: "proj-6",
-    title: "Paete Municipal Hall Function Wing Modernization",
-    description:
-      "Structural retrofitting, ceiling restoration, acoustic insulation, and ADA-compliant accessibility ramp construction for the 2nd Floor Municipal Assembly Hall.",
-    category: "facility",
-    status: "completed",
-    barangay: "Ibaba del Norte",
-    budget: 1_650_000,
-    contractor: "Santillan Builders & Interior Crafts",
-    startDate: "January 2026",
-    endDate: "April 2026",
-    completionPct: 100,
-    fundSource: "Municipal Capital Outlay Reserve",
-    milestones: [
-      { label: "Demolition and ceiling structural retrofit", done: true, date: "Jan. 20" },
-      { label: "ADA accessibility ramp installation", done: true, date: "Feb. 28" },
-      { label: "Acoustic wall paneling & electrical rewiring", done: true, date: "March 20" },
-      { label: "Final municipal inspection & turnover", done: true, date: "April 15" },
-    ],
-  },
-];
+import {
+  getTransparencyProjects,
+  type ProjectStatus,
+  type ProjectCategory,
+  type TransparencyProject,
+} from "@/lib/services/projectService";
 
 // ─── Status & Category Configuration ──────────────────────────────────────────
 
@@ -230,10 +82,11 @@ function formatBudget(amount: number): string {
   return `₱${(amount / 1_000_000).toFixed(2)}M`;
 }
 
-export default function TransparencyProjectsPage() {
-  const completed = PROJECTS.filter((p) => p.status === "completed").length;
-  const ongoing = PROJECTS.filter((p) => p.status === "ongoing").length;
-  const totalBudgetAmt = PROJECTS.reduce((sum, p) => sum + p.budget, 0);
+export default async function TransparencyProjectsPage() {
+  const projects = await getTransparencyProjects();
+  const completed = projects.filter((p) => p.status === "completed").length;
+  const ongoing = projects.filter((p) => p.status === "ongoing").length;
+  const totalBudgetAmt = projects.reduce((sum, p) => sum + p.budget, 0);
 
   return (
     <div className="min-h-screen bg-[#071126] text-[#F1F5F9] font-sans selection:bg-[#2563EB] selection:text-white">
@@ -300,7 +153,7 @@ export default function TransparencyProjectsPage() {
                   Total Tracked
                 </span>
                 <span className="text-2xl sm:text-3xl font-black text-white font-heading mt-1 block">
-                  {PROJECTS.length}
+                  {projects.length}
                 </span>
                 <span className="text-[11px] text-slate-500">Major infrastructure</span>
               </div>
@@ -351,7 +204,7 @@ export default function TransparencyProjectsPage() {
 
         {/* Project Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {PROJECTS.map((proj) => {
+          {projects.map((proj) => {
             const statusMeta = STATUS_CONFIG[proj.status];
             const catMeta = CATEGORY_CONFIG[proj.category];
 

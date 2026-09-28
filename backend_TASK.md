@@ -102,9 +102,9 @@
 ---
 
 ### Phase 5: Public Transparency & Dynamic Open Data Engine (Features 8, 9, 10)
-- [ ] **5.1 Public Works Projects Collection**
-  - [ ] Create Firestore collection `transparency_projects` matching `Project` schema (budget, contractor, milestones, fund source).
-  - [ ] Connect `app/transparency/projects/page.tsx` to fetch projects from Firestore with revalidation (`next: { revalidate: 3600 }`).
+- [x] **5.1 Public Works Projects Collection**
+  - [x] Create Firestore collection `transparency_projects` matching `Project` schema (budget, contractor, milestones, fund source).
+  - [x] Connect `app/transparency/projects/page.tsx` to fetch projects from Firestore with revalidation (`next: { revalidate: 3600 }`).
 - [ ] **5.2 Officials & Accountability Directory**
   - [ ] Create Firestore collection `officials` with civic response metrics (`resolutionRate`, `avgResponseHours`, `activeReports`, `resolvedReports`).
   - [ ] Build background aggregator to recalculate official resolution metrics dynamically when incident tickets are marked `resolved`.
