@@ -211,38 +211,6 @@ export default function AdminLoginPage() {
               <span>{isLoading ? "Verifying Credentials..." : "Sign In"}</span>
             </button>
           </form>
-
-          {/* Quick Click Credentials for Admin & Governor */}
-          <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
-            <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-sans">
-              Quick Test Credentials:
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => autofillCredentials("admin@paete.gov.ph", "PaeteAdmin2026!")}
-                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-blue-600/20 hover:border-blue-500/40 transition-all group cursor-pointer min-h-[44px]"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-blue-300 font-heading">
-                  <KeyRound className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Admin</span>
-                </div>
-                <div className="text-[10px] text-slate-400 truncate font-mono">admin@paete.gov.ph</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => autofillCredentials("governor@laguna.gov.ph", "LagunaGov2026!")}
-                className="text-left p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-amber-600/20 hover:border-amber-500/40 transition-all group cursor-pointer min-h-[44px]"
-              >
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-amber-300 font-heading">
-                  <Landmark className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Governor</span>
-                </div>
-                <div className="text-[10px] text-slate-400 truncate font-mono">governor@laguna.gov.ph</div>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
