@@ -254,10 +254,9 @@ export function subscribeToReports(
   callback: (reports: CommunityReport[]) => void
 ): Unsubscribe {
   const reportsCollection = collection(db, "reports");
-  const q = query(reportsCollection, orderBy("createdAt", "desc"));
 
   return onSnapshot(
-    q,
+    reportsCollection,
     async (snapshot) => {
       if (snapshot.empty) {
         // Automatically seed baseline reports if empty
@@ -286,7 +285,15 @@ export function subscribeToReports(
           officialActorName: data.officialActorName || undefined,
           officialActorRole: data.officialActorRole || undefined,
           comments: Array.isArray(data.comments) ? data.comments : [],
+          createdAt: data.createdAt,
         };
+      });
+
+      // Sort newest first by createdAt seconds or fallback
+      items.sort((a, b) => {
+        const timeA = (a as unknown as { createdAt?: { seconds: number } }).createdAt?.seconds || 0;
+        const timeB = (b as unknown as { createdAt?: { seconds: number } }).createdAt?.seconds || 0;
+        return timeB - timeA;
       });
 
       // Apply client-side in-memory filter matching

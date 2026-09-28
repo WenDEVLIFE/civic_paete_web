@@ -45,23 +45,15 @@ import {
   INITIAL_AUDIT_LOGS,
 } from "@/lib/services/auditService";
 import { updateReportStatus, subscribeToReports } from "@/lib/services/reportService";
-import { reviewVerificationRequest } from "@/lib/services/verificationService";
+import {
+  reviewVerificationRequest,
+  subscribeToAllVerificationRequests,
+} from "@/lib/services/verificationService";
+import { subscribeToUsers, type CivicUser } from "@/lib/services/userService";
 
 interface AdminReport extends CommunityReport {
   officialNotes?: string;
   assignedOffice?: string;
-}
-
-interface CivicUser {
-  id: string;
-  name: string;
-  email: string;
-  role: "resident" | "official";
-  barangayOrOffice: string;
-  reportsCount: number;
-  registeredDate: string;
-  authProvider: "google" | "municipal_credentials";
-  verificationStatus: VerificationStatus;
 }
 
 interface VerificationRequest {
@@ -409,6 +401,56 @@ export default function AdminDashboardPage() {
     const unsub = subscribeToAuditLogs((logs) => {
       setAuditLogs(logs);
     });
+    return () => unsub();
+  }, []);
+
+  // Subscribe to live Firestore verification requests (KYC Queue)
+  useEffect(() => {
+    const unsub = subscribeToAllVerificationRequests((liveRequests) => {
+      if (liveRequests && liveRequests.length > 0) {
+        // Merge with initial requests so baseline mock applicants remain present if not duplicated
+        const existingIds = new Set(liveRequests.map((r) => r.id));
+        const merged = [
+          ...liveRequests.map((r) => ({
+            id: r.id,
+            userId: r.userId,
+            applicantName: r.applicantName,
+            email: r.email,
+            barangay: r.barangay,
+            address: r.address,
+            method: r.method,
+            documentType: r.documentType,
+            documentNumber: r.documentNumber,
+            submittedAt: String(r.submittedAt),
+            status: r.status,
+          })),
+          ...INITIAL_VERIFICATION_REQUESTS.filter((init) => !existingIds.has(init.id)),
+        ];
+        setVerificationRequests(merged);
+      } else {
+        setVerificationRequests(INITIAL_VERIFICATION_REQUESTS);
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  // Subscribe to live Firestore users directory
+  useEffect(() => {
+    const unsub = subscribeToUsers((liveUsers) => {
+      if (liveUsers && liveUsers.length > 0) {
+        // Merge live users with initial officials and resident profiles
+        const existingEmails = new Set(liveUsers.map((u) => u.email.toLowerCase()));
+        const merged = [
+          ...liveUsers,
+          ...INITIAL_USERS.filter((init) => !existingEmails.has(init.email.toLowerCase())),
+        ];
+        setUsers(merged);
+      } else {
+        setUsers(INITIAL_USERS);
+      }
+    });
+
     return () => unsub();
   }, []);
 

@@ -203,6 +203,68 @@ export function subscribeToPendingVerifications(
 }
 
 /**
+ * Real-time listener for all verification requests across all lifecycle statuses.
+ */
+export function subscribeToAllVerificationRequests(
+  callback: (requests: VerificationRequest[]) => void
+): Unsubscribe {
+  const requestsCol = collection(db, "verification_requests");
+
+  return onSnapshot(
+    requestsCol,
+    (snapshot) => {
+      const items = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        let submittedAtFormatted = "Recently";
+
+        if (data.submittedAt && typeof data.submittedAt === "object" && "toDate" in data.submittedAt) {
+          try {
+            submittedAtFormatted = (data.submittedAt as Timestamp).toDate().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            });
+          } catch {
+            submittedAtFormatted = "Recently";
+          }
+        } else if (typeof data.submittedAt === "string") {
+          submittedAtFormatted = data.submittedAt;
+        }
+
+        return {
+          id: docSnap.id,
+          userId: data.userId || "",
+          applicantName: data.applicantName || "Resident",
+          email: data.email || "",
+          barangay: data.barangay || "Paete",
+          address: data.address || "",
+          birthDate: data.birthDate || "",
+          method: data.method || "gov_id",
+          documentType: data.documentType || "Official ID",
+          documentNumber: data.documentNumber || "",
+          fileUrl: data.fileUrl || undefined,
+          status: data.status || "pending",
+          submittedAt: submittedAtFormatted,
+          updatedAt: data.updatedAt,
+          reviewedAt: data.reviewedAt,
+          reviewedBy: data.reviewedBy,
+          reviewerRole: data.reviewerRole,
+          rejectionReason: data.rejectionReason,
+        } as unknown as VerificationRequest;
+      });
+
+      callback(items);
+    },
+    (err) => {
+      console.warn("All verifications listener notice:", err);
+      callback([]);
+    }
+  );
+}
+
+/**
  * 6.1 Review verification request: approves, rejects, or promotes resident,
  * updates Firestore documents, and logs to immutable government audit trail.
  */
