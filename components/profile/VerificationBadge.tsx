@@ -1,11 +1,13 @@
 import React from "react";
-import { Shield, UserCheck, Award, Landmark } from "lucide-react";
+import { Shield, UserCheck, Award, Landmark, Clock, AlertCircle } from "lucide-react";
 
 export type VerificationStatus =
   | "unverified"
+  | "pending"
   | "barangay_verified"
   | "community_leader"
-  | "municipal_officer";
+  | "municipal_officer"
+  | "rejected";
 
 interface VerificationBadgeProps {
   status: VerificationStatus;
@@ -33,6 +35,14 @@ export const VERIFICATION_CONFIG: Record<
     border: "border-slate-500/25",
     icon: Shield,
   },
+  pending: {
+    label: "Verification Pending",
+    description: "Application is queued for municipal/barangay records inspection.",
+    bg: "bg-amber-500/10",
+    text: "text-amber-400",
+    border: "border-amber-500/30",
+    icon: Clock,
+  },
   barangay_verified: {
     label: "Barangay Verified",
     description: "Identity and residency verified with Paete Barangay records.",
@@ -56,6 +66,14 @@ export const VERIFICATION_CONFIG: Record<
     text: "text-blue-300",
     border: "border-blue-500/30",
     icon: Landmark,
+  },
+  rejected: {
+    label: "Verification Returned",
+    description: "Document could not be validated. Please submit updated proof.",
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    border: "border-red-500/30",
+    icon: AlertCircle,
   },
 };
 

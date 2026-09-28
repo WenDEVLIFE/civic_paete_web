@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { VerificationBadge, VerificationStatus } from "./VerificationBadge";
 import { BarangayVerificationModal } from "./BarangayVerificationModal";
+import { subscribeToUserVerification } from "@/lib/services/verificationService";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -39,22 +40,16 @@ export function UserProfileModal({
   const [deletionStep, setDeletionStep] = useState<"initial" | "confirm" | "queued">("initial");
   const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
 
-  // Sync verification status from localStorage if pending
+  // Sync verification status from live Firestore user record
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const pendingData = localStorage.getItem("civic_paete_verification_pending");
-      if (pendingData) {
-        try {
-          const parsed = JSON.parse(pendingData);
-          if (parsed?.status === "approved") {
-            setVerificationStatus("barangay_verified");
-          }
-        } catch {
-          // ignore
-        }
-      }
-    }
-  }, [isOpen]);
+    if (!user?.uid) return;
+
+    const unsub = subscribeToUserVerification(user.uid, (status) => {
+      setVerificationStatus(status);
+    });
+
+    return () => unsub();
+  }, [user?.uid, isOpen]);
 
   if (!isOpen || !user) return null;
 
@@ -504,10 +499,11 @@ export function UserProfileModal({
       <BarangayVerificationModal
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
+        userId={user.uid}
         userEmail={user.email || ""}
         userName={user.displayName || ""}
         onVerificationSubmitted={() => {
-          setVerificationStatus("barangay_verified");
+          setVerificationStatus("pending");
         }}
       />
     </>

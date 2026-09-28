@@ -12,11 +12,15 @@ import {
   AlertCircle,
   FileText,
   BadgeCheck,
+  Loader2,
 } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { submitVerificationRequest } from "@/lib/services/verificationService";
 
 interface BarangayVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userId?: string;
   userEmail?: string;
   userName?: string;
   onVerificationSubmitted?: (data: {
@@ -51,6 +55,8 @@ const VALID_ID_TYPES = [
 export function BarangayVerificationModal({
   isOpen,
   onClose,
+  userId,
+  userEmail,
   userName,
   onVerificationSubmitted,
 }: BarangayVerificationModalProps) {
@@ -61,6 +67,7 @@ export function BarangayVerificationModal({
   const [method, setMethod] = useState<"certificate" | "gov_id">("certificate");
   const [documentNumber, setDocumentNumber] = useState("");
   const [idType, setIdType] = useState(VALID_ID_TYPES[0]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -90,6 +97,7 @@ export function BarangayVerificationModal({
     }
 
     setErrorMessage("");
+    setSelectedFile(file);
     setFileName(file.name);
 
     if (file.type.startsWith("image/")) {
@@ -106,7 +114,14 @@ export function BarangayVerificationModal({
     if (file) handleFileProcess(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setFileName(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !address.trim() || !documentNumber.trim() || !birthDate) {
       setErrorMessage("Please fill out all required fields including your date of birth.");
@@ -133,10 +148,34 @@ export function BarangayVerificationModal({
       return;
     }
 
+    const effectiveUserId = userId || auth.currentUser?.uid;
+    if (!effectiveUserId) {
+      setErrorMessage(
+        "You must be signed in with your Paete resident account to submit a residency verification request."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage("");
 
-    setTimeout(() => {
+    try {
+      const docType = method === "gov_id" ? idType : "Barangay Residency Certificate";
+      const effectiveEmail = userEmail || auth.currentUser?.email || "";
+
+      await submitVerificationRequest({
+        userId: effectiveUserId,
+        applicantName: fullName.trim(),
+        email: effectiveEmail,
+        barangay,
+        address: address.trim(),
+        birthDate,
+        method,
+        documentType: docType,
+        documentNumber: documentNumber.trim(),
+        file: selectedFile,
+      });
+
       setIsSubmitting(false);
       setIsSuccess(true);
       onVerificationSubmitted?.({
@@ -165,7 +204,13 @@ export function BarangayVerificationModal({
         setIsSuccess(false);
         onClose();
       }, 2000);
-    }, 1000);
+    } catch (err: unknown) {
+      console.error("Verification submit error:", err);
+      const errMsg =
+        err instanceof Error ? err.message : "Failed to submit verification request. Please try again.";
+      setErrorMessage(errMsg);
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -407,11 +452,7 @@ export function BarangayVerificationModal({
                       )}
                       <button
                         type="button"
-                        onClick={() => {
-                          setPreviewUrl(null);
-                          setFileName(null);
-                          if (fileInputRef.current) fileInputRef.current.value = "";
-                        }}
+                        onClick={handleRemoveFile}
                         className="absolute top-2 right-2 p-2 rounded-lg bg-red-600/90 hover:bg-red-700 text-white shadow-lg transition-all min-h-[36px] min-w-[36px] flex items-center justify-center cursor-pointer"
                         title="Remove attached document"
                       >
@@ -478,10 +519,19 @@ export function BarangayVerificationModal({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer disabled:opacity-50 font-heading"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-heading"
                 >
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>{isSubmitting ? "Submitting Application..." : "Submit for Verification"}</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Submitting to Civic Cloud...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Submit for Verification</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

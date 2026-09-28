@@ -62,22 +62,22 @@
 ---
 
 ### Phase 3: Residency Verification & KYC Pipeline (Feature 5)
-- [ ] **3.1 Verification Submission Flow**
-  - [ ] Update `BarangayVerificationModal.tsx` to upload proof document to Firebase Storage.
-  - [ ] Create record in Firestore `verification_requests` collection with fields:
-    - [ ] `userId`, `applicantName`, `email`, `barangay`, `address`, `birthDate`, `method`, `documentType`, `documentNumber`, `fileUrl`, `status: "pending"`, `submittedAt`.
-  - [ ] Update `users/{uid}.verificationStatus` to `"pending"`.
-- [ ] **3.2 Admin Review & Approval Queue**
-  - [ ] Connect `app/admin/dashboard/page.tsx` Verification Review Queue to live `verification_requests` collection (filtered by `status == "pending"`).
-  - [ ] Build atomic approval action:
-    - [ ] Update `verification_requests/{id}.status = "approved"`.
-    - [ ] Update `users/{userId}.verificationStatus = "barangay_verified"` (or `"community_leader"`).
-    - [ ] Append entry to `audit_logs`.
-  - [ ] Build atomic rejection action:
-    - [ ] Update `verification_requests/{id}.status = "rejected"` with `rejectionReason`.
-    - [ ] Update `users/{userId}.verificationStatus = "unverified"`.
-- [ ] **3.3 Age 15+ Server Validation**
-  - [ ] Implement validation verifying applicant's `birthDate` is at least 15 years prior to the current server timestamp (adhering to RA 10742).
+- [x] **3.1 Verification Submission Flow**
+  - [x] Update `BarangayVerificationModal.tsx` to upload proof document to Firebase Storage.
+  - [x] Create record in Firestore `verification_requests` collection with fields:
+    - [x] `userId`, `applicantName`, `email`, `barangay`, `address`, `birthDate`, `method`, `documentType`, `documentNumber`, `fileUrl`, `status: "pending"`, `submittedAt`.
+  - [x] Update `users/{uid}.verificationStatus` to `"pending"`.
+- [x] **3.2 Admin Review & Approval Queue**
+  - [x] Connect `app/admin/dashboard/page.tsx` Verification Review Queue to live `verification_requests` collection (filtered by `status == "pending"`).
+  - [x] Build atomic approval action:
+    - [x] Update `verification_requests/{id}.status = "approved"`.
+    - [x] Update `users/{userId}.verificationStatus = "barangay_verified"` (or `"community_leader"`).
+    - [x] Append entry to `audit_logs`.
+      - [x] Build atomic rejection action:
+        - [x] Update `verification_requests/{id}.status = "rejected"` with `rejectionReason`.
+        - [x] Update `users/{userId}.verificationStatus = "unverified"`.
+- [x] **3.3 Age 15+ Server Validation**
+  - [x] Implement validation verifying applicant's `birthDate` is at least 15 years prior to the current server timestamp (adhering to RA 10742).
 
 ---
 
