@@ -34,15 +34,15 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { AdminSidebar, AdminTab } from "@/components/admin/AdminSidebar";
 import { VerificationBadge, VerificationStatus } from "@/components/profile/VerificationBadge";
 import {
   subscribeToAuditLogs,
   logEmergencyDirective,
   type GovernmentAuditLog as AuditLog,
-  INITIAL_AUDIT_LOGS,
 } from "@/lib/services/auditService";
 import { updateReportStatus, subscribeToReports } from "@/lib/services/reportService";
 import {
@@ -68,207 +68,6 @@ interface VerificationRequest {
   documentNumber: string;
   submittedAt: string;
   status: "pending" | "approved" | "rejected";
-}
-
-const INITIAL_ADMIN_REPORTS: AdminReport[] = [
-  {
-    id: "rep-1",
-    title: "Non-functional Streetlights along Quesada Street",
-    description: "A dark stretch of road at night creating hazardous transit conditions for students and commuters returning home.",
-    category: "lighting",
-    barangay: "Bagumbayan",
-    status: "in_progress",
-    date: "September 24, 2026",
-    upvotes: 18,
-    assignedOffice: "Municipal Engineering Office",
-    officialNotes: "Inspected by electrical maintenance team; replacement LED bulb fixture ordered.",
-  },
-  {
-    id: "rep-2",
-    title: "Obstructed Drainage Canal Causing Stormwater Overflow",
-    description: "Culvert requires immediate clearing before seasonal monsoon downpours to prevent backflow and flash flooding.",
-    category: "drainage",
-    barangay: "Ibaba del Sur",
-    status: "pending",
-    date: "September 25, 2026",
-    upvotes: 12,
-    assignedOffice: "MENRO / Barangay Maintenance",
-  },
-  {
-    id: "rep-3",
-    title: "Remediated Road Pothole near Public Market Junction",
-    description: "Asphalt cold-patch applied by municipal engineering following resident reporting last week.",
-    category: "road",
-    barangay: "Maytoong",
-    status: "resolved",
-    date: "September 22, 2026",
-    upvotes: 34,
-    assignedOffice: "Municipal Engineering Office",
-    officialNotes: "Completed cold-patch asphalt remediation on Sept 23, 2026.",
-  },
-  {
-    id: "rep-4",
-    title: "Solid Waste & Tree Branch Debris along Road Shoulder",
-    description: "Discarded timber cuttings and uncollected roadside yard debris require heavy collection truck.",
-    category: "waste",
-    barangay: "Quinale",
-    status: "pending",
-    date: "September 26, 2026",
-    upvotes: 7,
-    assignedOffice: "MENRO (Sanitation)",
-  },
-  {
-    id: "rep-5",
-    title: "Tilted Wooden Utility Pole Adjacent to Riverbank",
-    description: "Requires urgent structural inspection by utility line teams due to severe soil softening following recent riverbank swelling.",
-    category: "safety",
-    barangay: "Bangkusay",
-    status: "urgent",
-    date: "September 26, 2026",
-    upvotes: 41,
-    assignedOffice: "MDRRMO / Meralco Liaison",
-    officialNotes: "Forwarded to emergency coordination team for safety perimeter cordon.",
-  },
-  {
-    id: "rep-6",
-    title: "Cleaned Drainage Canal near Parish Church Grounds",
-    description: "Plastic waste and accumulated silt fully extracted from the drainage canal.",
-    category: "drainage",
-    barangay: "Ilaya del Norte",
-    status: "resolved",
-    date: "September 21, 2026",
-    upvotes: 29,
-    assignedOffice: "Barangay Cleanup Team",
-    officialNotes: "Completed cleanup drive on Sunday morning.",
-  },
-];
-
-const INITIAL_USERS: CivicUser[] = [
-  {
-    id: "usr-admin",
-    name: "Municipal Administrator",
-    email: "admin@paete.gov.ph",
-    role: "official",
-    barangayOrOffice: "Office of the Municipal Mayor",
-    reportsCount: 0,
-    registeredDate: "Sept 27, 2026",
-    authProvider: "municipal_credentials",
-    verificationStatus: "municipal_officer",
-  },
-  {
-    id: "usr-gov",
-    name: "Hon. Provincial Governor",
-    email: "governor@laguna.gov.ph",
-    role: "official",
-    barangayOrOffice: "Office of the Provincial Governor - Laguna",
-    reportsCount: 0,
-    registeredDate: "Sept 27, 2026",
-    authProvider: "municipal_credentials",
-    verificationStatus: "municipal_officer",
-  },
-  {
-    id: "usr-1",
-    name: "Juan Dela Cruz",
-    email: "juan.delacruz@gmail.com",
-    role: "resident",
-    barangayOrOffice: "Brgy. Bagumbayan",
-    reportsCount: 4,
-    registeredDate: "Sept 12, 2026",
-    authProvider: "google",
-    verificationStatus: "unverified",
-  },
-  {
-    id: "usr-2",
-    name: "Maria Santos-Reyes",
-    email: "maria.reyes@gmail.com",
-    role: "resident",
-    barangayOrOffice: "Brgy. Maytoong",
-    reportsCount: 2,
-    registeredDate: "Sept 15, 2026",
-    authProvider: "google",
-    verificationStatus: "unverified",
-  },
-  {
-    id: "usr-3",
-    name: "Engr. Marco Adea",
-    email: "marco.adea@paete.gov.ph",
-    role: "official",
-    barangayOrOffice: "Municipal Engineering Office",
-    reportsCount: 0,
-    registeredDate: "Aug 01, 2026",
-    authProvider: "municipal_credentials",
-    verificationStatus: "municipal_officer",
-  },
-  {
-    id: "usr-4",
-    name: "Arlene Cadawas",
-    email: "arlene.cadawas@paete.gov.ph",
-    role: "official",
-    barangayOrOffice: "MENRO Paete",
-    reportsCount: 0,
-    registeredDate: "Aug 10, 2026",
-    authProvider: "municipal_credentials",
-    verificationStatus: "municipal_officer",
-  },
-  {
-    id: "usr-5",
-    name: "Roberto Fadul",
-    email: "roberto.fadul@gmail.com",
-    role: "resident",
-    barangayOrOffice: "Brgy. Bangkusay",
-    reportsCount: 3,
-    registeredDate: "Sept 18, 2026",
-    authProvider: "google",
-    verificationStatus: "unverified",
-  },
-];
-
-const INITIAL_VERIFICATION_REQUESTS: VerificationRequest[] = [
-  {
-    id: "vreq-101",
-    userId: "usr-1",
-    applicantName: "Juan Dela Cruz",
-    email: "juan.delacruz@gmail.com",
-    barangay: "Bagumbayan",
-    address: "142 Quesada St., Purok 2",
-    method: "certificate",
-    documentType: "Barangay Clearance Certificate",
-    documentNumber: "BC-2026-0891",
-    submittedAt: "Sept 26, 2026 • 11:20 AM",
-    status: "pending",
-  },
-  {
-    id: "vreq-102",
-    userId: "usr-2",
-    applicantName: "Maria Santos-Reyes",
-    email: "maria.reyes@gmail.com",
-    barangay: "Maytoong",
-    address: "88 J. Rizal St., Maytoong",
-    method: "gov_id",
-    documentType: "PhilSys National ID",
-    documentNumber: "9182-3847-1920-4821",
-    submittedAt: "Sept 25, 2026 • 02:15 PM",
-    status: "pending",
-  },
-  {
-    id: "vreq-103",
-    userId: "usr-5",
-    applicantName: "Roberto Fadul",
-    email: "roberto.fadul@gmail.com",
-    barangay: "Bangkusay",
-    address: "Kanto ng Ilaya, Bangkusay",
-    method: "gov_id",
-    documentType: "COMELEC Voter's ID",
-    documentNumber: "VOT-4016-PAETE-02",
-    submittedAt: "Sept 24, 2026 • 04:40 PM",
-    status: "pending",
-  },
-];
-
-let logCounter = 200;
-function generateLogId() {
-  logCounter += 1;
-  return `aud-${logCounter}`;
 }
 
 export default function AdminDashboardPage() {
@@ -298,6 +97,26 @@ export default function AdminDashboardPage() {
         }
         setCurrentUser(parsed);
         setIsAuthChecking(false);
+
+        // Sync authenticated official profile to Firestore 'users' collection
+        if (parsed.email) {
+          const userIdentifier = parsed.uid || parsed.email.replace(/[@.]/g, "_");
+          setDoc(
+            doc(db, "users", userIdentifier),
+            {
+              uid: userIdentifier,
+              name: parsed.name || (parsed.role === "governor" ? "Hon. Provincial Governor" : "Municipal Administrator"),
+              email: parsed.email,
+              role: "official",
+              office: parsed.office || (parsed.role === "governor" ? "Office of the Provincial Governor - Laguna" : "Office of the Municipal Mayor"),
+              barangayOrOffice: parsed.barangayOrOffice || (parsed.role === "governor" ? "Provincial Capitol, Laguna" : "Paete Municipal Hall"),
+              authProvider: "municipal_credentials",
+              verificationStatus: "municipal_officer",
+              lastLogin: serverTimestamp(),
+            },
+            { merge: true }
+          ).catch((err) => console.warn("Notice: Official profile sync skipped:", err));
+        }
       } catch {
         router.replace("/admin/login");
       }
@@ -320,13 +139,11 @@ export default function AdminDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [reports, setReports] = useState<AdminReport[]>(INITIAL_ADMIN_REPORTS);
-  const [users, setUsers] = useState<CivicUser[]>(INITIAL_USERS);
-  const [verificationRequests, setVerificationRequests] = useState<VerificationRequest[]>(
-    INITIAL_VERIFICATION_REQUESTS
-  );
+  const [reports, setReports] = useState<AdminReport[]>([]);
+  const [users, setUsers] = useState<CivicUser[]>([]);
+  const [verificationRequests, setVerificationRequests] = useState<VerificationRequest[]>([]);
   const [userSubTab, setUserSubTab] = useState<"directory" | "verification_queue">("directory");
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 
   // Real-time Incoming Reports Notification & Audio Cue
   const knownReportIdsRef = useRef<Set<string>>(new Set());
@@ -407,29 +224,21 @@ export default function AdminDashboardPage() {
   // Subscribe to live Firestore verification requests (KYC Queue)
   useEffect(() => {
     const unsub = subscribeToAllVerificationRequests((liveRequests) => {
-      if (liveRequests && liveRequests.length > 0) {
-        // Merge with initial requests so baseline mock applicants remain present if not duplicated
-        const existingIds = new Set(liveRequests.map((r) => r.id));
-        const merged = [
-          ...liveRequests.map((r) => ({
-            id: r.id,
-            userId: r.userId,
-            applicantName: r.applicantName,
-            email: r.email,
-            barangay: r.barangay,
-            address: r.address,
-            method: r.method,
-            documentType: r.documentType,
-            documentNumber: r.documentNumber,
-            submittedAt: String(r.submittedAt),
-            status: r.status,
-          })),
-          ...INITIAL_VERIFICATION_REQUESTS.filter((init) => !existingIds.has(init.id)),
-        ];
-        setVerificationRequests(merged);
-      } else {
-        setVerificationRequests(INITIAL_VERIFICATION_REQUESTS);
-      }
+      setVerificationRequests(
+        liveRequests.map((r) => ({
+          id: r.id,
+          userId: r.userId,
+          applicantName: r.applicantName,
+          email: r.email,
+          barangay: r.barangay,
+          address: r.address,
+          method: r.method,
+          documentType: r.documentType,
+          documentNumber: r.documentNumber,
+          submittedAt: String(r.submittedAt),
+          status: r.status,
+        }))
+      );
     });
 
     return () => unsub();
@@ -438,17 +247,7 @@ export default function AdminDashboardPage() {
   // Subscribe to live Firestore users directory
   useEffect(() => {
     const unsub = subscribeToUsers((liveUsers) => {
-      if (liveUsers && liveUsers.length > 0) {
-        // Merge live users with initial officials and resident profiles
-        const existingEmails = new Set(liveUsers.map((u) => u.email.toLowerCase()));
-        const merged = [
-          ...liveUsers,
-          ...INITIAL_USERS.filter((init) => !existingEmails.has(init.email.toLowerCase())),
-        ];
-        setUsers(merged);
-      } else {
-        setUsers(INITIAL_USERS);
-      }
+      setUsers(liveUsers);
     });
 
     return () => unsub();
@@ -1335,7 +1134,14 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {filteredReports.map((report) => (
+                      {filteredReports.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-5 py-8 text-center text-xs text-slate-500 italic">
+                            No community reports found matching the selected filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredReports.map((report) => (
                         <tr key={report.id} className="hover:bg-white/[0.02] transition-colors">
                           <td className="px-5 py-4">
                             <div className="font-bold text-white text-sm font-heading">
@@ -1427,7 +1233,7 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      )))}
                     </tbody>
                   </table>
                 </div>
@@ -1557,7 +1363,14 @@ export default function AdminDashboardPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                          {filteredUsers.map((user) => (
+                          {filteredUsers.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="px-5 py-8 text-center text-xs text-slate-500 italic">
+                                No registered citizens or staff accounts found in the live directory.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredUsers.map((user) => (
                             <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                               <td className="px-5 py-3.5">
                                 <div className="font-bold text-white font-heading">{user.name}</div>
@@ -1598,7 +1411,7 @@ export default function AdminDashboardPage() {
                                 {user.registeredDate}
                               </td>
                             </tr>
-                          ))}
+                          )))}
                         </tbody>
                       </table>
                     </div>
@@ -1635,7 +1448,14 @@ export default function AdminDashboardPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                          {verificationRequests.map((req) => (
+                          {verificationRequests.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="px-5 py-8 text-center text-xs text-slate-500 italic">
+                                No pending or past KYC verification requests found.
+                              </td>
+                            </tr>
+                          ) : (
+                            verificationRequests.map((req) => (
                             <tr key={req.id} className="hover:bg-white/[0.02] transition-colors">
                               <td className="px-5 py-4">
                                 <div className="font-bold text-white font-heading">{req.applicantName}</div>
@@ -1718,7 +1538,7 @@ export default function AdminDashboardPage() {
                                 )}
                               </td>
                             </tr>
-                          ))}
+                          )))}
                         </tbody>
                       </table>
                     </div>
@@ -1755,33 +1575,42 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {auditLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
-                            {log.timestamp}
-                          </td>
-
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <div className="font-bold text-white font-heading">{log.actorName}</div>
-                            <div className="text-[11px] text-blue-400">{log.actorRole}</div>
-                          </td>
-
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-white/5 text-slate-200 border border-white/10 font-mono">
-                              {log.action}
-                            </span>
-                          </td>
-
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className="font-bold text-white font-mono">{log.reportId}</span>
-                            <span className="text-slate-400 text-xs block font-sans">Brgy. {log.barangay}</span>
-                          </td>
-
-                          <td className="px-5 py-4 text-slate-300 text-xs leading-relaxed font-sans">
-                            {log.details}
+                      {auditLogs.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-12 text-center text-slate-400 font-sans">
+                            <span className="material-symbols-outlined text-3xl mb-2 text-slate-600 block">history</span>
+                            No official administrative audit records found in Firestore.
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        auditLogs.map((log) => (
+                          <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">
+                              {log.timestamp}
+                            </td>
+
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <div className="font-bold text-white font-heading">{log.actorName}</div>
+                              <div className="text-[11px] text-blue-400">{log.actorRole}</div>
+                            </td>
+
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-white/5 text-slate-200 border border-white/10 font-mono">
+                                {log.action}
+                              </span>
+                            </td>
+
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <span className="font-bold text-white font-mono">{log.reportId}</span>
+                              <span className="text-slate-400 text-xs block font-sans">Brgy. {log.barangay}</span>
+                            </td>
+
+                            <td className="px-5 py-4 text-slate-300 text-xs leading-relaxed font-sans">
+                              {log.details}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

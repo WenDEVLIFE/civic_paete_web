@@ -209,29 +209,55 @@ export async function logEmergencyDirective(
 }
 
 /**
- * Real-time listener for `audit_logs` collection.
+ * Real-time listener for `audit_logs` collection directly reading live Firestore documents.
  */
 export function subscribeToAuditLogs(
   callback: (logs: GovernmentAuditLog[]) => void,
-  maxRecords: number = 50
+  maxRecords: number = 100
 ): Unsubscribe {
   const logsCol = collection(db, COLLECTION_NAME);
-  const q = query(logsCol, orderBy("createdAt", "desc"), limit(maxRecords));
 
   return onSnapshot(
-    q,
-    (snapshot) => {
+    logsCol,
+    async (snapshot) => {
       if (snapshot.empty) {
-        callback(INITIAL_AUDIT_LOGS);
+        // Seed initial statutory system setup record if collection is completely fresh
+        try {
+          await logAuditEvent({
+            actorName: "Civic Paete Platform",
+            actorRole: "Municipal Executive System",
+            action: "STATUS_CHANGE",
+            barangay: "Paete",
+            details: "Official government audit logging online. RA 10173 and DILG compliance active.",
+          });
+        } catch {
+          // ignore seed notice
+        }
+        callback([]);
         return;
       }
 
-      const items: GovernmentAuditLog[] = [];
-      snapshot.forEach((docSnap) => {
+      const items: GovernmentAuditLog[] = snapshot.docs.map((docSnap) => {
         const data = docSnap.data();
-        items.push({
+        let formattedTime = data.timestamp || "Recently";
+
+        if (data.createdAt && typeof data.createdAt === "object" && "toDate" in data.createdAt) {
+          try {
+            formattedTime = (data.createdAt as { toDate: () => Date }).toDate().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            });
+          } catch {
+            formattedTime = data.timestamp || "Recently";
+          }
+        }
+
+        return {
           id: docSnap.id,
-          timestamp: data.timestamp || "Recently",
+          timestamp: formattedTime,
           actorName: data.actorName || "Municipal Official",
           actorEmail: data.actorEmail || undefined,
           actorRole: data.actorRole || "Municipal Administration",
@@ -241,35 +267,57 @@ export function subscribeToAuditLogs(
           barangay: data.barangay || "Paete",
           details: data.details || "",
           metadata: data.metadata || undefined,
-        });
+          createdAt: data.createdAt,
+        };
       });
 
-      callback(items);
+      // Sort newest first by creation timestamp
+      items.sort((a, b) => {
+        const timeA = (a.createdAt as { seconds?: number })?.seconds || 0;
+        const timeB = (b.createdAt as { seconds?: number })?.seconds || 0;
+        return timeB - timeA;
+      });
+
+      callback(items.slice(0, maxRecords));
     },
     (err) => {
-      console.warn("Audit logs subscription notice:", err);
-      callback(INITIAL_AUDIT_LOGS);
+      console.warn("Audit logs live subscription notice:", err);
+      callback([]);
     }
   );
 }
 
 /**
- * One-shot query for recent audit logs.
+ * One-shot query for recent real audit logs in Firestore.
  */
 export async function getAuditLogs(maxRecords: number = 50): Promise<GovernmentAuditLog[]> {
   try {
     const logsCol = collection(db, COLLECTION_NAME);
-    const q = query(logsCol, orderBy("createdAt", "desc"), limit(maxRecords));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(logsCol);
 
-    if (snapshot.empty) return INITIAL_AUDIT_LOGS;
+    if (snapshot.empty) return [];
 
-    const items: GovernmentAuditLog[] = [];
-    snapshot.forEach((docSnap) => {
+    const items: GovernmentAuditLog[] = snapshot.docs.map((docSnap) => {
       const data = docSnap.data();
-      items.push({
+      let formattedTime = data.timestamp || "Recently";
+
+      if (data.createdAt && typeof data.createdAt === "object" && "toDate" in data.createdAt) {
+        try {
+          formattedTime = (data.createdAt as { toDate: () => Date }).toDate().toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        } catch {
+          formattedTime = data.timestamp || "Recently";
+        }
+      }
+
+      return {
         id: docSnap.id,
-        timestamp: data.timestamp || "Recently",
+        timestamp: formattedTime,
         actorName: data.actorName || "Municipal Official",
         actorEmail: data.actorEmail || undefined,
         actorRole: data.actorRole || "Municipal Administration",
@@ -279,12 +327,19 @@ export async function getAuditLogs(maxRecords: number = 50): Promise<GovernmentA
         barangay: data.barangay || "Paete",
         details: data.details || "",
         metadata: data.metadata || undefined,
-      });
+        createdAt: data.createdAt,
+      };
     });
 
-    return items;
+    items.sort((a, b) => {
+      const timeA = (a.createdAt as { seconds?: number })?.seconds || 0;
+      const timeB = (b.createdAt as { seconds?: number })?.seconds || 0;
+      return timeB - timeA;
+    });
+
+    return items.slice(0, maxRecords);
   } catch (err) {
-    console.warn("Failed to fetch audit logs from Firestore, using initial fallback:", err);
-    return INITIAL_AUDIT_LOGS;
+    console.warn("Failed to fetch audit logs from Firestore:", err);
+    return [];
   }
 }
