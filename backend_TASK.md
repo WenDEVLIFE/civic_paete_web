@@ -134,9 +134,9 @@
 ---
 
 ### Phase 7: Rule-Based Civic Recommendations & Incident Aggregation (PROJECT.MD Sec. 7)
-- [ ] **7.1 Incident Aggregation & Rule-Based Clustering**
-  - [ ] Aggregate active community reports grouped by category and Paete barangay.
-  - [ ] Apply traditional deterministic logic (adhering to PROJECT.MD Sec. 7: `IF multiple reports concern the same issue/barangay THEN recommend for municipal assessment`).
+- [x] **7.1 Incident Aggregation & Rule-Based Clustering**
+  - [x] Aggregate active community reports grouped by category and Paete barangay.
+  - [x] Apply traditional deterministic logic (adhering to PROJECT.MD Sec. 7: `IF multiple reports concern the same issue/barangay THEN recommend for municipal assessment`).
 - [ ] **7.2 Dynamic Recommendations Feed**
   - [ ] Store generated advisory cards in `insights` collection.
   - [ ] Connect `components/insights/InsightsSection.tsx` to read live rule-based recommendations from Firestore instead of hardcoded data.
@@ -148,8 +148,7 @@
   - [ ] Register Service Worker for Firebase Cloud Messaging (`public/firebase-messaging-sw.js`).
   - [ ] Save resident device tokens in `users/{uid}/fcm_tokens`.
   - [ ] Dispatch automated notification when a report submitted by the resident changes status (`In Progress` / `Resolved`).
-- [ ] **8.2 Emergency SMS Integration**
-  - [ ] Integrate SMS gateway (Semaphore Philippines API) for urgent natural hazard / disaster alerts dispatched by MDRRMO or Provincial Governor.
+
 
 ---
 
