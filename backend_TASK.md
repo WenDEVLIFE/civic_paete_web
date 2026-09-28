@@ -29,13 +29,13 @@
 - [x] **1.1 Firebase Storage Initialization**
   - [x] Initialize `getStorage` in `lib/firebase.ts` referencing `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`.
   - [x] Configure cross-origin resource sharing (CORS) rules for local development and production domains.
-- [ ] **1.2 Report Photo Upload Service**
-  - [ ] Create `lib/storage/uploadReportImage.ts` handling client-side image compression before upload (max 1920px, WebP/JPEG).
-  - [ ] Upload to `reports/{barangay}/{reportId}_{timestamp}.ext`.
-  - [ ] Return permanent public download URL to be stored in the Firestore report document.
-- [ ] **1.3 Secure Verification Document Vault**
-  - [ ] Create dedicated private storage path: `verifications/{userId}/{documentType}_{timestamp}.ext`.
-  - [ ] Configure storage security rules: IDs and Barangay Certificates are strictly readable **only** by authenticated municipal administrators and the document owner.
+- [x] **1.2 Report Photo Upload Service**
+  - [x] Create `lib/storage/uploadReportImage.ts` handling client-side image compression before upload (max 1920px, WebP/JPEG).
+  - [x] Upload to `reports/{barangay}/{reportId}_{timestamp}.ext`.
+  - [x] Return permanent public download URL to be stored in the Firestore report document.
+- [x] **1.3 Secure Verification Document Vault**
+  - [x] Create dedicated private storage path: `verifications/{userId}/{documentType}_{timestamp}.ext`.
+  - [x] Configure storage security rules: IDs and Barangay Certificates are strictly readable **only** by authenticated municipal administrators and the document owner.
 
 ---
 
