@@ -13,9 +13,15 @@ import {
   Tag,
   Shield,
   User,
+  Loader2,
 } from "lucide-react";
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
+
+export interface SubmitReportData extends Omit<CommunityReport, "id" | "date" | "upvotes" | "status"> {
+  imageFile?: File | null;
+  locationDetail?: string;
+}
 
 // ─── Alias Generator ─────────────────────────────────────────────────────────
 
@@ -32,7 +38,7 @@ function generateAnonymousAlias(): string {
 interface SubmitReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (report: Omit<CommunityReport, "id" | "date" | "upvotes" | "status">) => void;
+  onSubmit: (report: SubmitReportData) => Promise<void> | void;
 }
 
 const PAETE_BARANGAYS = [
@@ -82,6 +88,8 @@ export function SubmitReportModal({
   const [category, setCategory] = useState<CommunityReport["category"]>("lighting");
   const [barangay, setBarangay] = useState(PAETE_BARANGAYS[0]);
   const [locationDetail, setLocationDetail] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState<string | null>(null);
@@ -105,6 +113,7 @@ export function SubmitReportModal({
       return;
     }
 
+    setSelectedFile(file);
     setFileName(file.name);
     setFileSize((file.size / 1024).toFixed(1) + " KB");
 
@@ -132,6 +141,7 @@ export function SubmitReportModal({
   };
 
   const handleRemoveImage = () => {
+    setSelectedFile(null);
     setPreviewUrl(null);
     setFileName(null);
     setFileSize(null);
@@ -140,31 +150,40 @@ export function SubmitReportModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) return;
+    if (!title.trim() || !description.trim() || isSubmitting) return;
 
-    onSubmit({
-      title: title.trim(),
-      description: `${description.trim()} (Location: ${locationDetail || "Unspecified"})`,
-      category,
-      barangay,
-      imageUrl: previewUrl || undefined,
-      isAnonymous,
-      anonymousAlias: isAnonymous ? anonymousAlias : undefined,
-      authorName: isAnonymous ? undefined : undefined,
-      authorAvatar: isAnonymous ? undefined : undefined,
-    });
+    try {
+      setIsSubmitting(true);
+      await onSubmit({
+        title: title.trim(),
+        description: description.trim(),
+        locationDetail: locationDetail.trim(),
+        category,
+        barangay,
+        imageFile: selectedFile,
+        imageUrl: previewUrl || undefined,
+        isAnonymous,
+        anonymousAlias: isAnonymous ? anonymousAlias : undefined,
+        authorName: isAnonymous ? undefined : undefined,
+        authorAvatar: isAnonymous ? undefined : undefined,
+      });
 
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setTitle("");
-      setDescription("");
-      setLocationDetail("");
-      handleRemoveImage();
-      onClose();
-    }, 1500);
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setIsSubmitting(false);
+        setTitle("");
+        setDescription("");
+        setLocationDetail("");
+        handleRemoveImage();
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error("Failed to submit report:", err);
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -487,16 +506,27 @@ export function SubmitReportModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer"
+                  disabled={isSubmitting}
+                  className="px-4 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Submit Community Report</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Submitting to Civic Cloud...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Submit Community Report</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

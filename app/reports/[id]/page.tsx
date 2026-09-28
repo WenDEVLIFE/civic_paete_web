@@ -26,6 +26,12 @@ import {
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
+import {
+  subscribeToReportById,
+  updateReportStatus,
+  addReportComment,
+  upvoteReport,
+} from "@/lib/services/reportService";
 
 interface TimelineEvent {
   title: string;
@@ -227,13 +233,54 @@ export default function ReportDetailPage({
     return () => unsub();
   }, []);
 
-  const handleUpvote = () => {
-    if (!hasUpvoted) {
-      setUpvotes((prev) => prev + 1);
-      setHasUpvoted(true);
-    } else {
-      setUpvotes((prev) => Math.max(0, prev - 1));
-      setHasUpvoted(false);
+  // Live single-document Firestore listener
+  useEffect(() => {
+    const unsubReport = subscribeToReportById(reportId, (liveReport) => {
+      if (liveReport) {
+        setReport({
+          id: liveReport.id,
+          title: liveReport.title,
+          description: liveReport.description,
+          category: liveReport.category,
+          barangay: liveReport.barangay,
+          locationDetails: liveReport.locationDetails || "Municipality of Paete",
+          submittedBy:
+            liveReport.submittedBy ||
+            (liveReport.isAnonymous ? "Protected Citizen" : "Verified Resident"),
+          status: liveReport.status,
+          date: liveReport.date,
+          upvotes: liveReport.upvotes,
+          assignedDepartment:
+            liveReport.assignedDepartment || "Municipal Engineering Office",
+          imageUrl: liveReport.imageUrl,
+          timeline:
+            liveReport.timeline && liveReport.timeline.length > 0
+              ? liveReport.timeline
+              : initialReport.timeline,
+          comments: liveReport.comments || [],
+        });
+        setUpvotes(liveReport.upvotes);
+        setComments(liveReport.comments || []);
+      } else {
+        const fallback = MOCK_REPORTS_DATABASE[reportId] || initialReport;
+        setReport(fallback);
+        setUpvotes(fallback.upvotes);
+        setComments(fallback.comments || []);
+      }
+    });
+
+    return () => unsubReport();
+  }, [reportId]);
+
+  const handleUpvote = async () => {
+    const delta = hasUpvoted ? -1 : 1;
+    setUpvotes((prev) => Math.max(0, prev + delta));
+    setHasUpvoted(!hasUpvoted);
+
+    try {
+      await upvoteReport(reportId, delta);
+    } catch (err) {
+      console.warn("Notice: Firestore upvote sync skipped or offline:", err);
     }
   };
 
@@ -245,7 +292,7 @@ export default function ReportDetailPage({
     }
   };
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
 
@@ -273,9 +320,15 @@ export default function ReportDetailPage({
 
     setComments((prev) => [...prev, newComm]);
     setCommentInput("");
+
+    try {
+      await addReportComment(reportId, newComm);
+    } catch (err) {
+      console.warn("Notice: Firestore comment sync skipped or offline:", err);
+    }
   };
 
-  const handleUpdateStatus = (newStatus: DetailedReport["status"]) => {
+  const handleUpdateStatus = async (newStatus: DetailedReport["status"]) => {
     setIsUpdatingStatus(true);
 
     const actor = officerSession?.name || "Municipal Official";
@@ -300,10 +353,15 @@ export default function ReportDetailPage({
       timeline: [newTimelineItem, ...prev.timeline],
     }));
 
-    setTimeout(() => {
+    try {
+      await updateReportStatus(reportId, newStatus, note, actor, officeName);
+    } catch (err) {
+      console.warn("Notice: Firestore status update skipped or offline:", err);
+    } finally {
       setIsUpdatingStatus(false);
       setShowOfficerControls(false);
-    }, 400);
+      setOfficerNoteInput("");
+    }
   };
 
   const statusDisplay: Record<

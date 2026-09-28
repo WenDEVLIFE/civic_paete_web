@@ -40,14 +40,14 @@
 ---
 
 ### Phase 2: Community Reporting Engine & Realtime Feed
-- [ ] **2.1 Firestore `reports` Collection CRUD**
-  - [ ] Create `lib/services/reportService.ts` containing typed methods:
-    - [ ] `createReport(data: CreateReportInput): Promise<string>`
-    - [ ] `getReports(filters: ReportFilters): Promise<CommunityReport[]>`
-    - [ ] `subscribeToReports(filters: ReportFilters, callback: (reports: CommunityReport[]) => void): Unsubscribe`
-    - [ ] `updateReportStatus(reportId: string, status: ReportStatus, officerNotes: string): Promise<void>`
-  - [ ] Replace `INITIAL_REPORTS` in `app/page.tsx` with a live Firestore subscription (`onSnapshot`).
-  - [ ] Replace mock lookup in `app/reports/[id]/page.tsx` with live single-document listener.
+- [x] **2.1 Firestore `reports` Collection CRUD**
+  - [x] Create `lib/services/reportService.ts` containing typed methods:
+    - [x] `createReport(data: CreateReportInput): Promise<string>`
+    - [x] `getReports(filters: ReportFilters): Promise<CommunityReport[]>`
+    - [x] `subscribeToReports(filters: ReportFilters, callback: (reports: CommunityReport[]) => void): Unsubscribe`
+    - [x] `updateReportStatus(reportId: string, status: ReportStatus, officerNotes: string): Promise<void>`
+  - [x] Replace `INITIAL_REPORTS` in `app/page.tsx` with a live Firestore subscription (`onSnapshot`).
+  - [x] Replace mock lookup in `app/reports/[id]/page.tsx` with live single-document listener.
 - [ ] **2.2 Atomic Upvoting Engine (Anti-Spam)**
   - [ ] Implement atomic upvote/un-upvote via Firestore transaction:
     - [ ] Check if `reports/{reportId}/upvotes/{userId}` exists.

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/navigation/Navbar";
 import { Footer } from "../components/navigation/Footer";
 import { HeroSection } from "../components/home/HeroSection";
@@ -10,8 +10,20 @@ import {
   ReportStatus,
   ReportComment,
 } from "../components/reports/ReportCard";
-import { SubmitReportModal } from "../components/reports/SubmitReportModal";
+import {
+  SubmitReportModal,
+  SubmitReportData,
+} from "../components/reports/SubmitReportModal";
 import { InsightsSection } from "../components/insights/InsightsSection";
+import {
+  subscribeToReports,
+  createReport,
+  updateReportStatus,
+  addReportComment,
+  upvoteReport,
+} from "@/lib/services/reportService";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 import {
   Search,
   PlusCircle,
@@ -172,16 +184,45 @@ export default function Home() {
   const [selectedBarangay, setSelectedBarangay] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const handleUpvote = (id: string) => {
+  // Sync auth state for report attribution
+  useEffect(() => {
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubAuth();
+  }, []);
+
+  // Live Firestore subscription for community reports
+  useEffect(() => {
+    const unsubscribe = subscribeToReports(
+      {
+        barangay: selectedBarangay !== "all" ? selectedBarangay : undefined,
+        category: activeCategory !== "all" ? activeCategory : undefined,
+      },
+      (liveReports) => {
+        setReports(liveReports);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [selectedBarangay, activeCategory]);
+
+  const handleUpvote = async (id: string) => {
     setReports((prev) =>
       prev.map((rep) =>
         rep.id === id ? { ...rep, upvotes: rep.upvotes + 1 } : rep
       )
     );
+    try {
+      await upvoteReport(id, 1);
+    } catch (err) {
+      console.warn("Failed to register upvote in Firestore:", err);
+    }
   };
 
-  const handleStatusChange = (id: string, newStatus: ReportStatus, note?: string) => {
+  const handleStatusChange = async (id: string, newStatus: ReportStatus, note?: string) => {
     setReports((prev) =>
       prev.map((rep) => {
         if (rep.id !== id) return rep;
@@ -194,9 +235,14 @@ export default function Home() {
         };
       })
     );
+    try {
+      await updateReportStatus(id, newStatus, note);
+    } catch (err) {
+      console.warn("Failed to update status in Firestore:", err);
+    }
   };
 
-  const handleAddComment = (reportId: string, comment: ReportComment) => {
+  const handleAddComment = async (reportId: string, comment: ReportComment) => {
     setReports((prev) =>
       prev.map((rep) => {
         if (rep.id !== reportId) return rep;
@@ -206,22 +252,47 @@ export default function Home() {
         };
       })
     );
+    try {
+      await addReportComment(reportId, comment);
+    } catch (err) {
+      console.warn("Failed to save comment to Firestore:", err);
+    }
   };
 
-  const handleAddReport = (
-    newReportData: Omit<CommunityReport, "id" | "date" | "upvotes" | "status">
-  ) => {
-    const newReport: CommunityReport = {
-      ...newReportData,
-      id: `rep-${Date.now()}`,
-      status: "pending",
-      date: "Just now",
-      upvotes: 1,
-      authorName: "Paete Resident",
-      authorRole: "resident",
-      comments: [],
-    };
-    setReports([newReport, ...reports]);
+  const handleAddReport = async (newReportData: SubmitReportData) => {
+    let authorName: string | undefined = undefined;
+    let authorAvatar: string | undefined = undefined;
+    let authorRole: "resident" | "official" | "governor" = "resident";
+
+    if (!newReportData.isAnonymous) {
+      if (currentUser) {
+        authorName = currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident";
+        authorAvatar = currentUser.photoURL || undefined;
+      } else {
+        authorName = "Paete Resident";
+      }
+    }
+
+    try {
+      await createReport({
+        title: newReportData.title,
+        description: newReportData.description,
+        category: newReportData.category as any,
+        barangay: newReportData.barangay,
+        locationDetail: newReportData.locationDetail,
+        imageFile: newReportData.imageFile,
+        imageUrl: newReportData.imageUrl,
+        isAnonymous: newReportData.isAnonymous,
+        anonymousAlias: newReportData.anonymousAlias,
+        authorUid: currentUser?.uid,
+        authorName,
+        authorAvatar,
+        authorRole,
+      });
+    } catch (err) {
+      console.error("Failed to create community report in Firestore:", err);
+      throw err;
+    }
   };
 
   const filteredReports = reports.filter((rep) => {
