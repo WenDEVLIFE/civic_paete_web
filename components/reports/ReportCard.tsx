@@ -23,6 +23,13 @@ import {
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
+import {
+  toggleReportUpvote,
+  subscribeToReportUpvoteStatus,
+  subscribeToReportComments,
+  addReportComment,
+  getOrCreateClientVoterId,
+} from "@/lib/services/reportService";
 
 export type ReportStatus = "urgent" | "pending" | "in_progress" | "resolved";
 
@@ -123,14 +130,62 @@ export function ReportCard({
     return () => unsub();
   }, []);
 
-  const handleUpvoteClick = () => {
-    if (!isUpvoted) {
-      setUpvotes((prev) => prev + 1);
-      setIsUpvoted(true);
-      onUpvote?.(report.id);
+  // Sync upvotes count with Firestore updates
+  useEffect(() => {
+    setUpvotes(report.upvotes);
+  }, [report.upvotes]);
+
+  // Subscribe to live user upvote state from subcollection
+  useEffect(() => {
+    const effectiveUserId =
+      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+    if (!effectiveUserId || !report.id) return;
+
+    const unsubUpvote = subscribeToReportUpvoteStatus(
+      report.id,
+      effectiveUserId,
+      (hasUpvoted) => {
+        setIsUpvoted(hasUpvoted);
+      }
+    );
+
+    return () => unsubUpvote();
+  }, [report.id, residentUser?.uid, officerSession?.email]);
+
+  // Subscribe to live comments subcollection
+  useEffect(() => {
+    if (!report.id) return;
+
+    const unsubComments = subscribeToReportComments(report.id, (liveComments) => {
+      if (liveComments && liveComments.length > 0) {
+        setComments(liveComments);
+      } else if (report.comments && report.comments.length > 0) {
+        setComments(report.comments);
+      } else {
+        setComments([]);
+      }
+    });
+
+    return () => unsubComments();
+  }, [report.id, report.comments]);
+
+  const handleUpvoteClick = async () => {
+    const effectiveUserId =
+      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+    const nextState = !isUpvoted;
+    setIsUpvoted(nextState);
+    setUpvotes((prev) => (nextState ? prev + 1 : Math.max(0, prev - 1)));
+
+    if (onUpvote) {
+      onUpvote(report.id);
     } else {
-      setUpvotes((prev) => Math.max(0, prev - 1));
-      setIsUpvoted(false);
+      try {
+        const res = await toggleReportUpvote(report.id, effectiveUserId);
+        setIsUpvoted(res.hasUpvoted);
+        setUpvotes(res.newCount);
+      } catch (err) {
+        console.warn("Notice: Upvote toggle Firestore error:", err);
+      }
     }
   };
 
@@ -143,7 +198,7 @@ export function ReportCard({
     }
   };
 
-  const handleAddCommentSubmit = (e: React.FormEvent) => {
+  const handleAddCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
 
@@ -156,7 +211,10 @@ export function ReportCard({
       authorRole = officerSession.role === "governor" ? "governor" : "official";
       isOfficial = true;
     } else if (residentUser) {
-      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Verified Citizen";
+      authorName =
+        residentUser.displayName ||
+        residentUser.email?.split("@")[0] ||
+        "Verified Citizen";
     }
 
     const commentObj: ReportComment = {
@@ -169,9 +227,24 @@ export function ReportCard({
       isOfficial,
     };
 
-    setComments((prev) => [...prev, commentObj]);
     setNewCommentText("");
-    onAddComment?.(report.id, commentObj);
+
+    if (onAddComment) {
+      onAddComment(report.id, commentObj);
+    } else {
+      try {
+        await addReportComment(report.id, {
+          content: commentObj.content,
+          authorName: commentObj.authorName,
+          authorAvatar: commentObj.authorAvatar,
+          authorRole: commentObj.authorRole,
+          isOfficial: commentObj.isOfficial,
+          authorUid: residentUser?.uid,
+        });
+      } catch (err) {
+        console.warn("Notice: Comment submission notice:", err);
+      }
+    }
   };
 
   const handleOfficerStatusUpdate = (statusTarget: ReportStatus) => {

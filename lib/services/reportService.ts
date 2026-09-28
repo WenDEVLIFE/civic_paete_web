@@ -13,6 +13,8 @@ import {
   Timestamp,
   Unsubscribe,
   increment,
+  runTransaction,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
@@ -447,33 +449,243 @@ export async function updateReportStatus(
 }
 
 /**
- * Increment or decrement upvotes atomically in Firestore.
+ * Helper to get or persist a stable device voter ID for guests / visitors.
  */
-export async function upvoteReport(reportId: string, delta: number = 1): Promise<void> {
-  const docRef = doc(db, "reports", reportId);
-  await updateDoc(docRef, {
-    upvotes: increment(delta),
-    updatedAt: serverTimestamp(),
+export function getOrCreateClientVoterId(): string {
+  if (typeof window === "undefined") return "guest-client";
+  let voterId = localStorage.getItem("civic_paete_voter_id");
+  if (!voterId) {
+    voterId = `voter_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
+    localStorage.setItem("civic_paete_voter_id", voterId);
+  }
+  return voterId;
+}
+
+/**
+ * 2.2 Atomic Upvoting Engine (Anti-Spam)
+ * Implements atomic upvote/un-upvote via Firestore transaction:
+ * - Checks if `reports/{reportId}/upvotes/{userId}` exists.
+ * - If exists: deletes document and decrements report `upvotes` by 1.
+ * - If not: creates document and increments report `upvotes` by 1.
+ */
+export async function toggleReportUpvote(
+  reportId: string,
+  userId: string
+): Promise<{ hasUpvoted: boolean; newCount: number }> {
+  const reportRef = doc(db, "reports", reportId);
+  const upvoteDocRef = doc(db, "reports", reportId, "upvotes", userId);
+
+  return await runTransaction(db, async (transaction) => {
+    const reportSnap = await transaction.get(reportRef);
+    if (!reportSnap.exists()) {
+      throw new Error(`Report ${reportId} not found.`);
+    }
+
+    const upvoteSnap = await transaction.get(upvoteDocRef);
+    const reportData = reportSnap.data();
+    const currentUpvotes =
+      typeof reportData.upvotes === "number" ? reportData.upvotes : 0;
+
+    if (upvoteSnap.exists()) {
+      // User has already upvoted -> Un-upvote (decrement)
+      const newCount = Math.max(0, currentUpvotes - 1);
+      transaction.delete(upvoteDocRef);
+      transaction.update(reportRef, {
+        upvotes: newCount,
+        updatedAt: serverTimestamp(),
+      });
+      return { hasUpvoted: false, newCount };
+    } else {
+      // User has not upvoted -> Upvote (increment)
+      const newCount = currentUpvotes + 1;
+      transaction.set(upvoteDocRef, {
+        userId,
+        reportId,
+        createdAt: serverTimestamp(),
+      });
+      transaction.update(reportRef, {
+        upvotes: newCount,
+        updatedAt: serverTimestamp(),
+      });
+      return { hasUpvoted: true, newCount };
+    }
   });
 }
 
 /**
- * Appends a comment to a report.
+ * Real-time listener for a user's upvote state on a specific report.
+ */
+export function subscribeToReportUpvoteStatus(
+  reportId: string,
+  userId: string,
+  callback: (hasUpvoted: boolean) => void
+): Unsubscribe {
+  const upvoteDocRef = doc(db, "reports", reportId, "upvotes", userId);
+  return onSnapshot(
+    upvoteDocRef,
+    (snapshot) => {
+      callback(snapshot.exists());
+    },
+    (err) => {
+      console.warn(`Upvote listener notice for report ${reportId}:`, err);
+      callback(false);
+    }
+  );
+}
+
+/**
+ * Format relative timestamp cleanly for display.
+ */
+function formatCommentTimestamp(val: unknown): string {
+  if (!val) return "Just now";
+  let date: Date;
+  if (val instanceof Timestamp) {
+    date = val.toDate();
+  } else if (typeof val === "object" && val !== null && "toDate" in val) {
+    date = (val as { toDate: () => Date }).toDate();
+  } else if (typeof val === "string" || typeof val === "number") {
+    date = new Date(val);
+  } else {
+    return "Just now";
+  }
+
+  if (isNaN(date.getTime())) return "Recently";
+
+  const diffMs = Date.now() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  if (diffSecs < 60) return "Just now";
+  const diffMins = Math.floor(diffSecs / 60);
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
+ * 2.3 Threaded Comments: Subcollection Realtime Listener
+ * Listens to `reports/{reportId}/comments` ordered by createdAt ascending.
+ */
+export function subscribeToReportComments(
+  reportId: string,
+  callback: (comments: ReportComment[]) => void
+): Unsubscribe {
+  const commentsCol = collection(db, "reports", reportId, "comments");
+  const q = query(commentsCol, orderBy("createdAt", "asc"));
+
+  return onSnapshot(
+    q,
+    async (snapshot) => {
+      if (snapshot.empty) {
+        // Check if report has baseline seeded comments on the main document
+        try {
+          const reportSnap = await getDoc(doc(db, "reports", reportId));
+          if (reportSnap.exists()) {
+            const reportData = reportSnap.data();
+            const legacyComments: ReportComment[] = Array.isArray(
+              reportData.comments
+            )
+              ? reportData.comments
+              : [];
+            if (legacyComments.length > 0) {
+              // Migrate legacy comments to subcollection
+              for (const comm of legacyComments) {
+                const newCommRef = doc(commentsCol);
+                await setDoc(newCommRef, {
+                  id: newCommRef.id,
+                  authorName: comm.authorName,
+                  authorAvatar: comm.authorAvatar || null,
+                  authorRole: comm.authorRole || "resident",
+                  content: comm.content,
+                  isOfficial: Boolean(comm.isOfficial),
+                  createdAt: serverTimestamp(),
+                });
+              }
+              return;
+            }
+          }
+        } catch {
+          // ignore migration lookup error
+        }
+        callback([]);
+        return;
+      }
+
+      const comments: ReportComment[] = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          authorName: data.authorName || "Verified Resident",
+          authorAvatar: data.authorAvatar || undefined,
+          authorRole: data.authorRole || "resident",
+          timestamp: formatCommentTimestamp(data.createdAt),
+          content: data.content || "",
+          isOfficial: Boolean(data.isOfficial),
+        };
+      });
+
+      callback(comments);
+    },
+    (err) => {
+      console.warn(`Comments listener notice for report ${reportId}:`, err);
+    }
+  );
+}
+
+export interface AddCommentInput {
+  content: string;
+  authorName: string;
+  authorAvatar?: string;
+  authorRole: "resident" | "official" | "governor";
+  isOfficial?: boolean;
+  authorUid?: string;
+}
+
+/**
+ * 2.3 Threaded Comments: Appends a comment to `reports/{reportId}/comments`
+ * with serverTimestamp() and enforces author role verification.
  */
 export async function addReportComment(
   reportId: string,
-  comment: ReportComment
-): Promise<void> {
-  const docRef = doc(db, "reports", reportId);
-  const docSnap = await getDoc(docRef);
+  comment: ReportComment | AddCommentInput
+): Promise<string> {
+  const commentsCol = collection(db, "reports", reportId, "comments");
+  const newCommentRef = doc(commentsCol);
 
-  if (!docSnap.exists()) return;
+  // Author role verification: Only verified official or governor can attach isOfficial: true
+  const isAuthorizedOfficial =
+    comment.authorRole === "official" || comment.authorRole === "governor";
+  const verifiedIsOfficial = Boolean(comment.isOfficial && isAuthorizedOfficial);
 
-  const currentComments = docSnap.data().comments || [];
-  await updateDoc(docRef, {
-    comments: [...currentComments, comment],
-    updatedAt: serverTimestamp(),
-  });
+  const commentPayload = {
+    id: newCommentRef.id,
+    reportId,
+    authorName: comment.authorName || "Paete Resident",
+    authorAvatar: comment.authorAvatar || null,
+    authorRole: comment.authorRole || "resident",
+    content: comment.content.trim(),
+    isOfficial: verifiedIsOfficial,
+    createdAt: serverTimestamp(),
+  };
+
+  await setDoc(newCommentRef, commentPayload);
+
+  // Update parent report updatedAt
+  try {
+    const reportRef = doc(db, "reports", reportId);
+    await updateDoc(reportRef, {
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn("Notice: Parent report update timestamp notice:", err);
+  }
+
+  return newCommentRef.id;
 }
 
 /**

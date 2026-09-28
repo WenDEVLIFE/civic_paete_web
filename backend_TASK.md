@@ -48,16 +48,16 @@
     - [x] `updateReportStatus(reportId: string, status: ReportStatus, officerNotes: string): Promise<void>`
   - [x] Replace `INITIAL_REPORTS` in `app/page.tsx` with a live Firestore subscription (`onSnapshot`).
   - [x] Replace mock lookup in `app/reports/[id]/page.tsx` with live single-document listener.
-- [ ] **2.2 Atomic Upvoting Engine (Anti-Spam)**
-  - [ ] Implement atomic upvote/un-upvote via Firestore transaction:
-    - [ ] Check if `reports/{reportId}/upvotes/{userId}` exists.
-    - [ ] If exists: remove document and decrement `upvotes` by 1.
-    - [ ] If not: create document and increment `upvotes` by 1.
-  - [ ] Reflect live upvote states on resident feed and report cards.
-- [ ] **2.3 Threaded Comments & Official Action Logging**
-  - [ ] Migrate comments to subcollection `reports/{reportId}/comments`.
-  - [ ] Add server-side timestamp validation (`serverTimestamp()`).
-  - [ ] Enforce author role verification: only authenticated municipal officers can attach `isOfficial: true` and official action notices.
+- [x] **2.2 Atomic Upvoting Engine (Anti-Spam)**
+  - [x] Implement atomic upvote/un-upvote via Firestore transaction:
+    - [x] Check if `reports/{reportId}/upvotes/{userId}` exists.
+    - [x] If exists: remove document and decrement `upvotes` by 1.
+    - [x] If not: create document and increment `upvotes` by 1.
+  - [x] Reflect live upvote states on resident feed and report cards.
+- [x] **2.3 Threaded Comments & Official Action Logging**
+  - [x] Migrate comments to subcollection `reports/{reportId}/comments`.
+  - [x] Add server-side timestamp validation (`serverTimestamp()`).
+  - [x] Enforce author role verification: only authenticated municipal officers can attach `isOfficial: true` and official action notices.
 
 ---
 

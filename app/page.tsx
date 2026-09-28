@@ -20,7 +20,8 @@ import {
   createReport,
   updateReportStatus,
   addReportComment,
-  upvoteReport,
+  toggleReportUpvote,
+  getOrCreateClientVoterId,
 } from "@/lib/services/reportService";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -210,15 +211,16 @@ export default function Home() {
   }, [selectedBarangay, activeCategory]);
 
   const handleUpvote = async (id: string) => {
-    setReports((prev) =>
-      prev.map((rep) =>
-        rep.id === id ? { ...rep, upvotes: rep.upvotes + 1 } : rep
-      )
-    );
+    const effectiveUserId = currentUser?.uid || getOrCreateClientVoterId();
     try {
-      await upvoteReport(id, 1);
+      const res = await toggleReportUpvote(id, effectiveUserId);
+      setReports((prev) =>
+        prev.map((rep) =>
+          rep.id === id ? { ...rep, upvotes: res.newCount } : rep
+        )
+      );
     } catch (err) {
-      console.warn("Failed to register upvote in Firestore:", err);
+      console.warn("Failed to register atomic upvote in Firestore:", err);
     }
   };
 
@@ -243,17 +245,15 @@ export default function Home() {
   };
 
   const handleAddComment = async (reportId: string, comment: ReportComment) => {
-    setReports((prev) =>
-      prev.map((rep) => {
-        if (rep.id !== reportId) return rep;
-        return {
-          ...rep,
-          comments: [...(rep.comments || []), comment],
-        };
-      })
-    );
     try {
-      await addReportComment(reportId, comment);
+      await addReportComment(reportId, {
+        content: comment.content,
+        authorName: comment.authorName,
+        authorAvatar: comment.authorAvatar,
+        authorRole: comment.authorRole,
+        isOfficial: comment.isOfficial,
+        authorUid: currentUser?.uid,
+      });
     } catch (err) {
       console.warn("Failed to save comment to Firestore:", err);
     }

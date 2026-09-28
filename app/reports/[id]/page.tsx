@@ -30,7 +30,10 @@ import {
   subscribeToReportById,
   updateReportStatus,
   addReportComment,
-  upvoteReport,
+  toggleReportUpvote,
+  subscribeToReportUpvoteStatus,
+  subscribeToReportComments,
+  getOrCreateClientVoterId,
 } from "@/lib/services/reportService";
 
 interface TimelineEvent {
@@ -260,25 +263,61 @@ export default function ReportDetailPage({
           comments: liveReport.comments || [],
         });
         setUpvotes(liveReport.upvotes);
-        setComments(liveReport.comments || []);
       } else {
         const fallback = MOCK_REPORTS_DATABASE[reportId] || initialReport;
         setReport(fallback);
         setUpvotes(fallback.upvotes);
-        setComments(fallback.comments || []);
       }
     });
 
     return () => unsubReport();
   }, [reportId]);
 
+  // Subscribe to live user upvote state from subcollection
+  useEffect(() => {
+    const effectiveUserId =
+      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+    if (!effectiveUserId || !reportId) return;
+
+    const unsubUpvote = subscribeToReportUpvoteStatus(
+      reportId,
+      effectiveUserId,
+      (upvoted) => {
+        setHasUpvoted(upvoted);
+      }
+    );
+
+    return () => unsubUpvote();
+  }, [reportId, residentUser?.uid, officerSession?.email]);
+
+  // Subscribe to live comments subcollection
+  useEffect(() => {
+    if (!reportId) return;
+
+    const unsubComments = subscribeToReportComments(reportId, (liveComments) => {
+      if (liveComments && liveComments.length > 0) {
+        setComments(liveComments);
+      } else if (initialReport.comments && initialReport.comments.length > 0) {
+        setComments(initialReport.comments);
+      } else {
+        setComments([]);
+      }
+    });
+
+    return () => unsubComments();
+  }, [reportId]);
+
   const handleUpvote = async () => {
-    const delta = hasUpvoted ? -1 : 1;
-    setUpvotes((prev) => Math.max(0, prev + delta));
-    setHasUpvoted(!hasUpvoted);
+    const effectiveUserId =
+      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+    const nextState = !hasUpvoted;
+    setHasUpvoted(nextState);
+    setUpvotes((prev) => (nextState ? prev + 1 : Math.max(0, prev - 1)));
 
     try {
-      await upvoteReport(reportId, delta);
+      const res = await toggleReportUpvote(reportId, effectiveUserId);
+      setHasUpvoted(res.hasUpvoted);
+      setUpvotes(res.newCount);
     } catch (err) {
       console.warn("Notice: Firestore upvote sync skipped or offline:", err);
     }
@@ -308,21 +347,18 @@ export default function ReportDetailPage({
       authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Verified Resident";
     }
 
-    const newComm: ReportComment = {
-      id: `comm-${Date.now()}`,
-      authorName,
-      authorAvatar: residentUser?.photoURL || undefined,
-      authorRole,
-      timestamp: "Just now",
-      content: commentInput.trim(),
-      isOfficial,
-    };
-
-    setComments((prev) => [...prev, newComm]);
+    const trimmed = commentInput.trim();
     setCommentInput("");
 
     try {
-      await addReportComment(reportId, newComm);
+      await addReportComment(reportId, {
+        content: trimmed,
+        authorName,
+        authorAvatar: residentUser?.photoURL || undefined,
+        authorRole,
+        isOfficial,
+        authorUid: residentUser?.uid,
+      });
     } catch (err) {
       console.warn("Notice: Firestore comment sync skipped or offline:", err);
     }
