@@ -42,7 +42,8 @@ service cloud.firestore {
     match /reports/{reportId} {
       allow read: if true;
 
-      allow create: if isSignedIn() || true; // Permit submission with client auth/guest identification
+      // Community reports must originate from residents; Admins and Governors are restricted from filing reports
+      allow create: if !isAdmin();
 
       allow update: if isStaff() || (
         isSignedIn() &&

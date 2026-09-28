@@ -25,6 +25,8 @@ import {
 } from "@/lib/services/reportService";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
+import Link from "next/link";
+import { isUserAdminOrGovernor } from "@/lib/roleHelper";
 import {
   Search,
   PlusCircle,
@@ -38,6 +40,8 @@ import {
   Construction,
   Trash2,
   AlertTriangle,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 
 const INITIAL_REPORTS: CommunityReport[] = [
@@ -186,14 +190,27 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAdminOrGovernor, setIsAdminOrGovernor] = useState<boolean>(false);
 
-  // Sync auth state for report attribution
+  // Sync auth state for report attribution and admin/governor check
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      setIsAdminOrGovernor(isUserAdminOrGovernor(user));
     });
     return () => unsubAuth();
   }, []);
+
+  // Sync admin session from localStorage
+  useEffect(() => {
+    const checkRole = () => {
+      setIsAdminOrGovernor(isUserAdminOrGovernor(currentUser));
+    };
+
+    checkRole();
+    window.addEventListener("storage", checkRole);
+    return () => window.removeEventListener("storage", checkRole);
+  }, [currentUser]);
 
   // Live Firestore subscription for community reports
   useEffect(() => {
@@ -260,6 +277,13 @@ export default function Home() {
   };
 
   const handleAddReport = async (newReportData: SubmitReportData) => {
+    if (isAdminOrGovernor || isUserAdminOrGovernor(currentUser)) {
+      alert(
+        "Municipal Administrators and Provincial Governors are restricted from submitting community reports. Only verified residents may submit reports."
+      );
+      return;
+    }
+
     let authorName: string | undefined = undefined;
     let authorAvatar: string | undefined = undefined;
     let authorRole: "resident" | "official" | "governor" = "resident";
@@ -315,7 +339,10 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <HeroSection onOpenReportModal={() => setIsModalOpen(true)} />
+        <HeroSection
+          onOpenReportModal={() => setIsModalOpen(true)}
+          isAdminOrGovernor={isAdminOrGovernor}
+        />
 
         {/* Community Social Feed Section */}
         <section id="community-reports" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -333,14 +360,25 @@ export default function Home() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer self-start md:self-auto min-h-[44px]"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Submit Community Report</span>
-            </button>
+            {isAdminOrGovernor ? (
+              <Link
+                href="/admin/dashboard"
+                className="inline-flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl transition-all self-start md:self-auto min-h-[44px]"
+                title="Municipal Administrators and Provincial Governors triage and resolve community reports"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <span>Admin Triage & Oversight</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer self-start md:self-auto min-h-[44px]"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Submit Community Report</span>
+              </button>
+            )}
           </div>
 
           {/* Search and Barangay Filters */}
@@ -501,6 +539,7 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddReport}
+        isAdminOrGovernor={isAdminOrGovernor}
       />
     </div>
   );

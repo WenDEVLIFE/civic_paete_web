@@ -141,10 +141,10 @@ export default function AdminLoginPage() {
           <CivicPaeteLogo size="lg" variant="full" theme="dark" className="justify-center mb-4" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Shield className="w-3.5 h-3.5" />
-            <span>Official & Governance Console</span>
+            <span>Official & Governance Login</span>
           </div>
           <h1 className="text-2xl font-bold font-heading text-white">
-            Municipal & Provincial Command
+            Municipal & Provincial
           </h1>
           <p className="text-xs text-slate-400 mt-1 font-sans">
             Restricted access for authorized personnel of the Municipality of Paete and Province of Laguna.
@@ -170,7 +170,7 @@ export default function AdminLoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 font-sans">
-                Official Email or Staff ID
+                Official Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -208,7 +208,7 @@ export default function AdminLoginPage() {
               className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold shadow-md shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer min-h-[44px] font-heading"
             >
               <Shield className="w-4 h-4" />
-              <span>{isLoading ? "Verifying Credentials..." : "Sign In to Official Console"}</span>
+              <span>{isLoading ? "Verifying Credentials..." : "Sign In"}</span>
             </button>
           </form>
 
@@ -242,11 +242,6 @@ export default function AdminLoginPage() {
                 <div className="text-[10px] text-slate-400 truncate font-mono">governor@laguna.gov.ph</div>
               </button>
             </div>
-          </div>
-
-          {/* Security Notice */}
-          <div className="mt-4 pt-3 border-t border-white/5 text-center text-[10px] text-slate-500 leading-relaxed font-sans">
-            Protected by Cloud Firestore Role-Based Access Control & Philippine RA 10173 compliance standards.
           </div>
         </div>
       </div>

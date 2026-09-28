@@ -1,12 +1,14 @@
 import React from "react";
-import { PlusCircle, Search, MapPin, CheckCircle2, AlertCircle, BarChart3 } from "lucide-react";
+import Link from "next/link";
+import { PlusCircle, Search, MapPin, CheckCircle2, AlertCircle, BarChart3, ShieldCheck } from "lucide-react";
 
 interface HeroSectionProps {
   onOpenReportModal: () => void;
   onFilterCategory?: (category: string) => void;
+  isAdminOrGovernor?: boolean;
 }
 
-export function HeroSection({ onOpenReportModal }: HeroSectionProps) {
+export function HeroSection({ onOpenReportModal, isAdminOrGovernor }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 border-b border-white/10 bg-gradient-to-b from-[#0A1931] via-[#08152B] to-[#071126] civic-ukit-pattern">
       {/* Paete Motif Background Glow & Radial Gradients */}
@@ -37,14 +39,25 @@ export function HeroSection({ onOpenReportModal }: HeroSectionProps) {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-14">
-            <button
-              type="button"
-              onClick={onOpenReportModal}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-lg shadow-blue-600/30 transition-all text-sm sm:text-base min-h-[44px] cursor-pointer"
-            >
-              <PlusCircle className="w-5 h-5 text-sky-200" />
-              <span>Submit Community Report</span>
-            </button>
+            {isAdminOrGovernor ? (
+              <Link
+                href="/admin/dashboard"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.98] shadow-lg shadow-amber-600/30 transition-all text-sm sm:text-base min-h-[44px]"
+                title="Officials and Governors triage and resolve community reports"
+              >
+                <ShieldCheck className="w-5 h-5 text-amber-200" />
+                <span>Admin Operations Dashboard</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={onOpenReportModal}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-lg shadow-blue-600/30 transition-all text-sm sm:text-base min-h-[44px] cursor-pointer"
+              >
+                <PlusCircle className="w-5 h-5 text-sky-200" />
+                <span>Submit Community Report</span>
+              </button>
+            )}
 
             <a
               href="#community-reports"

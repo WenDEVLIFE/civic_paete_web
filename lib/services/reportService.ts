@@ -23,6 +23,7 @@ import {
   ReportComment,
 } from "@/components/reports/ReportCard";
 import { uploadReportImage } from "@/lib/storage/uploadReportImage";
+import { isUserAdminOrGovernor } from "@/lib/roleHelper";
 
 export interface CreateReportInput {
   title: string;
@@ -148,6 +149,17 @@ const SEED_REPORTS: Omit<CommunityReport, "id">[] = [
  * Creates a new community report in Firestore, uploading an image if attached.
  */
 export async function createReport(data: CreateReportInput): Promise<string> {
+  // Prevent Admin or Governor accounts from submitting reports
+  if (
+    isUserAdminOrGovernor() ||
+    data.authorRole === "governor" ||
+    data.authorRole === "official"
+  ) {
+    throw new Error(
+      "Municipal Administrators and Provincial Governors are not permitted to submit community reports. Reports must originate from verified residents."
+    );
+  }
+
   const reportsCollection = collection(db, "reports");
   const newReportRef = doc(reportsCollection);
   const reportId = newReportRef.id;

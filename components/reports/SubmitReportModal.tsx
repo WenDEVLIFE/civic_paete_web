@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   X,
   Send,
@@ -12,11 +13,13 @@ import {
   FileCheck,
   Tag,
   Shield,
+  ShieldAlert,
   User,
   Loader2,
 } from "lucide-react";
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
+import { isUserAdminOrGovernor } from "@/lib/roleHelper";
 
 export interface SubmitReportData extends Omit<CommunityReport, "id" | "date" | "upvotes" | "status"> {
   imageFile?: File | null;
@@ -39,6 +42,7 @@ interface SubmitReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (report: SubmitReportData) => Promise<void> | void;
+  isAdminOrGovernor?: boolean;
 }
 
 const PAETE_BARANGAYS = [
@@ -82,7 +86,18 @@ export function SubmitReportModal({
   isOpen,
   onClose,
   onSubmit,
+  isAdminOrGovernor: initialIsAdminOrGov,
 }: SubmitReportModalProps) {
+  const [isAdminOrGov, setIsAdminOrGov] = useState<boolean>(Boolean(initialIsAdminOrGov));
+
+  useEffect(() => {
+    if (initialIsAdminOrGov !== undefined) {
+      setIsAdminOrGov(initialIsAdminOrGov);
+    } else {
+      setIsAdminOrGov(isUserAdminOrGovernor());
+    }
+  }, [initialIsAdminOrGov, isOpen]);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<CommunityReport["category"]>("lighting");
@@ -152,6 +167,10 @@ export function SubmitReportModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdminOrGov) {
+      alert("Municipal Administrators and Provincial Governors are restricted from submitting community reports. Only residents may file reports.");
+      return;
+    }
     if (!title.trim() || !description.trim() || isSubmitting) return;
 
     try {
@@ -201,7 +220,54 @@ export function SubmitReportModal({
           <X className="w-5 h-5" />
         </button>
 
-        {submitted ? (
+        {isAdminOrGov ? (
+          <div className="py-8 px-2 text-center space-y-5">
+            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-inner">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+                Official Leadership Notice
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold font-heading text-white">
+                Filing Restricted for Admin & Governor
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
+                You are currently signed in with an administrative authority role (Municipal Administrator / Provincial Governor). Community reports must be submitted directly by residents of Paete to maintain impartial civic oversight.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300 text-left space-y-2.5 max-w-md mx-auto">
+              <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+                <Shield className="w-4 h-4" />
+                <span>Executive & Administrative Privileges:</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+                <li>Triage incoming community reports and dispatch department crews</li>
+                <li>Issue official status notes, directives, and resolutions</li>
+                <li>Verify resident identity and manage barangay verification queues</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Link
+                href="/admin/dashboard"
+                onClick={onClose}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white font-semibold text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-amber-600/30 transition-all min-h-[44px]"
+              >
+                <span>Go to Admin Dashboard</span>
+              </Link>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ) : submitted ? (
           <div className="py-12 text-center space-y-4">
             <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
               <Check className="w-8 h-8" />
