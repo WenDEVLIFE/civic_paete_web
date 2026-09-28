@@ -201,3 +201,75 @@ export function subscribeToPendingVerifications(
     }
   );
 }
+
+/**
+ * 6.1 Review verification request: approves, rejects, or promotes resident,
+ * updates Firestore documents, and logs to immutable government audit trail.
+ */
+export async function reviewVerificationRequest(
+  requestId: string,
+  decision: "approved" | "rejected",
+  options: {
+    reviewerName: string;
+    reviewerRole: string;
+    reviewerEmail?: string;
+    targetStatus?: VerificationStatus;
+    rejectionReason?: string;
+  }
+): Promise<void> {
+  const reqRef = doc(db, "verification_requests", requestId);
+  const reqSnap = await getDoc(reqRef);
+  if (!reqSnap.exists()) return;
+
+  const reqData = reqSnap.data();
+  const userId = reqData.userId;
+  const applicantName = reqData.applicantName || "Resident";
+  const barangay = reqData.barangay || "Paete";
+  const finalStatus: VerificationStatus =
+    decision === "approved"
+      ? options.targetStatus || "barangay_verified"
+      : "rejected";
+
+  // Update request document
+  await updateDoc(reqRef, {
+    status: decision,
+    reviewedAt: serverTimestamp(),
+    reviewedBy: options.reviewerName,
+    reviewerRole: options.reviewerRole,
+    rejectionReason: options.rejectionReason || null,
+    updatedAt: serverTimestamp(),
+  });
+
+  // Update user profile status
+  if (userId) {
+    await setDoc(
+      doc(db, "users", userId),
+      {
+        verificationStatus: finalStatus,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  // Automatically log to immutable government audit trail
+  import("@/lib/services/auditService")
+    .then(({ logVerificationDecision }) => {
+      logVerificationDecision(
+        requestId,
+        userId,
+        applicantName,
+        decision,
+        {
+          name: options.reviewerName,
+          role: options.reviewerRole,
+          email: options.reviewerEmail,
+        },
+        barangay,
+        decision === "approved" ? finalStatus : options.rejectionReason
+      ).catch((err) =>
+        console.warn("Background audit log write notice:", err)
+      );
+    })
+    .catch(() => {});
+}

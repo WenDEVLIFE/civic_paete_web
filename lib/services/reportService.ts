@@ -424,8 +424,13 @@ export async function updateReportStatus(
   if (officerName !== undefined) updatePayload.officialActorName = officerName;
   if (officerRole !== undefined) updatePayload.officialActorRole = officerRole;
 
+  let previousStatus = "pending";
+  let barangay = "Paete";
+
   if (docSnap.exists()) {
     const existingData = docSnap.data();
+    previousStatus = existingData.status || "pending";
+    barangay = existingData.barangay || "Paete";
     const existingTimeline = Array.isArray(existingData.timeline) ? existingData.timeline : [];
     const formattedDate = new Date().toLocaleDateString("en-US", {
       month: "short",
@@ -447,11 +452,30 @@ export async function updateReportStatus(
 
   await updateDoc(docRef, updatePayload);
 
-  // Trigger background official resolution metric recalculation on status changes
+  // 1. Trigger background official resolution metric recalculation on status changes
   import("@/lib/services/officialService")
     .then(({ recalculateOfficialMetrics }) => {
       recalculateOfficialMetrics().catch((err) =>
         console.warn("Background official metric recalculation notice:", err)
+      );
+    })
+    .catch(() => {});
+
+  // 2. Automatically log official status change to immutable government audit trail
+  import("@/lib/services/auditService")
+    .then(({ logStatusChange }) => {
+      logStatusChange(
+        reportId,
+        previousStatus,
+        status,
+        {
+          name: officerName || "Municipal Official",
+          role: officerRole || "Municipal Administration",
+        },
+        barangay,
+        officerNotes
+      ).catch((err) =>
+        console.warn("Background audit log write notice:", err)
       );
     })
     .catch(() => {});

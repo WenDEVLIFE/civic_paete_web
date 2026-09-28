@@ -115,12 +115,12 @@
 ---
 
 ### Phase 6: Immutable Audit Trail & RBAC Security Rules
-- [ ] **6.1 Server-Side Government Audit Logging**
-  - [ ] Create helper `lib/services/auditService.ts` that writes to `audit_logs` collection.
-  - [ ] Automatically log every administrative event:
-    - [ ] Official status change (`pending` ──> `in_progress` ──> `resolved`).
-    - [ ] Residency verification approval, promotion, or rejection.
-    - [ ] Emergency directives issued by Governor or Mayor.
+- [x] **6.1 Server-Side Government Audit Logging**
+  - [x] Create helper `lib/services/auditService.ts` that writes to `audit_logs` collection.
+  - [x] Automatically log every administrative event:
+    - [x] Official status change (`pending` ──> `in_progress` ──> `resolved`).
+    - [x] Residency verification approval, promotion, or rejection.
+    - [x] Emergency directives issued by Governor or Mayor.
 - [ ] **6.2 Production Firestore Security Rules (`firestore.rules`)**
   - [ ] Enforce read/write partitions:
     - [ ] `reports`: Anyone can read; authenticated residents can create; only authors can edit drafts; only officials can update `status` and `officialNotes`.

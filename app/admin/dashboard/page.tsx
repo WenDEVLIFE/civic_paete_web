@@ -34,6 +34,14 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { AdminSidebar, AdminTab } from "@/components/admin/AdminSidebar";
 import { VerificationBadge, VerificationStatus } from "@/components/profile/VerificationBadge";
+import {
+  subscribeToAuditLogs,
+  logEmergencyDirective,
+  type GovernmentAuditLog as AuditLog,
+  INITIAL_AUDIT_LOGS,
+} from "@/lib/services/auditService";
+import { updateReportStatus } from "@/lib/services/reportService";
+import { reviewVerificationRequest } from "@/lib/services/verificationService";
 
 interface AdminReport extends CommunityReport {
   officialNotes?: string;
@@ -64,17 +72,6 @@ interface VerificationRequest {
   documentNumber: string;
   submittedAt: string;
   status: "pending" | "approved" | "rejected";
-}
-
-interface AuditLog {
-  id: string;
-  timestamp: string;
-  actorName: string;
-  actorRole: string;
-  action: string;
-  reportId: string;
-  barangay: string;
-  details: string;
 }
 
 const INITIAL_ADMIN_REPORTS: AdminReport[] = [
@@ -272,49 +269,6 @@ const INITIAL_VERIFICATION_REQUESTS: VerificationRequest[] = [
   },
 ];
 
-const INITIAL_AUDIT_LOGS: AuditLog[] = [
-  {
-    id: "aud-101",
-    timestamp: "Sept 26, 2026 • 10:15 AM",
-    actorName: "Engr. Marco Adea",
-    actorRole: "Municipal Engineering",
-    action: "STATUS_UPDATE",
-    reportId: "rep-1",
-    barangay: "Bagumbayan",
-    details: "Changed status: 'Pending' → 'In Progress'. Added official inspection note.",
-  },
-  {
-    id: "aud-102",
-    timestamp: "Sept 26, 2026 • 09:30 AM",
-    actorName: "System Rule Engine",
-    actorRole: "Automated Recommendation",
-    action: "RULE_FLAGGED",
-    reportId: "rep-1",
-    barangay: "Bagumbayan",
-    details: "Flagged as recurring streetlight cluster concern (3 reports within 7 days).",
-  },
-  {
-    id: "aud-103",
-    timestamp: "Sept 25, 2026 • 03:45 PM",
-    actorName: "Arlene Cadawas",
-    actorRole: "MENRO Paete",
-    action: "OFFICE_DISPATCH",
-    reportId: "rep-2",
-    barangay: "Ibaba del Sur",
-    details: "Dispatched to Barangay Drainage Maintenance crew for clearing operation.",
-  },
-  {
-    id: "aud-104",
-    timestamp: "Sept 23, 2026 • 04:10 PM",
-    actorName: "Engr. Marco Adea",
-    actorRole: "Municipal Engineering",
-    action: "STATUS_RESOLVED",
-    reportId: "rep-3",
-    barangay: "Maytoong",
-    details: "Changed status to 'Resolved'. Completed cold-patch remediation with clearance record.",
-  },
-];
-
 let logCounter = 200;
 function generateLogId() {
   logCounter += 1;
@@ -378,6 +332,21 @@ export default function AdminDashboardPage() {
   const [userSubTab, setUserSubTab] = useState<"directory" | "verification_queue">("directory");
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(INITIAL_AUDIT_LOGS);
 
+  // Emergency Directive State (Governor & Mayor)
+  const [directiveModalOpen, setDirectiveModalOpen] = useState(false);
+  const [directiveTitle, setDirectiveTitle] = useState("");
+  const [directiveScope, setDirectiveScope] = useState("All Barangays");
+  const [directiveDetails, setDirectiveDetails] = useState("");
+  const [directiveSending, setDirectiveSending] = useState(false);
+
+  // Subscribe to live Firestore audit logs
+  useEffect(() => {
+    const unsub = subscribeToAuditLogs((logs) => {
+      setAuditLogs(logs);
+    });
+    return () => unsub();
+  }, []);
+
   // Reports state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -397,11 +366,11 @@ export default function AdminDashboardPage() {
   const urgentReports = reports.filter((r) => r.status === "urgent").length;
   const pendingVerificationsCount = verificationRequests.filter((v) => v.status === "pending").length;
 
-  const handleApproveVerification = (
+  const handleApproveVerification = async (
     req: VerificationRequest,
     targetLevel: "barangay_verified" | "community_leader" = "barangay_verified"
   ) => {
-    // 1. Update verification requests state
+    // 1. Update local state for immediate UI responsiveness
     setVerificationRequests((prev) =>
       prev.map((item) => (item.id === req.id ? { ...item, status: "approved" } : item))
     );
@@ -415,39 +384,30 @@ export default function AdminDashboardPage() {
       )
     );
 
-    // 3. Log to Immutable Audit Trail
-    const newLog: AuditLog = {
-      id: generateLogId(),
-      timestamp: "Just now",
-      actorName: currentUser?.name || "Municipal Administrator",
-      actorRole: currentUser?.office || "Municipal Official",
-      action: "VERIFICATION_APPROVED",
-      reportId: req.id,
-      barangay: req.barangay,
-      details: `Approved ${targetLevel === "barangay_verified" ? "Barangay Verified" : "Community Leader"} status for resident ${req.applicantName} (${req.barangay}). Verified document: ${req.documentType} #${req.documentNumber}.`,
-    };
-    setAuditLogs([newLog, ...auditLogs]);
+    // 3. Persist to Firestore and record immutable government audit log
+    await reviewVerificationRequest(req.id, "approved", {
+      reviewerName: currentUser?.name || "Municipal Administrator",
+      reviewerRole: currentUser?.office || "Municipal Official",
+      reviewerEmail: currentUser?.email,
+      targetStatus: targetLevel,
+    });
   };
 
-  const handleRejectVerification = (req: VerificationRequest) => {
+  const handleRejectVerification = async (req: VerificationRequest) => {
     setVerificationRequests((prev) =>
       prev.map((item) => (item.id === req.id ? { ...item, status: "rejected" } : item))
     );
 
-    const newLog: AuditLog = {
-      id: generateLogId(),
-      timestamp: "Just now",
-      actorName: currentUser?.name || "Municipal Administrator",
-      actorRole: currentUser?.office || "Municipal Official",
-      action: "VERIFICATION_REJECTED",
-      reportId: req.id,
-      barangay: req.barangay,
-      details: `Rejected residency verification request for ${req.applicantName} in Brgy. ${req.barangay}. Requirement document discrepancy noted.`,
-    };
-    setAuditLogs([newLog, ...auditLogs]);
+    // Persist rejection to Firestore and record immutable government audit log
+    await reviewVerificationRequest(req.id, "rejected", {
+      reviewerName: currentUser?.name || "Municipal Administrator",
+      reviewerRole: currentUser?.office || "Municipal Official",
+      reviewerEmail: currentUser?.email,
+      rejectionReason: "Requirement document discrepancy noted.",
+    });
   };
 
-  const handleStatusChange = (id: string, newStatus: ReportStatus) => {
+  const handleStatusChange = async (id: string, newStatus: ReportStatus) => {
     const target = reports.find((r) => r.id === id);
     if (!target) return;
 
@@ -455,20 +415,17 @@ export default function AdminDashboardPage() {
       prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
     );
 
-    const newLog: AuditLog = {
-      id: generateLogId(),
-      timestamp: "Just now",
-      actorName: currentUser?.name || "LGU Administrator",
-      actorRole: currentUser?.office || "Municipal Official",
-      action: "STATUS_UPDATE",
-      reportId: target.id,
-      barangay: target.barangay,
-      details: `Updated status from '${target.status}' to '${newStatus}'.`,
-    };
-    setAuditLogs([newLog, ...auditLogs]);
+    // Persist status change to Firestore and record immutable government audit log
+    await updateReportStatus(
+      id,
+      newStatus,
+      target.officialNotes,
+      currentUser?.name || "Municipal Official",
+      currentUser?.office || "Municipal Official"
+    );
   };
 
-  const handleSaveNote = () => {
+  const handleSaveNote = async () => {
     if (!selectedReport) return;
     setReports((prev) =>
       prev.map((r) =>
@@ -476,19 +433,49 @@ export default function AdminDashboardPage() {
       )
     );
 
-    const newLog: AuditLog = {
-      id: generateLogId(),
-      timestamp: "Just now",
-      actorName: currentUser?.name || "LGU Administrator",
-      actorRole: currentUser?.office || "Municipal Official",
-      action: "NOTE_ATTACHED",
-      reportId: selectedReport.id,
-      barangay: selectedReport.barangay,
-      details: `Attached official disposition: "${noteInput}"`,
-    };
-    setAuditLogs([newLog, ...auditLogs]);
+    // Persist official note to Firestore and record immutable government audit log
+    await updateReportStatus(
+      selectedReport.id,
+      selectedReport.status,
+      noteInput,
+      currentUser?.name || "Municipal Official",
+      currentUser?.office || "Municipal Official"
+    );
 
     setSelectedReport(null);
+  };
+
+  const handleIssueDirective = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!directiveTitle.trim() || !directiveDetails.trim()) return;
+
+    setDirectiveSending(true);
+    try {
+      await logEmergencyDirective(
+        directiveTitle.trim(),
+        directiveScope,
+        {
+          name:
+            currentUser?.name ||
+            (currentUser?.role === "governor"
+              ? "Hon. Ramil L. Hernandez"
+              : "Hon. Rosario A. Fadul"),
+          role:
+            currentUser?.role === "governor"
+              ? "Provincial Governor of Laguna"
+              : "Municipal Mayor / Executive Office",
+          email: currentUser?.email,
+        },
+        directiveDetails.trim(),
+        directiveScope
+      );
+
+      setDirectiveModalOpen(false);
+      setDirectiveTitle("");
+      setDirectiveDetails("");
+    } finally {
+      setDirectiveSending(false);
+    }
   };
 
   const filteredReports = reports.filter((r) => {
@@ -624,6 +611,15 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDirectiveModalOpen(true)}
+                    className="px-3.5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Emergency Directive</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setActiveTab("reports")}
@@ -1509,6 +1505,116 @@ export default function AdminDashboardPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6.1 Emergency Directive Modal (Governor / Mayor Executive Powers) */}
+        {directiveModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="w-full max-w-lg rounded-2xl border border-amber-500/30 bg-[#0A1931] p-6 shadow-2xl text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold font-heading text-white">
+                    Issue Government Emergency Directive
+                  </h3>
+                  <p className="text-xs text-amber-300/80 font-mono">
+                    Statutory Executive Order &bull; RA 7160 / NDRRMC Protocol
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleIssueDirective} className="space-y-4 mt-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 font-sans">
+                    Directive Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={directiveTitle}
+                    onChange={(e) => setDirectiveTitle(e.target.value)}
+                    placeholder="e.g., Heavy Rainfall Pre-emptive Evacuation & Stormdrain Clearing"
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-amber-400 focus:outline-none font-sans"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 font-sans">
+                      Target Jurisdiction / Scope
+                    </label>
+                    <select
+                      value={directiveScope}
+                      onChange={(e) => setDirectiveScope(e.target.value)}
+                      className="w-full p-3 rounded-xl bg-[#0A1931] border border-white/15 text-white text-xs focus:border-amber-400 focus:outline-none font-sans"
+                    >
+                      <option value="All Barangays">All 9 Barangays of Paete</option>
+                      <option value="Brgy. Bagumbayan">Brgy. Bagumbayan</option>
+                      <option value="Brgy. Bangkusay">Brgy. Bangkusay</option>
+                      <option value="Brgy. Ermita">Brgy. Ermita</option>
+                      <option value="Brgy. Ibaba del Norte">Brgy. Ibaba del Norte</option>
+                      <option value="Brgy. Ibaba del Sur">Brgy. Ibaba del Sur</option>
+                      <option value="Brgy. Ilaya del Norte">Brgy. Ilaya del Norte</option>
+                      <option value="Brgy. Ilaya del Sur">Brgy. Ilaya del Sur</option>
+                      <option value="Brgy. Maytoong">Brgy. Maytoong</option>
+                      <option value="Brgy. Quinale">Brgy. Quinale</option>
+                      <option value="Laguna Lake Coastal Zone">Laguna Lake Coastal Zone</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 font-sans">
+                      Issuing Authority
+                    </label>
+                    <input
+                      type="text"
+                      disabled
+                      value={
+                        currentUser?.role === "governor"
+                          ? "Hon. Ramil L. Hernandez (Governor)"
+                          : "Hon. Rosario A. Fadul (Mayor)"
+                      }
+                      className="w-full p-3 rounded-xl bg-white/[0.03] border border-white/10 text-slate-300 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 font-sans">
+                    Operational Directive Mandate
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={directiveDetails}
+                    onChange={(e) => setDirectiveDetails(e.target.value)}
+                    placeholder="Specify the executive mandate, mobilized municipal offices (MDRRMO, Engineering, RHU), and immediate public actions required..."
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:border-amber-400 focus:outline-none font-sans"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDirectiveModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 cursor-pointer min-h-[44px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={directiveSending}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-xs font-bold text-slate-950 shadow-md transition-all cursor-pointer min-h-[44px] font-heading flex items-center gap-1.5"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>{directiveSending ? "Promulgating..." : "Promulgate Directive"}</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
