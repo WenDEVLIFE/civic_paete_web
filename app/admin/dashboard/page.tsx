@@ -14,7 +14,6 @@ import {
   FileText,
   BarChart3,
   MapPin,
-  ExternalLink,
   MessageSquare,
   Sparkles,
   Users,
@@ -28,7 +27,6 @@ import {
   Award,
   XCircle,
   Check,
-  HardHat,
   Bell,
   BellRing,
   X,
@@ -612,11 +610,6 @@ export default function AdminDashboardPage() {
                 </>
               )}
             </div>
-
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="hidden md:inline text-slate-300">Session Secure</span>
-            </div>
           </div>
         </header>
 
@@ -857,73 +850,6 @@ export default function AdminDashboardPage() {
                     </span>
                     Stormwater clearing operation in Ilaya del Norte concluded successfully. Continuous monthly desilting recommended prior to forecasted monsoon swells.
                   </div>
-                </div>
-              </div>
-
-              {/* Transparency & Audit Sync Banner */}
-              <div className="p-6 rounded-2xl bg-[#0A1931] border border-white/10 shadow-lg space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <span className="p-2 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25">
-                      <BarChart3 className="w-5 h-5" />
-                    </span>
-                    <div>
-                      <h3 className="text-sm font-bold text-white font-heading">Public Transparency & Audit Synchronization</h3>
-                      <p className="text-xs text-slate-400 font-sans">
-                        Live monitoring of municipal public works, governance directory, and open civic datasets
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    PUBLIC TRANSPARENCY SYNC ACTIVE
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Link
-                    href="/transparency/projects"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/40 transition-all group min-h-[44px]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5">
-                        <HardHat className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span className="text-xs font-bold text-amber-400 font-heading">Public Works & Budget</span>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-                    </div>
-                    <p className="text-xs text-slate-300 font-medium">Infrastructure Project History</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Audit of 6 municipal projects, contractors, and fund allocations.</p>
-                  </Link>
-
-                  <Link
-                    href="/transparency/officials"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/40 transition-all group min-h-[44px]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5">
-                        <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
-                        <span className="text-xs font-bold text-blue-400 font-heading">Municipal & Provincial Leaders</span>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-                    </div>
-                    <p className="text-xs text-slate-300 font-medium">Accountability Directory</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Civic response metrics for Mayor, Councilors, Captains, and Governor.</p>
-                  </Link>
-
-                  <Link
-                    href="/transparency/reports"
-                    className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/40 transition-all group min-h-[44px]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5">
-                        <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span className="text-xs font-bold text-emerald-400 font-heading">Open Data Hub</span>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
-                    </div>
-                    <p className="text-xs text-slate-300 font-medium">Open Datasets & CSV/JSON Export</p>
-                    <p className="text-[11px] text-slate-400 mt-1">Downloadable civic datasets and monthly resolution trends.</p>
-                  </Link>
                 </div>
               </div>
             </div>

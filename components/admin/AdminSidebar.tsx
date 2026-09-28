@@ -172,16 +172,6 @@ export function AdminSidebar({
             </div>
           </div>
         </div>
-
-        <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-emerald-300 font-medium">Auth Session Active</span>
-          </div>
-          <span className="text-[10px] font-mono text-slate-500">
-            {isGovernor ? "LAGUNA-HQ" : "PAETE-LGU"}
-          </span>
-        </div>
       </div>
 
       {/* Navigation Section */}
@@ -265,11 +255,8 @@ export function AdminSidebar({
 
       {/* Transparency & Public Audits */}
       <div className="px-3 py-2 border-t border-white/10 space-y-1">
-        <div className="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center justify-between">
-          <span>Transparency & Audits</span>
-          <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/10 border border-amber-400/20 text-amber-300 font-mono">
-            LIVE HUB
-          </span>
+        <div className="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+          Transparency & Audits
         </div>
         <Link
           href="/transparency/projects"
