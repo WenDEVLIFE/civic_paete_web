@@ -21,6 +21,7 @@ import {
   Check,
   UserCheck,
   Wrench,
+  Trash2,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -30,7 +31,9 @@ import {
   subscribeToReportComments,
   addReportComment,
   getOrCreateClientVoterId,
+  deleteReport,
 } from "@/lib/services/reportService";
+import { DeleteReportModal } from "@/components/reports/DeleteReportModal";
 
 export type ReportStatus = "urgent" | "pending" | "in_progress" | "resolved";
 
@@ -72,6 +75,7 @@ interface ReportCardProps {
   onUpvote?: (id: string) => void;
   onStatusChange?: (id: string, newStatus: ReportStatus, note?: string) => void;
   onAddComment?: (reportId: string, comment: ReportComment) => void;
+  onDelete?: (id: string) => void;
 }
 
 export function ReportCard({
@@ -79,6 +83,7 @@ export function ReportCard({
   onUpvote,
   onStatusChange,
   onAddComment,
+  onDelete,
 }: ReportCardProps) {
   // Current logged in Firebase resident user
   const [residentUser, setResidentUser] = useState<User | null>(null);
@@ -109,6 +114,8 @@ export function ReportCard({
   const [noteDraft, setNoteDraft] = useState("");
   const [isSavingStatus, setIsSavingStatus] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
     // Check Resident user
@@ -273,6 +280,19 @@ export function ReportCard({
     }, 400);
   };
 
+  const handleOfficerDelete = async (reportId: string, reason: string) => {
+    await deleteReport(reportId, {
+      deletedBy: {
+        name: officerSession?.name || "Municipal Administrator",
+        role: officerSession?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
+        email: officerSession?.email,
+      },
+      reason,
+    });
+    setIsDeleted(true);
+    onDelete?.(reportId);
+  };
+
   // Status visual mapping
   const statusConfig: Record<
     ReportStatus,
@@ -322,6 +342,17 @@ export function ReportCard({
 
   const currentCfg = statusConfig[currentStatus];
   const isOfficerLoggedIn = Boolean(officerSession);
+
+  if (isDeleted) {
+    return (
+      <div className="p-4 rounded-2xl border border-red-500/20 bg-red-950/20 text-slate-400 text-xs flex items-center justify-between gap-3 animate-out fade-out duration-300">
+        <span className="flex items-center gap-2">
+          <Trash2 className="w-4 h-4 text-red-400 shrink-0" />
+          <span>This community report was permanently deleted by an administrative official.</span>
+        </span>
+      </div>
+    );
+  }
 
   return (
     <article className="group flex flex-col rounded-2xl border border-white/10 bg-[#0A1931]/90 hover:border-blue-500/30 transition-all duration-200 shadow-xl backdrop-blur-md overflow-hidden">
@@ -623,6 +654,19 @@ export function ReportCard({
               Updating official disposition in government records...
             </div>
           )}
+
+          <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+            <span className="text-[11px] text-slate-400">Administrative moderation:</span>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 hover:text-red-200 text-xs font-semibold transition-all cursor-pointer min-h-[36px]"
+              title="Delete report permanently from system"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Post</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -754,6 +798,34 @@ export function ReportCard({
           </form>
         </div>
       )}
+
+      {/* Delete Report Confirmation Modal */}
+      <DeleteReportModal
+        isOpen={showDeleteModal}
+        report={{
+          id: report.id,
+          title: report.title,
+          barangay: report.barangay,
+          authorName: report.isAnonymous
+            ? report.anonymousAlias || "Protected Citizen"
+            : report.authorName || "Resident",
+          date: report.date,
+          status: report.status,
+        }}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirmDelete={async (reportId, reason) => {
+          await handleOfficerDelete(reportId, reason);
+        }}
+        currentOfficer={
+          officerSession
+            ? {
+                name: officerSession.name,
+                role: officerSession.role,
+                office: officerSession.office,
+              }
+            : null
+        }
+      />
     </article>
   );
 }

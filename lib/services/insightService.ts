@@ -87,7 +87,7 @@ interface ReportCluster {
  * OR any report is marked as urgent
  * THEN generate deterministic municipal recommendation for assessment.
  *
- * Strict constraint: 0% AI/ML/LLM. 100% deterministic data aggregation.
+ * Strict constraint: 100% deterministic rule-based data aggregation.
  */
 export async function generateRuleBasedRecommendations(): Promise<CivicRecommendation[]> {
   try {

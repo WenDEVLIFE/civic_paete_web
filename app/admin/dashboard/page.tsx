@@ -31,6 +31,7 @@ import {
   BellRing,
   X,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -42,7 +43,8 @@ import {
   logEmergencyDirective,
   type GovernmentAuditLog as AuditLog,
 } from "@/lib/services/auditService";
-import { updateReportStatus, subscribeToReports } from "@/lib/services/reportService";
+import { updateReportStatus, deleteReport, subscribeToReports } from "@/lib/services/reportService";
+import { DeleteReportModal } from "@/components/reports/DeleteReportModal";
 import {
   reviewVerificationRequest,
   subscribeToAllVerificationRequests,
@@ -347,6 +349,46 @@ export default function AdminDashboardPage() {
     );
 
     setSelectedReport(null);
+  };
+
+  // Report Deletion state & handler
+  const [reportToDelete, setReportToDelete] = useState<AdminReport | null>(null);
+  const [actionFeedbackToast, setActionFeedbackToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const handleConfirmDeleteReport = async (reportId: string, reason: string) => {
+    try {
+      await deleteReport(reportId, {
+        deletedBy: {
+          name: currentUser?.name || "Municipal Administrator",
+          role: currentUser?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
+          email: currentUser?.email,
+        },
+        reason,
+      });
+
+      // Optimistic instant update of local list
+      setReports((prev) => prev.filter((r) => r.id !== reportId));
+      if (selectedReport?.id === reportId) {
+        setSelectedReport(null);
+      }
+
+      setActionFeedbackToast({
+        message: `Report #${reportId} was permanently deleted and recorded in municipal audit registry.`,
+        type: "success",
+      });
+      setTimeout(() => setActionFeedbackToast(null), 4500);
+    } catch (err) {
+      console.error("Delete report error:", err);
+      setActionFeedbackToast({
+        message: "Failed to delete report. Please verify connection and permissions.",
+        type: "error",
+      });
+      setTimeout(() => setActionFeedbackToast(null), 4500);
+      throw err;
+    }
   };
 
   const handleIssueDirective = async (e: React.FormEvent) => {
@@ -1156,6 +1198,16 @@ export default function AdminDashboardPage() {
                                 <MessageSquare className="w-3.5 h-3.5" />
                                 <span>{report.officialNotes ? "Edit Disposition" : "Add Disposition"}</span>
                               </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setReportToDelete(report)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 text-xs font-semibold transition-all min-h-[36px] cursor-pointer"
+                                title="Delete report permanently from system"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete</span>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1603,6 +1655,19 @@ export default function AdminDashboardPage() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      onClick={() => {
+                        const target = selectedReport;
+                        setSelectedReport(null);
+                        setReportToDelete(target);
+                      }}
+                      className="px-3 py-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 text-xs font-semibold cursor-pointer min-h-[44px] flex items-center gap-1.5 transition-all"
+                      title="Delete Report"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Delete Post</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setSelectedReport(null)}
                       className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-medium text-slate-300 hover:bg-white/10 cursor-pointer min-h-[44px]"
                     >
@@ -1728,6 +1793,67 @@ export default function AdminDashboardPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Report Confirmation Modal */}
+        <DeleteReportModal
+          isOpen={Boolean(reportToDelete)}
+          report={
+            reportToDelete
+              ? {
+                  id: reportToDelete.id,
+                  title: reportToDelete.title,
+                  barangay: reportToDelete.barangay,
+                  authorName: reportToDelete.isAnonymous
+                    ? reportToDelete.anonymousAlias || "Protected Citizen"
+                    : reportToDelete.authorName || "Resident",
+                  date: reportToDelete.date,
+                  status: reportToDelete.status,
+                }
+              : null
+          }
+          onClose={() => setReportToDelete(null)}
+          onConfirmDelete={async (reportId, reason) => {
+            await handleConfirmDeleteReport(reportId, reason);
+          }}
+          currentOfficer={
+            currentUser
+              ? {
+                  name: currentUser.name,
+                  role: currentUser.role,
+                  office: currentUser.office,
+                }
+              : null
+          }
+        />
+
+        {/* Action Feedback Floating Notification Toast */}
+        {actionFeedbackToast && (
+          <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 duration-200 max-w-md">
+            <div
+              className={`p-4 rounded-2xl border shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 text-xs sm:text-sm font-sans ${
+                actionFeedbackToast.type === "success"
+                  ? "bg-[#071126]/95 border-emerald-500/40 text-emerald-200"
+                  : "bg-[#071126]/95 border-red-500/40 text-red-200"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                {actionFeedbackToast.type === "success" ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+                )}
+                <span>{actionFeedbackToast.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionFeedbackToast(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}

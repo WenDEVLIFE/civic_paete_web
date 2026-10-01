@@ -20,7 +20,8 @@ export type AuditAction =
   | "VERIFICATION_REJECTED"
   | "EMERGENCY_DIRECTIVE"
   | "DISPATCH_OPERATION"
-  | "DATA_EXPORT";
+  | "DATA_EXPORT"
+  | "REPORT_DELETED";
 
 export interface GovernmentAuditLog {
   id: string;
@@ -205,6 +206,32 @@ export async function logEmergencyDirective(
     barangay,
     details,
     metadata: { directiveTitle, directiveScope },
+  });
+}
+
+/**
+ * 6.1 Audit Helper: Log administrative report deletion with justification
+ */
+export async function logReportDeletion(
+  reportId: string,
+  reportTitle: string,
+  actor: { name: string; role: string; email?: string },
+  barangay: string = "Paete",
+  reason?: string
+): Promise<string> {
+  const details = reason
+    ? `Permanently deleted community report #${reportId} ("${reportTitle}"). Reason: ${reason}`
+    : `Permanently deleted community report #${reportId} ("${reportTitle}") under administrative authority.`;
+
+  return logAuditEvent({
+    actorName: actor.name || "Municipal Administrator",
+    actorEmail: actor.email,
+    actorRole: actor.role || "Municipal Government",
+    action: "REPORT_DELETED",
+    reportId,
+    barangay,
+    details,
+    metadata: { reportTitle, reason },
   });
 }
 

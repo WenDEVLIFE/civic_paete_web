@@ -19,7 +19,7 @@
 | **Public Transparency Hub** | Static constants (`PROJECTS`, `OFFICIALS`) in page files | Firestore `transparency_projects` and `officials` collections with dynamic CMS updates | 🟢 Medium |
 | **Open Data CSV/JSON Exports** | Pre-generated static string arrays in `/transparency/reports` | Dynamic streaming API endpoint generating live de-identified datasets directly from resolved incident records | 🟢 Medium |
 | **Audit Trail & Governance Logs** | Mock array in `app/admin/dashboard/page.tsx` | Immutable, append-only `audit_logs` collection with server-side timestamps and restrictive write rules | 🟡 High |
-| **AI Civic Diagnostics** | 3 hardcoded recommendations in `InsightsSection.tsx` | Cloud Function / cron analyzing geographic report clusters and generating automated municipal triage advisories | 🟢 Medium |
+| **Civic Cluster Diagnostics** | 3 hardcoded recommendations in `InsightsSection.tsx` | Cloud Function / cron analyzing geographic report clusters and generating automated municipal triage advisories | 🟢 Medium |
 
 ---
 

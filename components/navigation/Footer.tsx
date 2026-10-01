@@ -110,7 +110,7 @@ export function Footer() {
                   href="/#insights"
                   className="hover:text-white transition-colors flex items-center gap-1"
                 >
-                  AI Civic Insights
+                  Civic Insights
                 </Link>
               </li>
             </ul>

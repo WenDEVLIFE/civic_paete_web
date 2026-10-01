@@ -2,6 +2,7 @@
 
 import React, { use, useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/navigation/Footer";
 import {
@@ -24,18 +25,21 @@ import {
   ChevronUp,
   Check,
   Wrench,
+  Trash2,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   subscribeToReportById,
   updateReportStatus,
+  deleteReport,
   addReportComment,
   toggleReportUpvote,
   subscribeToReportUpvoteStatus,
   subscribeToReportComments,
   getOrCreateClientVoterId,
 } from "@/lib/services/reportService";
+import { DeleteReportModal } from "@/components/reports/DeleteReportModal";
 
 interface TimelineEvent {
   title: string;
@@ -217,11 +221,13 @@ export default function ReportDetailPage({
   const [commentInput, setCommentInput] = useState("");
 
   // Officer Controls
+  const router = useRouter();
   const [showOfficerControls, setShowOfficerControls] = useState(false);
   const [officerNoteInput, setOfficerNoteInput] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [resolveNotes, setResolveNotes] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setResidentUser(u));
@@ -403,6 +409,18 @@ export default function ReportDetailPage({
     }
   };
 
+  const handleDeleteReport = async (targetId: string, reason: string) => {
+    await deleteReport(targetId, {
+      deletedBy: {
+        name: officerSession?.name || "Municipal Administrator",
+        role: officerSession?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
+        email: officerSession?.email,
+      },
+      reason,
+    });
+    router.push(officerSession ? "/admin/dashboard" : "/explore");
+  };
+
   const statusDisplay: Record<
     DetailedReport["status"],
     { label: string; bg: string; text: string; border: string; icon: React.ReactNode }
@@ -565,14 +583,26 @@ export default function ReportDetailPage({
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowOfficerControls(!showOfficerControls)}
-                className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-all cursor-pointer min-h-[36px]"
-              >
-                <span>{showOfficerControls ? "Hide Controls" : "Update Report Status"}</span>
-                {showOfficerControls ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="inline-flex items-center gap-1.5 text-xs text-red-300 hover:text-red-200 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 transition-all cursor-pointer min-h-[36px]"
+                  title="Permanently delete this report"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Post</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowOfficerControls(!showOfficerControls)}
+                  className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-all cursor-pointer min-h-[36px]"
+                >
+                  <span>{showOfficerControls ? "Hide Controls" : "Update Report Status"}</span>
+                  {showOfficerControls ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
 
             {showOfficerControls && (
@@ -905,6 +935,32 @@ export default function ReportDetailPage({
           </div>
         </div>
       )}
+
+      {/* Delete Report Confirmation Modal */}
+      <DeleteReportModal
+        isOpen={showDeleteModal}
+        report={{
+          id: report.id,
+          title: report.title,
+          barangay: report.barangay,
+          authorName: report.submittedBy,
+          date: report.date,
+          status: report.status,
+        }}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirmDelete={async (targetId, reason) => {
+          await handleDeleteReport(targetId, reason);
+        }}
+        currentOfficer={
+          officerSession
+            ? {
+                name: officerSession.name,
+                role: officerSession.role,
+                office: officerSession.office,
+              }
+            : null
+        }
+      />
 
       <Footer />
     </div>

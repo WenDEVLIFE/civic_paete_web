@@ -160,7 +160,7 @@ export function Navbar() {
               href="/#insights"
               className="px-3.5 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
             >
-              AI Insights
+              Civic Insights
             </Link>
             <div className="relative group">
               <Link
@@ -335,7 +335,7 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10"
           >
-            AI Insights
+            Civic Insights
           </Link>
 
           <div className="pt-2 pb-1 border-t border-white/10">

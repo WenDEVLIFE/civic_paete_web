@@ -523,6 +523,59 @@ export async function updateReportStatus(
 }
 
 /**
+ * Permanently deletes a community report from Firestore and records an immutable audit log.
+ */
+export async function deleteReport(
+  reportId: string,
+  options?: {
+    deletedBy?: { name: string; role: string; email?: string };
+    reason?: string;
+  }
+): Promise<void> {
+  const docRef = doc(db, "reports", reportId);
+  const docSnap = await getDoc(docRef);
+
+  let reportTitle = "Community Report";
+  let barangay = "Paete";
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    reportTitle = data.title || reportTitle;
+    barangay = data.barangay || barangay;
+  }
+
+  // 1. Delete document from Firestore
+  await deleteDoc(docRef);
+
+  // 2. Log official deletion to immutable government audit trail
+  import("@/lib/services/auditService")
+    .then(({ logReportDeletion }) => {
+      logReportDeletion(
+        reportId,
+        reportTitle,
+        options?.deletedBy || {
+          name: "Municipal Administrator",
+          role: "Municipal Administration",
+        },
+        barangay,
+        options?.reason
+      ).catch((err) =>
+        console.warn("Background audit log deletion write notice:", err)
+      );
+    })
+    .catch(() => {});
+
+  // 3. Trigger recalculation of official metrics
+  import("@/lib/services/officialService")
+    .then(({ recalculateOfficialMetrics }) => {
+      recalculateOfficialMetrics().catch((err) =>
+        console.warn("Background official metric recalculation notice:", err)
+      );
+    })
+    .catch(() => {});
+}
+
+/**
  * Helper to get or persist a stable device voter ID for guests / visitors.
  */
 export function getOrCreateClientVoterId(): string {
