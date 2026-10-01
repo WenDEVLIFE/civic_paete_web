@@ -106,6 +106,16 @@ export function Navbar() {
       }
     } catch (err: unknown) {
       console.error("Google sign in notice:", err);
+      const authError = err as { code?: string; message?: string };
+      if (typeof window !== "undefined") {
+        if (authError?.code === "auth/unauthorized-domain") {
+          alert(
+            `Domain not authorized in Firebase! Please add "${window.location.hostname}" to Firebase Console -> Authentication -> Settings -> Authorized domains.`
+          );
+        } else if (authError?.code !== "auth/popup-closed-by-user") {
+          alert(`Google Sign-In error: ${authError?.message || "Authentication failed."}`);
+        }
+      }
     } finally {
       setIsSigningIn(false);
     }
