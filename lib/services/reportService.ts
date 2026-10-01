@@ -160,6 +160,13 @@ export async function createReport(data: CreateReportInput): Promise<string> {
     );
   }
 
+  // Require citizen authentication (Anti-spam & accountability)
+  if (!data.authorUid) {
+    throw new Error(
+      "Citizen authentication is required to file a report. Please sign in with Google to submit."
+    );
+  }
+
   const reportsCollection = collection(db, "reports");
   const newReportRef = doc(reportsCollection);
   const reportId = newReportRef.id;

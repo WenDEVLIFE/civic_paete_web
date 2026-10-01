@@ -20,6 +20,9 @@ import {
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
 import { isUserAdminOrGovernor } from "@/lib/roleHelper";
+import { auth, db, googleProvider } from "@/lib/firebase";
+import { onAuthStateChanged, signInWithPopup, User as FirebaseUser } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export interface SubmitReportData extends Omit<CommunityReport, "id" | "date" | "upvotes" | "status"> {
   imageFile?: File | null;
@@ -43,6 +46,7 @@ interface SubmitReportModalProps {
   onClose: () => void;
   onSubmit: (report: SubmitReportData) => Promise<void> | void;
   isAdminOrGovernor?: boolean;
+  currentUser?: FirebaseUser | null;
 }
 
 const PAETE_BARANGAYS = [
@@ -87,8 +91,12 @@ export function SubmitReportModal({
   onClose,
   onSubmit,
   isAdminOrGovernor: initialIsAdminOrGov,
+  currentUser: initialCurrentUser,
 }: SubmitReportModalProps) {
   const [isAdminOrGov, setIsAdminOrGov] = useState<boolean>(Boolean(initialIsAdminOrGov));
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(initialCurrentUser || null);
+  const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialIsAdminOrGov !== undefined) {
@@ -97,6 +105,59 @@ export function SubmitReportModal({
       setIsAdminOrGov(isUserAdminOrGovernor());
     }
   }, [initialIsAdminOrGov, isOpen]);
+
+  useEffect(() => {
+    if (initialCurrentUser !== undefined) {
+      setCurrentUser(initialCurrentUser);
+    }
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setCurrentUser(u);
+    });
+    return () => unsub();
+  }, [initialCurrentUser]);
+
+  const handleModalGoogleSignIn = async () => {
+    setIsSigningIn(true);
+    setAuthError(null);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const loggedUser = result.user;
+      setCurrentUser(loggedUser);
+
+      // Sync resident profile to Firestore
+      try {
+        await setDoc(
+          doc(db, "users", loggedUser.uid),
+          {
+            uid: loggedUser.uid,
+            name: loggedUser.displayName || "Paete Resident",
+            email: loggedUser.email || "",
+            photoURL: loggedUser.photoURL || "",
+            role: "resident",
+            authProvider: "google",
+            lastLogin: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (fsErr) {
+        console.warn("Notice: Firestore sync for Google resident:", fsErr);
+      }
+    } catch (err: unknown) {
+      console.error("Google sign in error in modal:", err);
+      const authErr = err as { code?: string; message?: string };
+      if (typeof window !== "undefined") {
+        if (authErr?.code === "auth/unauthorized-domain") {
+          setAuthError(
+            `Domain not authorized in Firebase! Please add "${window.location.hostname}" to Firebase Console -> Authentication -> Settings -> Authorized domains.`
+          );
+        } else if (authErr?.code !== "auth/popup-closed-by-user") {
+          setAuthError(authErr?.message || "Google Sign-In failed. Please try again.");
+        }
+      }
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -169,6 +230,10 @@ export function SubmitReportModal({
     e.preventDefault();
     if (isAdminOrGov) {
       alert("Municipal Administrators and Provincial Governors are restricted from submitting community reports. Only residents may file reports.");
+      return;
+    }
+    if (!currentUser) {
+      alert("Citizen sign-in is required to submit a community report.");
       return;
     }
     if (!title.trim() || !description.trim() || isSubmitting) return;
@@ -267,6 +332,90 @@ export function SubmitReportModal({
               </button>
             </div>
           </div>
+        ) : !currentUser ? (
+          <div className="py-8 px-2 text-center space-y-5 animate-in fade-in duration-150">
+            <div className="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-inner">
+              <Shield className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider font-heading">
+                Resident Sign-In Required
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold font-heading text-white">
+                Sign In to File a Community Report
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
+                To prevent automated spam and ensure municipal action on legitimate citizen concerns, community report submissions require an authenticated resident account.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300 text-left space-y-2.5 max-w-md mx-auto">
+              <div className="font-semibold text-blue-300 flex items-center gap-1.5">
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span>Citizen Protection & Privacy Guarantees:</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+                <li>
+                  <strong className="text-white">Identity Shield Available:</strong> You can still file anonymously. Your real name and photo will not be publicly displayed.
+                </li>
+                <li>
+                  <strong className="text-white">Direct Issue Tracking:</strong> Track official dispatch, field crew inspections, and resolution photos.
+                </li>
+              </ul>
+            </div>
+
+            {authError && (
+              <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs text-left max-w-md mx-auto">
+                {authError}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleModalGoogleSignIn}
+                disabled={isSigningIn}
+                className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-100 active:scale-[0.98] text-slate-900 font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-lg transition-all min-h-[44px] cursor-pointer"
+              >
+                {isSigningIn ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-700" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
+                    <span>Sign In with Google to Continue</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         ) : submitted ? (
           <div className="py-12 text-center space-y-4">
             <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
@@ -289,8 +438,8 @@ export function SubmitReportModal({
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight font-heading">
                 Submit Community Concern
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                Directly report infrastructure hazards, public sanitation, or community issues with photo evidence.
+              <p className="text-xs text-slate-300 mt-1">
+                Filing report as: <strong className="text-white">{currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident"}</strong> ({currentUser.email})
               </p>
             </div>
 

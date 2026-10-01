@@ -277,6 +277,11 @@ export default function Home() {
   };
 
   const handleAddReport = async (newReportData: SubmitReportData) => {
+    if (!currentUser) {
+      alert("Citizen authentication required. Please sign in with Google to file a report.");
+      return;
+    }
+
     if (isAdminOrGovernor || isUserAdminOrGovernor(currentUser)) {
       alert(
         "Municipal Administrators and Provincial Governors are restricted from submitting community reports. Only verified residents may submit reports."
@@ -286,15 +291,11 @@ export default function Home() {
 
     let authorName: string | undefined = undefined;
     let authorAvatar: string | undefined = undefined;
-    let authorRole: "resident" | "official" | "governor" = "resident";
+    const authorRole: "resident" | "official" | "governor" = "resident";
 
     if (!newReportData.isAnonymous) {
-      if (currentUser) {
-        authorName = currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident";
-        authorAvatar = currentUser.photoURL || undefined;
-      } else {
-        authorName = "Paete Resident";
-      }
+      authorName = currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident";
+      authorAvatar = currentUser.photoURL || undefined;
     }
 
     try {
@@ -308,7 +309,7 @@ export default function Home() {
         imageUrl: newReportData.imageUrl,
         isAnonymous: newReportData.isAnonymous,
         anonymousAlias: newReportData.anonymousAlias,
-        authorUid: currentUser?.uid,
+        authorUid: currentUser.uid,
         authorName,
         authorAvatar,
         authorRole,
@@ -540,6 +541,7 @@ export default function Home() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddReport}
         isAdminOrGovernor={isAdminOrGovernor}
+        currentUser={currentUser}
       />
     </div>
   );
