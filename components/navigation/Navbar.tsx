@@ -21,12 +21,17 @@ import {
 } from "lucide-react";
 import { auth, db, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { UserProfileModal } from "@/components/profile/UserProfileModal";
+import {
+  subscribeToUserVerification,
+  VerificationStatus,
+} from "@/lib/services/verificationService";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>("unverified");
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -80,6 +85,17 @@ export function Navbar() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!user?.uid) {
+      setVerificationStatus("unverified");
+      return;
+    }
+    const unsub = subscribeToUserVerification(user.uid, (status) => {
+      setVerificationStatus(status);
+    });
+    return () => unsub();
+  }, [user?.uid]);
+
   const handleGoogleSignIn = async () => {
     setIsSigningIn(true);
     try {
@@ -88,15 +104,20 @@ export function Navbar() {
 
       // Sync resident profile to Firestore 'users' collection
       try {
+        const userRef = doc(db, "users", loggedUser.uid);
+        const userSnap = await getDoc(userRef);
+        const existingData = userSnap.data();
+
         await setDoc(
-          doc(db, "users", loggedUser.uid),
+          userRef,
           {
             uid: loggedUser.uid,
             name: loggedUser.displayName || "Paete Resident",
             email: loggedUser.email || "",
             photoURL: loggedUser.photoURL || "",
-            role: "resident",
+            role: existingData?.role || "resident",
             authProvider: "google",
+            verificationStatus: existingData?.verificationStatus || "unverified",
             lastLogin: serverTimestamp(),
           },
           { merge: true }
@@ -269,10 +290,21 @@ export function Navbar() {
                         <span className="text-xs font-semibold text-white max-w-[120px] truncate">
                           {user.displayName || "Paete Resident"}
                         </span>
-                        <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-heading">
-                          <UserCheck className="w-2.5 h-2.5" />
-                          <span>Profile & Rights</span>
-                        </span>
+                        {verificationStatus === "barangay_verified" || verificationStatus === "community_leader" ? (
+                          <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-heading">
+                            <UserCheck className="w-2.5 h-2.5" />
+                            <span>Verified Resident</span>
+                          </span>
+                        ) : verificationStatus === "pending" ? (
+                          <span className="text-[10px] text-amber-400 flex items-center gap-1 font-heading">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            <span>Pending Review</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 flex items-center gap-1 font-heading">
+                            <span>Unverified</span>
+                          </span>
+                        )}
                       </div>
                     </button>
 

@@ -1096,6 +1096,7 @@ export default function AdminDashboardPage() {
                       <tr>
                         <th className="px-5 py-3.5">Concern / Title</th>
                         <th className="px-5 py-3.5">Barangay</th>
+                        <th className="px-5 py-3.5">Submitted By (Resident)</th>
                         <th className="px-5 py-3.5">Date Logged</th>
                         <th className="px-5 py-3.5">Current Status</th>
                         <th className="px-5 py-3.5">Official Action</th>
@@ -1104,7 +1105,7 @@ export default function AdminDashboardPage() {
                     <tbody className="divide-y divide-white/5">
                       {filteredReports.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-5 py-8 text-center text-xs text-slate-500 italic">
+                          <td colSpan={6} className="px-5 py-8 text-center text-xs text-slate-500 italic">
                             No community reports found matching the selected filters.
                           </td>
                         </tr>
@@ -1131,6 +1132,42 @@ export default function AdminDashboardPage() {
                               <MapPin className="w-3.5 h-3.5 text-blue-400" />
                               <span>Brgy. {report.barangay}</span>
                             </span>
+                          </td>
+
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            {report.isAnonymous ? (
+                              <div className="space-y-0.5">
+                                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-500/20 text-slate-300 border border-slate-500/30">
+                                  <Shield className="w-2.5 h-2.5 text-slate-400" />
+                                  <span>Anonymous ({report.anonymousAlias || "Protected Citizen"})</span>
+                                </div>
+                                <div className="text-xs font-semibold text-amber-300 flex items-center gap-1">
+                                  <span>Real Name:</span>
+                                  <span className="text-white font-bold">{report.authorRealName || report.authorName || "Paete Resident"}</span>
+                                </div>
+                                {report.authorEmail && (
+                                  <div className="text-[11px] text-slate-400 font-mono">
+                                    {report.authorEmail}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="space-y-0.5">
+                                <div className="font-semibold text-white text-xs flex items-center gap-1">
+                                  <span>{report.authorName || report.authorRealName || "Paete Resident"}</span>
+                                  {report.authorVerificationStatus === "barangay_verified" && (
+                                    <span className="text-[9px] text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded border border-emerald-500/20">
+                                      Verified
+                                    </span>
+                                  )}
+                                </div>
+                                {report.authorEmail && (
+                                  <div className="text-[11px] text-slate-400 font-mono">
+                                    {report.authorEmail}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </td>
 
                           <td className="px-5 py-4 whitespace-nowrap text-slate-400 text-xs font-mono">

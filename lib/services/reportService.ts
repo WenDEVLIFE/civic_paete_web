@@ -37,8 +37,11 @@ export interface CreateReportInput {
   anonymousAlias?: string;
   authorUid?: string;
   authorName?: string;
+  authorRealName?: string;
+  authorEmail?: string;
   authorAvatar?: string;
   authorRole?: "resident" | "official" | "governor";
+  authorVerificationStatus?: string;
 }
 
 export interface ReportFilters {
@@ -206,8 +209,11 @@ export async function createReport(data: CreateReportInput): Promise<string> {
     isAnonymous: Boolean(data.isAnonymous),
     anonymousAlias: data.isAnonymous ? data.anonymousAlias || "Protected Citizen" : null,
     authorUid: data.authorUid || null,
-    authorName: data.isAnonymous ? null : data.authorName || "Resident",
-    authorAvatar: data.isAnonymous ? null : data.authorAvatar || null,
+    authorRealName: data.authorRealName || data.authorName || "Paete Resident",
+    authorEmail: data.authorEmail || null,
+    authorVerificationStatus: data.authorVerificationStatus || "unverified",
+    authorName: data.isAnonymous ? null : (data.authorName || data.authorRealName || "Resident"),
+    authorAvatar: data.isAnonymous ? null : (data.authorAvatar || null),
     authorRole: data.authorRole || "resident",
     officialNotes: null,
     officialActorName: null,
@@ -297,7 +303,11 @@ export function subscribeToReports(
           imageUrl: data.imageUrl || undefined,
           isAnonymous: Boolean(data.isAnonymous),
           anonymousAlias: data.anonymousAlias || undefined,
+          authorUid: data.authorUid || undefined,
           authorName: data.authorName || undefined,
+          authorRealName: data.authorRealName || undefined,
+          authorEmail: data.authorEmail || undefined,
+          authorVerificationStatus: data.authorVerificationStatus || undefined,
           authorAvatar: data.authorAvatar || undefined,
           authorRole: data.authorRole || "resident",
           officialNotes: data.officialNotes || undefined,
@@ -355,7 +365,7 @@ export async function getReportById(reportId: string): Promise<DetailedReport | 
     locationDetails: data.locationDetail || data.locationDetails || "Municipality of Paete",
     submittedBy: data.isAnonymous
       ? data.anonymousAlias || "Protected Citizen"
-      : data.authorName || "Verified Resident",
+      : data.authorName || data.authorRealName || "Paete Resident",
     status: data.status || "pending",
     date: data.date || "Recently",
     upvotes: typeof data.upvotes === "number" ? data.upvotes : 0,
@@ -363,7 +373,11 @@ export async function getReportById(reportId: string): Promise<DetailedReport | 
     imageUrl: data.imageUrl || undefined,
     isAnonymous: Boolean(data.isAnonymous),
     anonymousAlias: data.anonymousAlias || undefined,
+    authorUid: data.authorUid || undefined,
     authorName: data.authorName || undefined,
+    authorRealName: data.authorRealName || undefined,
+    authorEmail: data.authorEmail || undefined,
+    authorVerificationStatus: data.authorVerificationStatus || undefined,
     authorAvatar: data.authorAvatar || undefined,
     authorRole: data.authorRole || "resident",
     officialNotes: data.officialNotes || undefined,
@@ -401,7 +415,7 @@ export function subscribeToReportById(
         locationDetails: data.locationDetail || data.locationDetails || "Municipality of Paete",
         submittedBy: data.isAnonymous
           ? data.anonymousAlias || "Protected Citizen"
-          : data.authorName || "Verified Resident",
+          : data.authorName || data.authorRealName || "Paete Resident",
         status: data.status || "pending",
         date: data.date || "Recently",
         upvotes: typeof data.upvotes === "number" ? data.upvotes : 0,
@@ -409,7 +423,11 @@ export function subscribeToReportById(
         imageUrl: data.imageUrl || undefined,
         isAnonymous: Boolean(data.isAnonymous),
         anonymousAlias: data.anonymousAlias || undefined,
+        authorUid: data.authorUid || undefined,
         authorName: data.authorName || undefined,
+        authorRealName: data.authorRealName || undefined,
+        authorEmail: data.authorEmail || undefined,
+        authorVerificationStatus: data.authorVerificationStatus || undefined,
         authorAvatar: data.authorAvatar || undefined,
         authorRole: data.authorRole || "resident",
         officialNotes: data.officialNotes || undefined,

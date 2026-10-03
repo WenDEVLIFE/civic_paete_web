@@ -289,12 +289,16 @@ export default function Home() {
       return;
     }
 
+    const authorRealName = newReportData.authorRealName || currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident";
+    const authorEmail = newReportData.authorEmail || currentUser.email || undefined;
+    const authorVerificationStatus = newReportData.authorVerificationStatus || "unverified";
+
     let authorName: string | undefined = undefined;
     let authorAvatar: string | undefined = undefined;
     const authorRole: "resident" | "official" | "governor" = "resident";
 
     if (!newReportData.isAnonymous) {
-      authorName = currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident";
+      authorName = authorRealName;
       authorAvatar = currentUser.photoURL || undefined;
     }
 
@@ -311,6 +315,9 @@ export default function Home() {
         anonymousAlias: newReportData.anonymousAlias,
         authorUid: currentUser.uid,
         authorName,
+        authorRealName,
+        authorEmail,
+        authorVerificationStatus,
         authorAvatar,
         authorRole,
       });

@@ -16,17 +16,27 @@ import {
   ShieldAlert,
   User,
   Loader2,
+  BadgeCheck,
+  UserCheck,
 } from "lucide-react";
 import { CommunityReport } from "./ReportCard";
 import IdentityShieldBadge from "@/components/legal/IdentityShieldBadge";
 import { isUserAdminOrGovernor } from "@/lib/roleHelper";
 import { auth, db, googleProvider } from "@/lib/firebase";
 import { onAuthStateChanged, signInWithPopup, User as FirebaseUser } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  subscribeToUserVerification,
+  VerificationStatus,
+} from "@/lib/services/verificationService";
+import { BarangayVerificationModal } from "@/components/profile/BarangayVerificationModal";
 
 export interface SubmitReportData extends Omit<CommunityReport, "id" | "date" | "upvotes" | "status"> {
   imageFile?: File | null;
   locationDetail?: string;
+  authorRealName?: string;
+  authorEmail?: string;
+  authorVerificationStatus?: string;
 }
 
 // ─── Alias Generator ─────────────────────────────────────────────────────────
@@ -95,6 +105,8 @@ export function SubmitReportModal({
 }: SubmitReportModalProps) {
   const [isAdminOrGov, setIsAdminOrGov] = useState<boolean>(Boolean(initialIsAdminOrGov));
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(initialCurrentUser || null);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>("unverified");
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState<boolean>(false);
   const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -116,6 +128,22 @@ export function SubmitReportModal({
     return () => unsub();
   }, [initialCurrentUser]);
 
+  useEffect(() => {
+    if (!currentUser?.uid) {
+      setVerificationStatus("unverified");
+      return;
+    }
+    const unsub = subscribeToUserVerification(currentUser.uid, (status) => {
+      setVerificationStatus(status);
+    });
+    return () => unsub();
+  }, [currentUser?.uid]);
+
+  const isVerifiedResident =
+    verificationStatus === "barangay_verified" ||
+    verificationStatus === "community_leader" ||
+    verificationStatus === "municipal_officer";
+
   const handleModalGoogleSignIn = async () => {
     setIsSigningIn(true);
     setAuthError(null);
@@ -126,15 +154,20 @@ export function SubmitReportModal({
 
       // Sync resident profile to Firestore
       try {
+        const userRef = doc(db, "users", loggedUser.uid);
+        const userSnap = await getDoc(userRef);
+        const existingData = userSnap.data();
+
         await setDoc(
-          doc(db, "users", loggedUser.uid),
+          userRef,
           {
             uid: loggedUser.uid,
             name: loggedUser.displayName || "Paete Resident",
             email: loggedUser.email || "",
             photoURL: loggedUser.photoURL || "",
-            role: "resident",
+            role: existingData?.role || "resident",
             authProvider: "google",
+            verificationStatus: existingData?.verificationStatus || "unverified",
             lastLogin: serverTimestamp(),
           },
           { merge: true }
@@ -236,6 +269,14 @@ export function SubmitReportModal({
       alert("Citizen sign-in is required to submit a community report.");
       return;
     }
+    if (!isVerifiedResident) {
+      alert("Kailangan po muna ng Barangay Verification bago makapag-post ng community concern.");
+      return;
+    }
+    if (!selectedFile && !previewUrl) {
+      alert("Required po ang photo evidence sa pag-post ng community concern. Mangyaring mag-attach ng larawan ng problema.");
+      return;
+    }
     if (!title.trim() || !description.trim() || isSubmitting) return;
 
     try {
@@ -250,8 +291,11 @@ export function SubmitReportModal({
         imageUrl: previewUrl || undefined,
         isAnonymous,
         anonymousAlias: isAnonymous ? anonymousAlias : undefined,
-        authorName: isAnonymous ? undefined : undefined,
-        authorAvatar: isAnonymous ? undefined : undefined,
+        authorName: isAnonymous ? undefined : (currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident"),
+        authorRealName: currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident",
+        authorEmail: currentUser.email || undefined,
+        authorVerificationStatus: verificationStatus,
+        authorAvatar: isAnonymous ? undefined : (currentUser.photoURL || undefined),
       });
 
       setSubmitted(true);
@@ -416,6 +460,60 @@ export function SubmitReportModal({
               </button>
             </div>
           </div>
+        ) : !isVerifiedResident ? (
+          <div className="py-8 px-2 text-center space-y-5 animate-in fade-in duration-150">
+            <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20 shadow-inner">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider font-heading">
+                {verificationStatus === "pending" ? "Verification In Progress" : "Barangay Verification Required"}
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold font-heading text-white">
+                {verificationStatus === "pending"
+                  ? "Residency Verification Under Review"
+                  : "Verified Resident Account Required"}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
+                {verificationStatus === "pending"
+                  ? "Kasalukuyang sinusuri ng Paete Municipal Hall ang inyong isinumiteng dokumento. Aabisuhan kayo kapag na-approve na ang inyong Barangay Residency upang makapag-post ng mga ulat."
+                  : "Upang mapanatili ang integridad ng mga ulat at maiwasan ang maling impormasyon o spam, ang mga verified na residente lamang ng Paete ang maaaring mag-post ng community concerns."}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-slate-300 text-left space-y-2.5 max-w-md mx-auto">
+              <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+                <BadgeCheck className="w-4 h-4 text-emerald-400" />
+                <span>Bakit kailangan ang Barangay Verification bago mag-post?</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1.5 text-slate-400">
+                <li>Opisyal na ini-endorso sa tamang Barangay Kapitan at Municipal Engineering Office ang mga ulat ng verified accounts.</li>
+                <li>Maiiwasan ang mga pekeng ulat o automated bots sa sistema ng bayan.</li>
+                <li>Maaari pa ring gamitin ang <strong>Anonymous Mode (parang sa FB)</strong> kapag nag-post—itatago ang iyong pangalan sa publiko habang kilala ka ng Admin.</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-white/15 text-slate-300 hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium transition-all min-h-[44px] cursor-pointer"
+              >
+                Close
+              </button>
+              {verificationStatus === "unverified" && (
+                <button
+                  type="button"
+                  onClick={() => setIsVerificationModalOpen(true)}
+                  className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer"
+                >
+                  <BadgeCheck className="w-4 h-4" />
+                  <span>Request Barangay Verification</span>
+                </button>
+              )}
+            </div>
+          </div>
         ) : submitted ? (
           <div className="py-12 text-center space-y-4">
             <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
@@ -438,9 +536,15 @@ export function SubmitReportModal({
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight font-heading">
                 Submit Community Concern
               </h2>
-              <p className="text-xs text-slate-300 mt-1">
-                Filing report as: <strong className="text-white">{currentUser.displayName || currentUser.email?.split("@")[0] || "Verified Resident"}</strong> ({currentUser.email})
-              </p>
+              <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-slate-300">
+                <span>Filing report as:</span>
+                <strong className="text-white">{currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident"}</strong>
+                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-heading">
+                  <UserCheck className="w-3 h-3" />
+                  <span>Barangay Verified</span>
+                </span>
+                <span className="text-slate-500 font-mono">({currentUser.email})</span>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
@@ -568,11 +672,16 @@ export function SubmitReportModal({
                 />
               </div>
 
-              {/* PHOTO EVIDENCE CONTAINER & PREVIEW */}
+              {/* PHOTO EVIDENCE CONTAINER & PREVIEW (REQUIRED) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Photo Evidence (Recommended)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Photo Evidence * (Required)
+                  </label>
+                  <span className="text-[11px] text-amber-400 font-medium">
+                    Kailangan mag-upload ng larawan
+                  </span>
+                </div>
 
                 <input
                   type="file"
@@ -610,7 +719,7 @@ export function SubmitReportModal({
                         <span className="text-slate-500">({fileSize})</span>
                       </div>
                       <span className="text-emerald-400 text-[11px] font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                        Ready to Attach
+                        Photo Attached
                       </span>
                     </div>
                   </div>
@@ -626,26 +735,26 @@ export function SubmitReportModal({
                     onClick={() => fileInputRef.current?.click()}
                     className={`cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-all ${
                       isDragging
-                        ? "border-blue-400 bg-blue-950/40"
-                        : "border-white/15 bg-white/[0.02] hover:border-blue-400/50 hover:bg-white/[0.04]"
+                        ? "border-amber-400 bg-amber-950/20"
+                        : "border-amber-500/30 bg-amber-500/[0.03] hover:border-amber-400/60 hover:bg-amber-500/[0.06]"
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                      <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
                         <Camera className="w-5 h-5" />
                       </div>
                       <div className="text-xs sm:text-sm font-semibold text-slate-200">
-                        Click to attach photo evidence or drag and drop
+                        Mag-attach ng Photo Evidence (Obligado)
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        Supports JPEG, PNG, WEBP (up to 5MB)
+                        Click para pumili o i-drag and drop ang larawan (JPEG, PNG, WEBP hanggang 5MB)
                       </p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* ── Anonymous Toggle ─────────────────────────────── */}
+              {/* ── Anonymous Toggle (Facebook-style) ─────────────────────────────── */}
               <div
                 className="rounded-xl p-3 flex items-center justify-between gap-3"
                 style={{
@@ -678,12 +787,12 @@ export function SubmitReportModal({
                   </div>
                   <div>
                     <p className="text-xs font-semibold leading-tight font-heading text-white">
-                      {isAnonymous ? "Report Anonymously (Identity Shield)" : "Report with Verified Resident Profile"}
+                      {isAnonymous ? "Post as Anonymous (Parang sa FB — Identity Shield)" : "Post gamit ang Verified Resident Profile"}
                     </p>
                     <p className="text-[11px] mt-0.5 text-slate-400">
                       {isAnonymous
-                        ? `Public Feed Alias: ${anonymousAlias}`
-                        : "Displays your verified citizen name on the public feed"}
+                        ? `Public Feed: Naka-hide ang iyong pangalan sa ibang residente (ipapakita bilang ${anonymousAlias}) • Admin Panel: Kita ng Municipal Admin ang iyong tunay na pangalan para sa opisyal na aksyon`
+                        : "Lalabas ang iyong buong pangalan at verified profile sa public feed"}
                     </p>
                   </div>
                 </div>
@@ -728,13 +837,18 @@ export function SubmitReportModal({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (!selectedFile && !previewUrl)}
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/30 transition-all min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Submitting to Civic Cloud...</span>
+                    </>
+                  ) : !selectedFile && !previewUrl ? (
+                    <>
+                      <Camera className="w-4 h-4 text-amber-300" />
+                      <span>Attach Photo to Submit</span>
                     </>
                   ) : (
                     <>
@@ -746,6 +860,17 @@ export function SubmitReportModal({
               </div>
             </form>
           </>
+        )}
+
+        {/* Barangay Verification Modal Trigger */}
+        {currentUser && (
+          <BarangayVerificationModal
+            isOpen={isVerificationModalOpen}
+            onClose={() => setIsVerificationModalOpen(false)}
+            userId={currentUser.uid}
+            userEmail={currentUser.email || undefined}
+            userName={currentUser.displayName || undefined}
+          />
         )}
       </div>
     </div>

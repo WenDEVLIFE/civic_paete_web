@@ -337,7 +337,9 @@ export function UserProfileModal({
 
                   <p className="text-xs text-slate-300 leading-relaxed font-sans">
                     {verificationStatus === "unverified"
-                      ? "Unverified accounts can post and upvote community reports. To unlock priority escalation, official Barangay Captain notifications, and trusted civic badges, complete Barangay Residency verification."
+                      ? "Unverified accounts cannot submit community reports. To unlock posting privileges, priority escalation, and official Barangay notifications, complete Barangay Residency verification."
+                      : verificationStatus === "pending"
+                      ? "Your Barangay Residency verification is currently pending review by municipal authorities. Once approved, you can post community concerns."
                       : "Your account is authenticated with the Paete LGU Registry. Your submissions carry official verified weight and are prioritized by barangay marshals."}
                   </p>
                 </div>
@@ -346,7 +348,7 @@ export function UserProfileModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
                   <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
                     <span className="text-slate-400 block mb-1">Authentication Method</span>
-                    <span className="font-semibold text-white">Google OAuth 2.0 (Verified)</span>
+                    <span className="font-semibold text-white">Google OAuth 2.0 (Authenticated)</span>
                     <p className="text-[11px] text-slate-500 mt-0.5 font-mono">UID: {user.uid.slice(0, 16)}...</p>
                   </div>
 

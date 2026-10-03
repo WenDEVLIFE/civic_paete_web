@@ -68,6 +68,10 @@ export interface CommunityReport {
   isAnonymous?: boolean;
   /** Public-facing alias shown instead of the real name (e.g. "Protected Citizen #104") */
   anonymousAlias?: string;
+  authorUid?: string;
+  authorRealName?: string;
+  authorEmail?: string;
+  authorVerificationStatus?: string;
 }
 
 interface ReportCardProps {
@@ -408,10 +412,18 @@ export function ReportCard({
                   <Shield className="w-3 h-3" aria-hidden="true" />
                   <span>Shielded Report</span>
                 </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              ) : report.authorVerificationStatus === "barangay_verified" ||
+                report.authorVerificationStatus === "community_leader" ||
+                report.authorRole === "official" ||
+                report.authorRole === "governor" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <UserCheck className="w-3 h-3" aria-hidden="true" />
                   <span>Verified Resident</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-500/10 text-slate-300 border border-slate-500/20">
+                  <UserCheck className="w-3 h-3 text-slate-400" aria-hidden="true" />
+                  <span>Paete Resident</span>
                 </span>
               )}
             </div>
