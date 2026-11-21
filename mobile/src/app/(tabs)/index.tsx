@@ -1,23 +1,18 @@
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { Plus, Search, ShieldCheck } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Search, ShieldCheck } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-import civicLogo from '../../../assets/images/logo.png';
 import { ReportCard } from '@/components/ReportCard';
 import {
   AppText,
   Chip,
-  CivicPattern,
   EmptyState,
   Field,
   LoadingState,
@@ -38,7 +33,7 @@ import {
   subscribeToReports,
   toggleReportUpvote,
 } from '@/services/reportService';
-import { radius, spacing, useTheme } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 import type { CommunityReport, ReportFilters } from '@/types';
 
 const ALL = 'all';
@@ -46,6 +41,7 @@ const ALL = 'all';
 export default function FeedScreen() {
   const theme = useTheme();
   const { firebaseReady } = useAuth();
+  const { panel } = useLocalSearchParams<{ panel?: string }>();
 
   const [reports, setReports] = useState<CommunityReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,21 +141,19 @@ export default function FeedScreen() {
   );
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: theme.colors.canvas }]}>
-      <CivicPattern />
+    <View style={styles.screen}>
+      <FeedHeader
+        panel={panel}
+        filters={filters}
+        onChangeFilters={setFilters}
+        total={visibleReports.length}
+      />
       <FlatList
         data={visibleReports}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <FeedHeader
-            filters={filters}
-            onChangeFilters={setFilters}
-            total={visibleReports.length}
-          />
-        }
+        contentContainerStyle={[styles.column, styles.listContent]}
         ListEmptyComponent={listEmpty}
         renderItem={({ item, index }) => (
           <Reveal index={index}>
@@ -173,33 +167,17 @@ export default function FeedScreen() {
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="File a community report"
-        onPress={() => router.push('/submit')}
-        style={({ pressed }) => [
-          styles.fab,
-          {
-            backgroundColor: pressed ? theme.colors.primaryPressed : theme.colors.primary,
-            shadowColor: theme.colors.primary,
-          },
-        ]}
-      >
-        <Plus size={18} color={theme.colors.onPrimary} strokeWidth={2.6} />
-        <AppText variant="bodyBold" color={theme.colors.onPrimary}>
-          File a report
-        </AppText>
-      </Pressable>
-    </SafeAreaView>
+    </View>
   );
 }
 
 function FeedHeader({
+  panel,
   filters,
   onChangeFilters,
   total,
 }: {
+  panel?: string;
   filters: ReportFilters;
   onChangeFilters: (next: ReportFilters) => void;
   total: number;
@@ -207,90 +185,73 @@ function FeedHeader({
   const theme = useTheme();
 
   return (
-    <View style={styles.header}>
-      <View style={styles.brandRow}>
-        <Image
-          source={civicLogo}
-          alt=""
-          contentFit="contain"
-          style={styles.brandMark}
-        />
-        <View style={styles.brandCopy}>
-          <AppText variant="label" color={theme.colors.wave} style={styles.brandName}>
-            Civic Paete
-          </AppText>
-          <AppText variant="caption" color={theme.colors.textSubtle}>
-            Community Reporting · Paete, Laguna
-          </AppText>
-        </View>
-      </View>
-
-      <View style={styles.headline}>
-        <AppText variant="title">Community concerns</AppText>
-        <AppText variant="body" color={theme.colors.textMuted}>
-          Every report is triaged with the barangay and the Paete Municipal Hall. Verified
-          residents can post; everyone can follow progress.
-        </AppText>
-      </View>
-
-      <Field
-        label="Search"
-        placeholder="Search reports, barangays, or concerns"
-        value={filters.search ?? ''}
-        onChangeText={(search) => onChangeFilters({ ...filters, search })}
-        returnKeyType="search"
-        autoCorrect={false}
-      />
-
-      <ChipRow
-        label="Barangay"
-        options={[
-          { value: ALL, label: 'All Barangays' },
-          ...PAETE_BARANGAYS.map((barangay) => ({ value: barangay, label: barangay })),
-        ]}
-        selected={filters.barangay ?? ALL}
-        onSelect={(barangay) => onChangeFilters({ ...filters, barangay })}
-      />
-
-      <ChipRow
-        label="Category"
-        options={[
-          { value: ALL, label: 'All Categories' },
-          ...CATEGORY_ORDER.map((category) => ({
-            value: category,
-            label: CATEGORIES[category].short,
-          })),
-        ]}
-        selected={filters.category ?? ALL}
-        onSelect={(category) =>
-          onChangeFilters({
-            ...filters,
-            category: category as ReportFilters['category'],
-          })
-        }
-      />
-
-      <ChipRow
-        label="Status"
-        options={[
-          { value: ALL, label: 'All Statuses' },
-          ...STATUS_ORDER.map((status) => ({
-            value: status,
-            label: STATUS_META[status].short,
-          })),
-        ]}
-        selected={filters.status ?? ALL}
-        onSelect={(status) =>
-          onChangeFilters({ ...filters, status: status as ReportFilters['status'] })
-        }
-      />
-
+    <View style={[styles.column, styles.header]}>
       <View style={styles.countRow}>
-        <AppText variant="label" color={theme.colors.textSubtle}>
-          {`${total} ${total === 1 ? 'report' : 'reports'}`}
+        <View accessibilityRole="header">
+          <AppText variant="heading">Community reports</AppText>
+        </View>
+        <AppText variant="caption" color={theme.colors.textMuted}>
+          {total} {total === 1 ? 'report' : 'reports'}
         </AppText>
-        <View style={[styles.liveDot, { backgroundColor: theme.colors.status.resolved.fg }]} />
       </View>
+      {panel === 'search' ? (
+        <Field
+          label="Search"
+          accessibilityLabel="Search reports"
+          autoFocus
+          placeholder="Search reports, barangays, or concerns"
+          value={filters.search ?? ''}
+          onChangeText={(search) => onChangeFilters({ ...filters, search })}
+          returnKeyType="search"
+          autoCorrect={false}
+        />
+      ) : null}
+      {panel === 'filters' ? (
+        <View style={styles.filters}>
+          <ChipRow
+            label="Barangay"
+            options={[
+              { value: ALL, label: 'All Barangays' },
+              ...PAETE_BARANGAYS.map((barangay) => ({ value: barangay, label: barangay })),
+            ]}
+            selected={filters.barangay ?? ALL}
+            onSelect={(barangay) => onChangeFilters({ ...filters, barangay })}
+          />
+
+          <ChipRow
+            label="Category"
+            options={[
+              { value: ALL, label: 'All Categories' },
+              ...CATEGORY_ORDER.map((category) => ({
+                value: category,
+                label: CATEGORIES[category].short,
+              })),
+            ]}
+            selected={filters.category ?? ALL}
+            onSelect={(category) =>
+              onChangeFilters({
+                ...filters,
+                category: category as ReportFilters['category'],
+              })
+            }
+          />
+
+          <ChipRow
+            label="Status"
+            options={[
+              { value: ALL, label: 'All Statuses' },
+              ...STATUS_ORDER.map((status) => ({
+                value: status,
+                label: STATUS_META[status].short,
+              })),
+            ]}
+            selected={filters.status ?? ALL}
+            onSelect={(status) =>
+              onChangeFilters({ ...filters, status: status as ReportFilters['status'] })
+            }
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -332,41 +293,19 @@ function ChipRow({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1 },
-  listContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: 132,
-    flexGrow: 1,
+  screen: { flex: 1 },
+  column: {
+    width: '100%',
+    maxWidth: 680,
+    alignSelf: 'center',
+    paddingHorizontal: spacing.md,
   },
+  listContent: { flexGrow: 1, paddingBottom: spacing.xl },
   separator: { height: spacing.md },
-  header: { gap: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  brandMark: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-  },
-  brandCopy: { gap: 1 },
-  brandName: { textTransform: 'uppercase', letterSpacing: 2.2 },
-  headline: { gap: spacing.xs },
+  header: { gap: spacing.md, paddingVertical: spacing.md },
+  filters: { gap: spacing.md },
   chipGroup: { gap: spacing.xs },
   chipGroupLabel: { textTransform: 'uppercase' },
-  chipRow: { gap: spacing.sm, paddingRight: spacing.lg },
-  countRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  liveDot: { width: 6, height: 6, borderRadius: 3 },
-  fab: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    minHeight: 52,
-    borderRadius: radius.pill,
-    shadowOpacity: 0.32,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-  },
+  chipRow: { gap: spacing.sm },
+  countRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
 });
