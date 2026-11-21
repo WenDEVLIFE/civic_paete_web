@@ -148,10 +148,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: ANDROID_PACKAGE,
       ...(hasGoogleServicesFile ? { googleServicesFile: GOOGLE_SERVICES_FILE } : {}),
       adaptiveIcon: {
-        backgroundColor: '#0A1931',
+        backgroundColor: '#021E4D',
         foregroundImage: './assets/images/android-icon-foreground.png',
-        backgroundImage: './assets/images/android-icon-background.png',
-        monochromeImage: './assets/images/android-icon-monochrome.png',
       },
       predictiveBackGestureEnabled: false,
     },
