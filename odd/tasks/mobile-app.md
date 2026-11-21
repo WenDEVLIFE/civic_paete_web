@@ -103,4 +103,17 @@ same project as web — sets `android.googleServicesFile`, and derives `extra.fi
 `EXPO_PUBLIC_*` values still override for multi-environment builds. Verified with a synthetic fixture
 through `expo config --json`; the fixture was removed afterwards.
 
+### L9 — Real google-services.json adopted
+The user's file lives at the repository root and belongs to project `glenndatabase`, which matches the
+web client on project ID, storage bucket, and sender ID. Its Android package is already
+`ph.gov.paete.civic`, so no package drift. The file was copied to `mobile/google-services.json`;
+`app.config.ts` now derives the real Firebase config and the Web OAuth client from it.
+
+Blocker found: the file lists only `client_type: 3` (web client) and no Android OAuth client
+(`client_type: 1`), which means no SHA-1 fingerprint is registered in Firebase yet. Native sign-in
+would fail with `DEVELOPER_ERROR` (code 10). Debug keystore SHA-1 on this machine:
+`31:D0:40:81:20:42:3A:E0:B7:DD:5C:2B:3E:42:52:37:1D:71:07:8C`. The app now maps that failure to an
+explanatory message, and `app.config.ts` warns at config time when the Android client is missing.
+
+
 

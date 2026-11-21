@@ -63,6 +63,19 @@ function readFirebaseAndroidConfig(): {
     const apiKey = client?.api_key?.[0]?.current_key;
     const appId = client?.client_info?.mobilesdk_app_id;
 
+    // Firebase only creates the Android OAuth client (client_type 1) once an app SHA-1 is
+    // registered. Without it, native Google Sign-In fails with DEVELOPER_ERROR.
+    const hasAndroidOAuthClient = Boolean(
+      client?.oauth_client?.some((entry) => entry.client_type === 1)
+    );
+    if (!hasAndroidOAuthClient) {
+      console.warn(
+        '[civic-paete] google-services.json has no Android OAuth client. Google Sign-In will fail ' +
+          'with DEVELOPER_ERROR until the app SHA-1 fingerprint is registered in Firebase Console ' +
+          'and google-services.json is downloaded again.'
+      );
+    }
+
     if (!projectId || !apiKey || !appId) {
       return { hasGoogleServicesFile: true };
     }

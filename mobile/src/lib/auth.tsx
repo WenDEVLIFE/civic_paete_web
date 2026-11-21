@@ -57,6 +57,11 @@ function toFriendlyAuthError(error: unknown): Error {
   if (code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
     return new Error('Google Play Services is unavailable on this device, so Google sign-in cannot continue.');
   }
+  if (code === '10' || /DEVELOPER_ERROR/i.test(`${code ?? ''} ${message}`)) {
+    return new Error(
+      'Google Sign-In rejected this Android build (DEVELOPER_ERROR). The app SHA-1 fingerprint is not registered in Firebase yet: add it under Firebase Console → Project settings → Your apps → Android app, download google-services.json again, and rebuild.'
+    );
+  }
   if (/RNGoogleSignin|native module|NativeModule/i.test(message)) {
     return new Error(
       'Google Sign-In needs a development build. Run "npx expo run:ios" or "npx expo run:android" instead of Expo Go.'

@@ -23,9 +23,22 @@ This app is a second client of the **same Firebase project** the web app uses. N
 no separate user store.
 
 1. Open that project in the Firebase console.
-2. Add an Android app with package name `ph.gov.paete.civic` and your debug SHA-1 fingerprint.
-3. Download `google-services.json` and place it at `mobile/google-services.json`.
-4. That is the whole setup. `app.config.ts` reads the file, passes it to
+2. Select the Android app for package `ph.gov.paete.civic` (create it if it is missing).
+3. Register your signing fingerprint under **Project settings → Your apps → Android app → Add
+   fingerprint**. For a local debug build:
+
+   ```bash
+   keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
+     -storepass android -keypass android
+   ```
+
+   The debug SHA-1 covers local development; add the release and Play App Signing fingerprints
+   before shipping.
+4. Download `google-services.json` and place it at `mobile/google-services.json`.
+5. Check that the file contains an **Android** OAuth client (`client_type: 1`). If `oauth_client`
+   only lists `client_type: 3`, the fingerprint is not registered yet and native sign-in will fail
+   with `DEVELOPER_ERROR`.
+6. That is the whole setup. `app.config.ts` reads the file, passes it to
    `android.googleServicesFile`, and derives the runtime Firebase config (API key, app ID, project
    ID, storage bucket, sender ID) plus the auto-created **Web OAuth client ID** (`client_type: 3`)
    that Google Sign-In needs.
