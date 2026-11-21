@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "489329827314",
+    "firebase_url": "https://glenndatabase-default-rtdb.firebaseio.com",
+    "project_id": "glenndatabase",
+    "storage_bucket": "glenndatabase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489329827314:android:a307d01da04cf59990df6b",
+        "android_client_info": {
+          "package_name": "ph.gov.paete.civic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489329827314-i0prcm81jqashhsdmab8qu1ngkm0cn31.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDhxai0Tfd8zzmzlVlVLcEAx_rfJtimO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489329827314-i0prcm81jqashhsdmab8qu1ngkm0cn31.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "489329827314-abgb4oqu2jsobcm18238slptc6e5g5im.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.speaksSmart3"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

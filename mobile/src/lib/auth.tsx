@@ -1,4 +1,5 @@
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Constants from 'expo-constants';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -18,9 +19,15 @@ import {
 } from 'react';
 
 import { auth, db, firebaseConfigured, requireAuth, requireDb } from '@/lib/firebase';
+import { BLOCKED_MESSAGES } from '@/constants';
 import type { VerificationStatus } from '@/types';
 
-const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const extraGoogleWebClientId = Constants.expoConfig?.extra?.firebase?.googleWebClientId as
+  | string
+  | undefined;
+
+const GOOGLE_WEB_CLIENT_ID =
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? extraGoogleWebClientId;
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
 export const googleSignInConfigured = Boolean(GOOGLE_WEB_CLIENT_ID);
@@ -154,9 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     if (!googleSignInConfigured) {
-      throw new Error(
-        'Google sign-in is not configured. Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID and EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID in mobile/.env.local.'
-      );
+      throw new Error(BLOCKED_MESSAGES.googleNotConfigured);
     }
 
     const authInstance = requireAuth();

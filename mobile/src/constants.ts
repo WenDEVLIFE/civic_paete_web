@@ -79,5 +79,7 @@ export const BLOCKED_MESSAGES = {
   barangayRequired: 'Please select the barangay where the concern is located.',
   categoryRequired: 'Please select the category that best fits your report.',
   notConfigured: 'Firebase is not configured for this build. Set EXPO_PUBLIC_FIREBASE_* in mobile/.env.local.',
+  googleNotConfigured:
+    'Google sign-in is not configured. Add google-services.json from your Firebase Android app, or set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID.',
   anonymousBlocked: 'Municipal Administrators and Provincial Governors are not permitted to submit community reports. Reports must originate from verified residents.',
 } as const;

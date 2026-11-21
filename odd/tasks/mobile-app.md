@@ -90,3 +90,17 @@ under Metro for the Android target. No Android SDK or `adb` exists in this envir
 was bundled but NOT launched on a device or emulator. Google Sign-In remains untested end to end
 because it needs OAuth client IDs and a development build.
 
+### L8 — Firebase-native Google configuration (user directive)
+User clarified: "im using firebase in google auth same with the web". Confirmed: the session already is
+Firebase Authentication (`signInWithCredential` → same Firebase project, same `users/{uid}` documents).
+Corrected the mechanism: `signInWithPopup` does not exist in the React Native build of `@firebase/auth`
+(0 occurrences, versus 1 in the web build), so a native Google library supplies the ID token only.
+
+`app.config.ts` now reads `mobile/google-services.json` — the file Firebase itself generates for the
+same project as web — sets `android.googleServicesFile`, and derives `extra.firebase`
+(apiKey, authDomain, projectId, storageBucket, senderId, appId) plus the auto-created web OAuth client
+(`client_type: 3`) as `googleWebClientId`. Hand-managed client IDs are no longer required;
+`EXPO_PUBLIC_*` values still override for multi-environment builds. Verified with a synthetic fixture
+through `expo config --json`; the fixture was removed afterwards.
+
+

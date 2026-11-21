@@ -247,8 +247,7 @@ export default function SubmitReportScreen() {
           />
           {!googleReady ? (
             <AppText variant="caption" color={theme.colors.danger} style={styles.center}>
-              Google sign-in is not configured for this build. Add
-              EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID and EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID to mobile/.env.local.
+              {BLOCKED_MESSAGES.googleNotConfigured}
             </AppText>
           ) : (
             <AppText variant="caption" color={theme.colors.textSubtle} style={styles.center}>

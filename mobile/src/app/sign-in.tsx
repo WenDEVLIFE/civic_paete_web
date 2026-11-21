@@ -127,8 +127,7 @@ export default function SignInScreen() {
             ]}
           >
             <AppText variant="caption" color={theme.colors.danger}>
-              Google sign-in is not configured for this build. Set
-              EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID and EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID in mobile/.env.local.
+              {BLOCKED_MESSAGES.googleNotConfigured}
             </AppText>
           </View>
         ) : null}

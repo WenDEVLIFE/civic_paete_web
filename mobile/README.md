@@ -11,45 +11,56 @@ project**: same collections, same field names, same role and status vocabulary.
 ```bash
 cd mobile
 npm install
-cp .env.example .env.local   # fill in the Firebase + Google values
-npx expo start               # then press i (iOS), a (Android)
+# add google-services.json from the same Firebase project as the web app (see below)
+npx expo start               # then press a (Android)
 ```
 
 Node.js 22.13 or newer is required by Expo SDK 58.
 
-## Environment
+## Firebase configuration
 
-Expo inlines variables prefixed with `EXPO_PUBLIC_` at bundle time. `.env.local` is gitignored.
+This app is a second client of the **same Firebase project** the web app uses. No separate backend,
+no separate user store.
+
+1. Open that project in the Firebase console.
+2. Add an Android app with package name `ph.gov.paete.civic` and your debug SHA-1 fingerprint.
+3. Download `google-services.json` and place it at `mobile/google-services.json`.
+4. That is the whole setup. `app.config.ts` reads the file, passes it to
+   `android.googleServicesFile`, and derives the runtime Firebase config (API key, app ID, project
+   ID, storage bucket, sender ID) plus the auto-created **Web OAuth client ID** (`client_type: 3`)
+   that Google Sign-In needs.
+
+The values land in `expo.extra.firebase`, so the JS SDK initializes from them at runtime. Explicit
+`EXPO_PUBLIC_*` variables still win, for teams that need a different project per environment.
+
+Without `google-services.json` or env values the app still boots and shows a "Backend not
+configured" state.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `EXPO_PUBLIC_FIREBASE_API_KEY` | yes | Firebase web config |
-| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | yes | Firebase web config |
-| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | yes | Firebase web config |
-| `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` | yes | Report photo uploads |
-| `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | yes | Firebase web config |
-| `EXPO_PUBLIC_FIREBASE_APP_ID` | yes | Firebase web config |
-| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | for sign-in | Web OAuth client from Google Cloud Console |
-| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | for sign-in | iOS OAuth client for `ph.gov.paete.civic` |
-| `EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME` | for sign-in | Reversed iOS client ID, registered as a URL scheme |
+| `EXPO_PUBLIC_FIREBASE_*` (6 keys) | no | Override the values derived from `google-services.json` |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | no | Override the Web OAuth client from `google-services.json` |
+| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | iOS only | iOS OAuth client |
+| `EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME` | iOS only | Reversed iOS client ID, registered as a URL scheme |
 
-Without Firebase values the app still boots and shows a "Backend not configured" state.
+## Google Sign-In on Android
 
-## Google Sign-In needs a development build
+Authentication is Firebase Authentication, exactly like the web app: the same Google provider in
+the same project, the same `users/{uid}` profile documents, and the same Firestore rules.
 
-Expo deprecated the `expo-auth-session` Google provider; the supported path is a native
-Google Sign-In library, which cannot run inside Expo Go.
+What differs is how the Google credential is obtained. Firebase's `signInWithPopup` and
+`signInWithRedirect` are browser-only — the React Native build of `firebase/auth` does not contain
+them. On native, `@react-native-google-signin/google-signin` obtains the Google ID token, and
+`signInWithCredential` exchanges it for a Firebase session. It is a credential source, not a second
+auth system.
 
-1. In Google Cloud Console, create OAuth clients for the iOS bundle ID `ph.gov.paete.civic`
-   and the Android package `ph.gov.paete.civic` (include your debug SHA-1 for Android).
-2. Put the client IDs in `.env.local`.
-3. Build and run:
+That native module cannot run in Expo Go, so sign-in requires a development build:
 
 ```bash
-npx expo run:ios       # or npx expo run:android
+npx expo run:android
 ```
 
-Expo Go can browse the feed, open reports, and read threads, but the Google button will report that
+Expo Go can still browse the feed, open reports, and read threads; the Google button will report that
 a development build is required.
 
 ## What ships in this pass
