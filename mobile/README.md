@@ -25,12 +25,18 @@ no separate user store.
 1. Open that project in the Firebase console.
 2. Select the Android app for package `ph.gov.paete.civic` (create it if it is missing).
 3. Register your signing fingerprint under **Project settings → Your apps → Android app → Add
-   fingerprint**. For a local debug build:
+   fingerprint**. Read it from the APK that actually gets installed, not from `~/.android/debug.keystore`:
 
    ```bash
-   keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
-     -storepass android -keypass android
+   "$HOME/Library/Android/sdk/build-tools/36.0.0/apksigner" verify --print-certs \
+     android/app/build/outputs/apk/debug/app-debug.apk | grep 'SHA-1'
    ```
+
+   Expo prebuild signs debug builds with its own `android/app/debug.keystore`, so
+   `~/.android/debug.keystore` is usually NOT the key in use. The generated debug keystore uses the
+   shared React Native debug certificate (`5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25`),
+   which is public — fine for local debugging, never for release. Use a unique keystore and its SHA-1
+   for production.
 
    The debug SHA-1 covers local development; add the release and Play App Signing fingerprints
    before shipping.
@@ -133,6 +139,19 @@ stabilize.
   compression at 1920 px / 0.82 quality.
 - Submission is blocked unless the account is `barangay_verified`, `community_leader`, or
   `municipal_officer`.
+
+## Running on an emulator
+
+The Android emulator clock must be correct. A device clock that drifts behind the host breaks TLS, and
+Firestore silently stays offline with repeated
+`WebChannelConnection RPC 'Listen' stream transport errored` warnings. Check with `adb shell date`;
+cold-boot the AVD (`emulator -avd <name> -no-snapshot-load`) if it is wrong.
+
+Firestore is initialized with `experimentalForceLongPolling: true` because the SDK's default WebChannel
+streaming transport is unreliable in React Native. Without it, listeners stay empty even though the
+same collection is readable from the web client.
+
+Changing `.env.local` requires restarting Metro; Expo inlines `EXPO_PUBLIC_*` values at bundle time.
 
 ## Verification
 

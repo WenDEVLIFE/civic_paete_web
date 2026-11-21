@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+const CIVIC_LOGO = './assets/images/logo.png';
 const ANDROID_PACKAGE = 'ph.gov.paete.civic';
 const GOOGLE_SERVICES_FILE = './google-services.json';
 const GOOGLE_IOS_URL_SCHEME = process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME;
@@ -107,9 +108,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-splash-screen',
       {
         backgroundColor: '#0A1931',
-        image: './assets/images/splash-icon.png',
-        imageWidth: 96,
-        dark: { backgroundColor: '#071126' },
+        image: CIVIC_LOGO,
+        imageWidth: 160,
       },
     ],
     [
@@ -137,7 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: 'civic-paete',
     version: '0.1.0',
     orientation: 'portrait',
-    icon: './assets/images/icon.png',
+    icon: CIVIC_LOGO,
     scheme: 'civicpaete',
     userInterfaceStyle: 'automatic',
     ios: {
@@ -155,7 +155,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     web: {
       output: 'server',
-      favicon: './assets/images/favicon.png',
+      favicon: CIVIC_LOGO,
     },
     plugins,
     extra: {

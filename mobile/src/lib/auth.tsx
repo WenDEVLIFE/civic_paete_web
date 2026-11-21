@@ -27,8 +27,8 @@ const extraGoogleWebClientId = Constants.expoConfig?.extra?.firebase?.googleWebC
   | undefined;
 
 const GOOGLE_WEB_CLIENT_ID =
-  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? extraGoogleWebClientId;
-const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || extraGoogleWebClientId;
+const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || undefined;
 
 export const googleSignInConfigured = Boolean(GOOGLE_WEB_CLIENT_ID);
 
@@ -59,7 +59,7 @@ function toFriendlyAuthError(error: unknown): Error {
   }
   if (code === '10' || /DEVELOPER_ERROR/i.test(`${code ?? ''} ${message}`)) {
     return new Error(
-      'Google Sign-In rejected this Android build (DEVELOPER_ERROR). The app SHA-1 fingerprint is not registered in Firebase yet: add it under Firebase Console → Project settings → Your apps → Android app, download google-services.json again, and rebuild.'
+      'Google Sign-In rejected this Android build (DEVELOPER_ERROR). The SHA-1 of the keystore that signed the APK is not registered in Firebase. For an Expo debug build that is android/app/debug.keystore — check it with apksigner, register that fingerprint under Firebase Console → Project settings → Your apps → Android app, then rebuild.'
     );
   }
   if (/RNGoogleSignin|native module|NativeModule/i.test(message)) {

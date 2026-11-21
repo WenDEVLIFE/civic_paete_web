@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import * as FirebaseAuth from 'firebase/auth';
 import { getAuth, initializeAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 import { BLOCKED_MESSAGES } from '@/constants';
@@ -40,13 +40,14 @@ type FirebaseExtra = {
 const extraFirebase = (Constants.expoConfig?.extra?.firebase ?? {}) as FirebaseExtra;
 
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? extraFirebase.apiKey,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN ?? extraFirebase.authDomain,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? extraFirebase.projectId,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ?? extraFirebase.storageBucket,
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || extraFirebase.apiKey,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || extraFirebase.authDomain,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || extraFirebase.projectId,
+  storageBucket:
+    process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || extraFirebase.storageBucket,
   messagingSenderId:
-    process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? extraFirebase.messagingSenderId,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ?? extraFirebase.appId,
+    process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || extraFirebase.messagingSenderId,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || extraFirebase.appId,
 };
 export const firebaseConfigured = Boolean(
   firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId
@@ -72,8 +73,22 @@ if (firebaseConfigured) {
     authInstance = getAuth(app);
   }
 
-  dbInstance = getFirestore(app);
+  dbInstance = createFirestore(app);
   storageInstance = getStorage(app);
+}
+
+/**
+ * Firestore's default WebChannel streaming transport is not reliable in React Native and fails
+ * with "WebChannelConnection RPC 'Listen' stream transport errored", leaving listeners empty.
+ * Long-polling is the supported transport for this environment.
+ */
+function createFirestore(firebaseApp: FirebaseApp): Firestore {
+  try {
+    return initializeFirestore(firebaseApp, { experimentalForceLongPolling: true });
+  } catch {
+    // Fast Refresh can re-run this module after Firestore was already initialized.
+    return getFirestore(firebaseApp);
+  }
 }
 
 export const auth = authInstance;

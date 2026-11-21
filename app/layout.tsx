@@ -16,6 +16,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/logo.png", apple: "/logo.png" },
   title: "CIVIC PAETE | Community Reporting & Recommendation Platform",
   description:
     "Official digital community reporting and recommendation application for the municipality of Paete, Laguna.",

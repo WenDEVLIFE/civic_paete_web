@@ -16,7 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { AuthProvider } from '@/lib/auth';
+import { AuthProvider, useAuth } from '@/lib/auth';
 import { themes } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -34,12 +34,6 @@ export default function RootLayout() {
     PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
   });
-
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync().catch(() => undefined);
-    }
-  }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -64,24 +58,43 @@ export default function RootLayout() {
     <ThemeProvider value={navigationTheme}>
       <AuthProvider>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: palette.colors.canvas },
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="report/[id]" />
-          <Stack.Screen
-            name="submit"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-          <Stack.Screen
-            name="sign-in"
-            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-          />
-        </Stack>
+        <SessionStack backgroundColor={palette.colors.canvas} />
       </AuthProvider>
     </ThemeProvider>
+  );
+}
+
+function SessionStack({ backgroundColor }: { backgroundColor: string }) {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync().catch(() => undefined);
+    }
+  }, [loading]);
+
+  if (loading) {
+    return null;
+  }
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor },
+      }}
+    >
+      <Stack.Protected guard={Boolean(user)}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="report/[id]" />
+        <Stack.Screen
+          name="submit"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
+      </Stack.Protected>
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="sign-in" />
+      </Stack.Protected>
+    </Stack>
   );
 }

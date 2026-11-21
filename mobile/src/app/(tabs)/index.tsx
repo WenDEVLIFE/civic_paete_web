@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Plus, Search, ShieldCheck } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import civicLogo from '../../../assets/images/logo.png';
 import { ReportCard } from '@/components/ReportCard';
 import {
   AppText,
@@ -207,14 +209,12 @@ function FeedHeader({
   return (
     <View style={styles.header}>
       <View style={styles.brandRow}>
-        <View
-          style={[
-            styles.brandMark,
-            { backgroundColor: theme.colors.navy, borderColor: theme.colors.borderStrong },
-          ]}
-        >
-          <ShieldCheck size={16} color={theme.colors.wave} strokeWidth={2.4} />
-        </View>
+        <Image
+          source={civicLogo}
+          alt=""
+          contentFit="contain"
+          style={styles.brandMark}
+        />
         <View style={styles.brandCopy}>
           <AppText variant="label" color={theme.colors.wave} style={styles.brandName}>
             Civic Paete
@@ -342,12 +342,9 @@ const styles = StyleSheet.create({
   header: { gap: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   brandMark: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   brandCopy: { gap: 1 },
   brandName: { textTransform: 'uppercase', letterSpacing: 2.2 },

@@ -115,5 +115,60 @@ would fail with `DEVELOPER_ERROR` (code 10). Debug keystore SHA-1 on this machin
 `31:D0:40:81:20:42:3A:E0:B7:DD:5C:2B:3E:42:52:37:1D:71:07:8C`. The app now maps that failure to an
 explanatory message, and `app.config.ts` warns at config time when the Android client is missing.
 
+### L10 — First emulator run (runtime findings)
+Built and installed on the `Pixel_Tablet` AVD (API 35) with `npx expo run:android --no-bundler`
+(Gradle 9.4.1, JDK 21, 80 MB debug APK). Verified by screenshot: feed with 4 live reports and photos,
+report detail with real Firestore data (title, author, timeline), and the account tab.
+
+Three defects found only at runtime:
+- Firestore stayed empty with `WebChannelConnection RPC 'Listen' stream transport errored`. Root cause
+  was the AVD clock: it was 32 days behind the host, so TLS to `firestore.googleapis.com` failed
+  (`curl` from the device returned `000`). A cold boot re-synced the clock.
+- Added `initializeFirestore(app, { experimentalForceLongPolling: true })`; the default WebChannel
+  streaming transport is unreliable in React Native.
+- Empty `EXPO_PUBLIC_GOOGLE_*=` placeholders in `.env.local` shadowed the values derived from
+  `google-services.json`, because `??` treats `""` as defined. Switched env fallbacks to `||` and
+  removed the empty keys, so the account screen now recognizes Google as configured.
+
+Google sign-in was not exercised end to end: the Android OAuth client is still absent (`client_type`
+`[3]` only), so it will fail with `DEVELOPER_ERROR` until the SHA-1 fingerprint is registered.
+
+### L11 — Google Sign-In verified after SHA-1 registration
+The user registered the debug SHA-1 in Firebase and replaced `mobile/google-services.json`. The new
+file now contains both `client_type: 1` (Android) and `client_type: 3` (web). Rebuilt incrementally
+(1m 5s). Google's account screen appeared, but that was Play Services' add-account flow; the actual
+`signIn()` still returned `DEVELOPER_ERROR`.
+
+Root cause: the installed APK is signed by `android/app/debug.keystore`, the keystore Expo prebuild
+generates — not `~/.android/debug.keystore`. `apksigner verify --print-certs` on the APK reports
+SHA-1 `5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25` (the shared React Native debug
+certificate), while the fingerprint originally supplied was the home keystore's `31:D0:40:...`. The
+README and the in-app `DEVELOPER_ERROR` message now point at the APK signer, not the home keystore.
+Pending: register `5E:8F:...` in Firebase and rebuild.
+
+### L12 — Google Sign-In verified end to end
+The APK signer SHA-1 was registered and `google-services.json` replaced (two Android clients plus the
+web client). After the incremental rebuild, Google sign-in completed for real: the account tab shows
+the signed-in Google identity (`Frouen Medina Jr`, `medinajrfrouen@gmail.com`), meaning
+`signInWithCredential` returned a Firebase session and the `users/{uid}` upsert ran.
+
+The session also survived a force-stop and relaunch, proving the AsyncStorage auth persistence works.
+The submission gate correctly blocks the unverified account with "Verified resident account required".
+
+Fixed: `router.dismissAll()` in the sign-in modal emitted an unhandled `POP_TO_TOP` action when the
+modal was the only route (deep link or reload). It now uses `router.canGoBack() ? router.back() :
+router.replace('/')`.
+
+Remaining: end-to-end report submission needs a verified account (`barangay_verified` or higher),
+which currently only the web verification flow can grant.
+
+
+Clarified for the user: `client_type: 1` authenticates the app to Play Services via package + SHA-1
+and is never passed to `GoogleSignin.configure`. `client_type: 3` is the ID-token audience required by
+Firebase's `signInWithCredential`; without it `signIn()` returns `idToken: null`. Both come from
+`google-services.json` in the same Firebase project and neither involves the web client app.
+
+
+
 
 

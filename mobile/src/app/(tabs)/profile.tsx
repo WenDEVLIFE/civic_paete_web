@@ -1,11 +1,9 @@
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import {
   BadgeCheck,
   ChevronRight,
   Info,
-  LogIn,
   LogOut,
   MailCheck,
   ShieldCheck,
@@ -13,14 +11,14 @@ import {
 } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, Card, Divider, PrimaryButton, SecondaryButton } from '@/components/ui';
+import { AppText, Card, Divider, SecondaryButton } from '@/components/ui';
 import { VERIFICATION_LABELS, VERIFIED_STATUSES } from '@/constants';
 import { displayNameFor, useAuth } from '@/lib/auth';
 import { radius, spacing, useTheme } from '@/theme';
 
 export default function ProfileScreen() {
   const theme = useTheme();
-  const { user, loading, verificationStatus, isVerifiedResident, googleReady, signOut } = useAuth();
+  const { user, loading, verificationStatus, isVerifiedResident, signOut } = useAuth();
 
   const statusTone = isVerifiedResident
     ? theme.colors.status.resolved
@@ -131,37 +129,7 @@ export default function ProfileScreen() {
               icon={<LogOut size={16} color={theme.colors.text} />}
             />
           </>
-        ) : (
-          <Card style={styles.identityCard}>
-            <View style={styles.identityRow}>
-              <View
-                style={[
-                  styles.avatar,
-                  styles.avatarFallback,
-                  { backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.border },
-                ]}
-              >
-                <UserRound size={26} color={theme.colors.textMuted} />
-              </View>
-              <View style={styles.identityCopy}>
-                <AppText variant="heading">Browsing as a guest</AppText>
-                <AppText variant="caption" color={theme.colors.textMuted}>
-                  Sign in to file reports and join community threads.
-                </AppText>
-              </View>
-            </View>
-            <PrimaryButton
-              label="Continue with Google"
-              onPress={() => router.push('/sign-in')}
-              icon={<LogIn size={16} color={theme.colors.onPrimary} />}
-            />
-            {!googleReady ? (
-              <AppText variant="caption" color={theme.colors.textSubtle}>
-                Google sign-in is not configured for this build yet.
-              </AppText>
-            ) : null}
-          </Card>
-        )}
+        ) : null}
 
         <View style={styles.aboutRow}>
           <AppText variant="caption" color={theme.colors.textSubtle}>
