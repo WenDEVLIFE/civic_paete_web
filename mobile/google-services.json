@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "489329827314-bn7vr3rth2qnj9j39p17rrusrkd8o46q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ph.gov.paete.civic",
+            "certificate_hash": "31d0408120423ae0b7dd5c2b3e4252371d71078c"
+          }
+        },
+        {
           "client_id": "489329827314-i0prcm81jqashhsdmab8qu1ngkm0cn31.apps.googleusercontent.com",
           "client_type": 3
         }
