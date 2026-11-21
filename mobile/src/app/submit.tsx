@@ -307,11 +307,11 @@ export default function SubmitReportScreen() {
               • Anonymous mode stays available: your name is hidden publicly, but the
               municipality can still reach you.
             </AppText>
-            <AppText variant="caption" color={theme.colors.textMuted}>
-              • Barangay verification requests are completed on the Civic Paete web portal.
-            </AppText>
           </View>
 
+          {verificationStatus !== 'pending' ? (
+            <PrimaryButton label="Verify residency" onPress={() => router.replace('/verification')} />
+          ) : null}
           <SecondaryButton label="Back to community" onPress={() => router.replace('/')} />
         </ScrollView>
       ) : (

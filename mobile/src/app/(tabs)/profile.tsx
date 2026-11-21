@@ -1,18 +1,18 @@
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import {
   BadgeCheck,
   ChevronRight,
-  Info,
   LogOut,
   MailCheck,
   ShieldCheck,
   UserRound,
 } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText, Card, Divider, SecondaryButton } from '@/components/ui';
-import { VERIFICATION_LABELS, VERIFIED_STATUSES } from '@/constants';
+import { AppText, Card, Divider, PrimaryButton, SecondaryButton } from '@/components/ui';
+import { VERIFICATION_LABELS } from '@/constants';
 import { displayNameFor, useAuth } from '@/lib/auth';
 import { radius, spacing, useTheme } from '@/theme';
 
@@ -29,7 +29,7 @@ export default function ProfileScreen() {
         : { fg: theme.colors.textMuted, bg: theme.colors.surfaceAlt, border: theme.colors.border };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.canvas }]}>
+    <ScrollView style={{ backgroundColor: theme.colors.canvas }} contentContainerStyle={styles.container}>
       <View style={styles.content}>
         <AppText variant="label" color={theme.colors.textSubtle} style={styles.eyebrow}>
           Citizen account
@@ -95,9 +95,18 @@ export default function ProfileScreen() {
               <AppText variant="caption" color={theme.colors.textMuted}>
                 {isVerifiedResident
                   ? 'You can file community reports for your barangay. Anonymous posts keep your name off the public feed.'
-                  : 'Community reports open once your barangay residency is verified. Verification requests are completed on the Civic Paete web portal.'}
+                  : verificationStatus === 'pending'
+                    ? 'Your request is under review. Check back here for updates.'
+                    : 'Verify your barangay residency to file community reports.'}
               </AppText>
             </Card>
+
+            {!isVerifiedResident && verificationStatus !== 'pending' ? (
+              <PrimaryButton
+                label={verificationStatus === 'rejected' ? 'Submit a new verification request' : 'Verify residency'}
+                onPress={() => router.push('/verification')}
+              />
+            ) : null}
 
             <Card style={styles.infoCard}>
               <View style={styles.infoRow}>
@@ -109,18 +118,6 @@ export default function ProfileScreen() {
                   </AppText>
                 </View>
               </View>
-              {VERIFIED_STATUSES.includes(verificationStatus) ? null : (
-                <View style={styles.infoRow}>
-                  <Info size={16} color={theme.colors.textSubtle} />
-                  <View style={styles.infoCopy}>
-                    <AppText variant="bodyBold">Verification is not editable here yet</AppText>
-                    <AppText variant="caption" color={theme.colors.textMuted}>
-                      Document upload and review live on the mobile roadmap; use the web portal for
-                      now.
-                    </AppText>
-                  </View>
-                </View>
-              )}
             </Card>
 
             <SecondaryButton
@@ -138,12 +135,12 @@ export default function ProfileScreen() {
           <ChevronRight size={14} color={theme.colors.textSubtle} />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  container: { padding: spacing.lg },
   content: { gap: spacing.lg },
   eyebrow: { textTransform: 'uppercase' },
   identityCard: { gap: spacing.md, padding: spacing.lg },

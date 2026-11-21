@@ -1,9 +1,9 @@
-import { File } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { IMAGE_MAX_DIMENSION, IMAGE_QUALITY } from '@/constants';
 import { requireStorage } from '@/lib/firebase';
+import { readLocalBlob } from '@/storage/readLocalBlob';
 
 export type UploadReportImageOptions = {
   uri: string;
@@ -65,13 +65,13 @@ export async function uploadReportImage({
   }
 
   const compressedUri = await compressReportImage(uri, maxDimension, quality);
-  const bytes = await new File(compressedUri).bytes();
+  const blob = await readLocalBlob(compressedUri);
 
   const barangaySlug = slugifyBarangay(barangay);
   const storagePath = `reports/${barangaySlug}/${reportId}_${Date.now()}.jpg`;
   const storageRef = ref(requireStorage(), storagePath);
 
-  await uploadBytes(storageRef, bytes, {
+  await uploadBytes(storageRef, blob, {
     contentType: 'image/jpeg',
     cacheControl: 'public, max-age=31536000, immutable',
     customMetadata: {

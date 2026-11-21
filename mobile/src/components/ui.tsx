@@ -197,11 +197,13 @@ export function PrimaryButton({
 export function SecondaryButton({
   label,
   onPress,
+  disabled = false,
   icon,
   style,
 }: {
   label: string;
   onPress: () => void;
+  disabled?: boolean;
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
@@ -209,12 +211,15 @@ export function SecondaryButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.secondaryButton,
         {
           borderColor: theme.colors.borderStrong,
           backgroundColor: pressed ? theme.colors.surfaceAlt : 'transparent',
+          opacity: disabled ? 0.6 : 1,
         },
         style,
       ]}

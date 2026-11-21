@@ -87,6 +87,7 @@ function SessionStack({ backgroundColor }: { backgroundColor: string }) {
       <Stack.Protected guard={Boolean(user)}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="report/[id]" />
+        <Stack.Screen name="verification" options={{ presentation: 'modal' }} />
         <Stack.Screen
           name="submit"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}

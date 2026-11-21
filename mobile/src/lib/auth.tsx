@@ -20,6 +20,7 @@ import {
 
 import { auth, db, firebaseConfigured, requireAuth, requireDb } from '@/lib/firebase';
 import { BLOCKED_MESSAGES } from '@/constants';
+import { userVerificationRequests } from '@/services/verificationService';
 import type { VerificationStatus } from '@/types';
 
 const extraGoogleWebClientId = Constants.expoConfig?.extra?.firebase?.googleWebClientId as
@@ -116,7 +117,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('unverified');
+  const [profileStatus, setProfileStatus] = useState<VerificationStatus>('unverified');
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const verificationStatus = pendingUserId && pendingUserId === user?.uid &&
+    (profileStatus === 'unverified' || profileStatus === 'rejected') ? 'pending' : profileStatus;
 
   useEffect(() => {
     if (!googleSignInConfigured) return;
@@ -152,15 +156,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user || !db) {
-      setVerificationStatus('unverified');
+      setProfileStatus('unverified');
       return;
     }
     return onSnapshot(
       doc(db, 'users', user.uid),
       (snapshot) => {
-        setVerificationStatus(readVerificationStatus(snapshot.data()?.verificationStatus));
+        setProfileStatus(readVerificationStatus(snapshot.data()?.verificationStatus));
       },
-      () => setVerificationStatus('unverified')
+      () => setProfileStatus('unverified')
+    );
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || !db) return;
+    return onSnapshot(
+      userVerificationRequests(user.uid),
+      (snapshot) => {
+        setPendingUserId(snapshot.docs.some((request) => request.data().status === 'pending')
+          ? user.uid
+          : null);
+      },
+      () => setPendingUserId(null)
     );
   }, [user]);
 
