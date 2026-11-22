@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useReportCommentPermission } from "@/lib/hooks/useReportCommentPermission";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -11,19 +12,17 @@ import {
   CheckCircle2,
   ThumbsUp,
   MessageSquare,
-  Share2,
   Shield,
   ShieldCheck,
   Send,
   Sparkles,
   ChevronDown,
   ChevronUp,
-  Check,
   UserCheck,
   Wrench,
   Trash2,
 } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   toggleReportUpvote,
@@ -78,7 +77,6 @@ interface ReportCardProps {
   report: CommunityReport;
   onUpvote?: (id: string) => void;
   onStatusChange?: (id: string, newStatus: ReportStatus, note?: string) => void;
-  onAddComment?: (reportId: string, comment: ReportComment) => void;
   onDelete?: (id: string) => void;
 }
 
@@ -86,11 +84,11 @@ export function ReportCard({
   report,
   onUpvote,
   onStatusChange,
-  onAddComment,
   onDelete,
 }: ReportCardProps) {
   // Current logged in Firebase resident user
   const [residentUser, setResidentUser] = useState<User | null>(null);
+  const canComment = useReportCommentPermission(residentUser, db);
 
   // Current logged in Admin or Governor session from localStorage
   const [officerSession, setOfficerSession] = useState<{
@@ -117,7 +115,6 @@ export function ReportCard({
   const [showOfficerPanel, setShowOfficerPanel] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [isSavingStatus, setIsSavingStatus] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
 
@@ -201,61 +198,22 @@ export function ReportCard({
     }
   };
 
-  const handleShareClick = () => {
-    if (typeof window !== "undefined") {
-      const url = `${window.location.origin}/reports/${report.id}`;
-      navigator.clipboard.writeText(url);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    }
-  };
-
   const handleAddCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCommentText.trim()) return;
+    if (!canComment || !residentUser || !newCommentText.trim()) return;
 
-    let authorName = "Paete Resident";
-    let authorRole: "resident" | "official" | "governor" = "resident";
-    let isOfficial = false;
-
-    if (officerSession) {
-      authorName = officerSession.name;
-      authorRole = officerSession.role === "governor" ? "governor" : "official";
-      isOfficial = true;
-    } else if (residentUser) {
-      authorName =
-        residentUser.displayName ||
-        residentUser.email?.split("@")[0] ||
-        "Verified Citizen";
-    }
-
-    const commentObj: ReportComment = {
-      id: `comm-${Date.now()}`,
-      authorName,
-      authorAvatar: residentUser?.photoURL || undefined,
-      authorRole,
-      timestamp: "Just now",
-      content: newCommentText.trim(),
-      isOfficial,
-    };
-
-    setNewCommentText("");
-
-    if (onAddComment) {
-      onAddComment(report.id, commentObj);
-    } else {
-      try {
-        await addReportComment(report.id, {
-          content: commentObj.content,
-          authorName: commentObj.authorName,
-          authorAvatar: commentObj.authorAvatar,
-          authorRole: commentObj.authorRole,
-          isOfficial: commentObj.isOfficial,
-          authorUid: residentUser?.uid,
-        });
-      } catch (err) {
-        console.warn("Notice: Comment submission notice:", err);
-      }
+    try {
+      await addReportComment(report.id, {
+        content: newCommentText.trim(),
+        authorName: residentUser.displayName || officerSession?.name || "Municipal Administrator",
+        authorAvatar: residentUser.photoURL ?? undefined,
+        authorRole: "official",
+        isOfficial: true,
+        authorUid: residentUser.uid,
+      });
+      setNewCommentText("");
+    } catch (err) {
+      console.warn("Failed to post official comment:", err);
     }
   };
 
@@ -682,7 +640,7 @@ export function ReportCard({
         </div>
       )}
 
-      {/* 6. SOCIAL ACTION BAR (UPVOTE, COMMENT, SHARE) */}
+      {/* 6. SOCIAL ACTION BAR (LIKES AND COMMENTS) */}
       <div className="px-4 sm:px-5 py-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 bg-white/[0.02]">
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Upvote Button */}
@@ -697,7 +655,7 @@ export function ReportCard({
             title="Upvote and corroborate this community concern"
           >
             <ThumbsUp className="w-3.5 h-3.5" />
-            <span>Upvote</span>
+            <span>{isUpvoted ? "Liked" : "Like"}</span>
             <span className="font-bold ml-0.5">({upvotes})</span>
           </button>
 
@@ -717,25 +675,6 @@ export function ReportCard({
           </button>
         </div>
 
-        {/* Share Button */}
-        <button
-          type="button"
-          onClick={handleShareClick}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all cursor-pointer min-h-[44px]"
-          title="Copy report link"
-        >
-          {shareCopied ? (
-            <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400 font-semibold">Copied!</span>
-            </>
-          ) : (
-            <>
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Share</span>
-            </>
-          )}
-        </button>
       </div>
 
       {/* 7. EXPANDABLE SOCIAL COMMENT SECTION */}
@@ -752,7 +691,7 @@ export function ReportCard({
           <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
             {comments.length === 0 ? (
               <div className="text-center py-4 text-xs text-slate-500 italic">
-                No comments yet. Be the first to corroborate or post an update!
+                No comments yet.
               </div>
             ) : (
               comments.map((comm) => (
@@ -785,29 +724,25 @@ export function ReportCard({
           </div>
 
           {/* Add New Comment Box */}
-          <form onSubmit={handleAddCommentSubmit} className="pt-2 flex items-center gap-2">
-            <input
-              type="text"
-              value={newCommentText}
-              onChange={(e) => setNewCommentText(e.target.value)}
-              placeholder={
-                officerSession
-                  ? `Leave official reply as ${officerSession.name}...`
-                  : residentUser
-                  ? `Comment as ${residentUser.displayName || "Resident"}...`
-                  : "Comment or add corroborating evidence..."
-              }
-              className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
-            />
-            <button
-              type="submit"
-              disabled={!newCommentText.trim()}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[44px]"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Post</span>
-            </button>
-          </form>
+          {canComment && (
+            <form onSubmit={handleAddCommentSubmit} className="pt-2 flex items-center gap-2">
+              <input
+                type="text"
+                value={newCommentText}
+                onChange={(e) => setNewCommentText(e.target.value)}
+                placeholder="Write an official comment…"
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
+              />
+              <button
+                type="submit"
+                disabled={!newCommentText.trim()}
+                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer min-h-[44px]"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Post</span>
+              </button>
+            </form>
+          )}
         </div>
       )}
 

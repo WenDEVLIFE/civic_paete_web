@@ -100,7 +100,7 @@ export function ReportCard({
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Upvote ${report.title}, ${report.upvotes} votes`}
+          accessibilityLabel={`Like ${report.title}, ${report.upvotes} likes`}
           accessibilityState={{ busy: upvoting, disabled: upvoting || !onUpvote }}
           disabled={upvoting || !onUpvote}
           onPress={onUpvote}
@@ -108,7 +108,7 @@ export function ReportCard({
         >
           <ThumbsUp size={17} color={theme.colors.primary} />
           <AppText variant="caption" color={theme.colors.primary}>
-            {report.upvotes} {report.upvotes === 1 ? 'upvote' : 'upvotes'}
+            {report.upvotes} {report.upvotes === 1 ? 'like' : 'likes'}
           </AppText>
         </Pressable>
 

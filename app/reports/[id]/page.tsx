@@ -1,6 +1,7 @@
 "use client";
 
 import React, { use, useState, useEffect } from "react";
+import { useReportCommentPermission } from "@/lib/hooks/useReportCommentPermission";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navigation/Navbar";
@@ -15,7 +16,6 @@ import {
   Building2,
   UserCheck,
   ThumbsUp,
-  Share2,
   ShieldCheck,
   FileCheck,
   Send,
@@ -23,11 +23,10 @@ import {
   Shield,
   ChevronDown,
   ChevronUp,
-  Check,
   Wrench,
   Trash2,
 } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   subscribeToReportById,
@@ -205,10 +204,10 @@ export default function ReportDetailPage({
   const [report, setReport] = useState<DetailedReport>(initialReport);
   const [upvotes, setUpvotes] = useState(initialReport.upvotes);
   const [hasUpvoted, setHasUpvoted] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
 
   // Auth & Session
   const [residentUser, setResidentUser] = useState<User | null>(null);
+  const canComment = useReportCommentPermission(residentUser, db);
   const [officerSession, setOfficerSession] = useState<{
     name: string;
     email: string;
@@ -332,44 +331,22 @@ export default function ReportDetailPage({
     }
   };
 
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    }
-  };
-
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentInput.trim()) return;
-
-    let authorName = "Paete Resident";
-    let authorRole: "resident" | "official" | "governor" = "resident";
-    let isOfficial = false;
-
-    if (officerSession) {
-      authorName = officerSession.name;
-      authorRole = officerSession.role === "governor" ? "governor" : "official";
-      isOfficial = true;
-    } else if (residentUser) {
-      authorName = residentUser.displayName || residentUser.email?.split("@")[0] || "Verified Resident";
-    }
-
-    const trimmed = commentInput.trim();
-    setCommentInput("");
+    if (!canComment || !residentUser || !commentInput.trim()) return;
 
     try {
       await addReportComment(reportId, {
-        content: trimmed,
-        authorName,
-        authorAvatar: residentUser?.photoURL || undefined,
-        authorRole,
-        isOfficial,
-        authorUid: residentUser?.uid,
+        content: commentInput.trim(),
+        authorName: residentUser.displayName || officerSession?.name || "Municipal Administrator",
+        authorAvatar: residentUser.photoURL ?? undefined,
+        authorRole: "official",
+        isOfficial: true,
+        authorUid: residentUser.uid,
       });
+      setCommentInput("");
     } catch (err) {
-      console.warn("Notice: Firestore comment sync skipped or offline:", err);
+      console.warn("Failed to post official comment:", err);
     }
   };
 
@@ -500,26 +477,9 @@ export default function ReportDetailPage({
                 }`}
               >
                 <ThumbsUp className="w-3.5 h-3.5" />
-                <span>Upvote ({upvotes})</span>
+                <span>{hasUpvoted ? "Liked" : "Like"} ({upvotes})</span>
               </button>
 
-              <button
-                type="button"
-                onClick={handleShare}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all text-xs cursor-pointer min-h-[44px]"
-              >
-                {shareCopied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>Share</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
 
@@ -758,7 +718,7 @@ export default function ReportDetailPage({
           <div className="space-y-3">
             {comments.length === 0 ? (
               <div className="text-center py-6 text-xs text-slate-500 italic bg-white/[0.02] rounded-xl border border-white/5 font-sans">
-                No comments logged for this report. Be the first to corroborate!
+                No comments yet.
               </div>
             ) : (
               comments.map((comm) => (
@@ -791,29 +751,25 @@ export default function ReportDetailPage({
           </div>
 
           {/* New Comment Submission Form */}
-          <form onSubmit={handleAddComment} className="pt-2 flex items-center gap-2">
-            <input
-              type="text"
-              value={commentInput}
-              onChange={(e) => setCommentInput(e.target.value)}
-              placeholder={
-                officerSession
-                  ? `Leave official reply as ${officerSession.name}...`
-                  : residentUser
-                  ? `Comment as ${residentUser.displayName || "Resident"}...`
-                  : "Post public comment or corroborating photographic details..."
-              }
-              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
-            />
-            <button
-              type="submit"
-              disabled={!commentInput.trim()}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer min-h-[44px]"
-            >
-              <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">Submit</span>
-            </button>
-          </form>
+          {canComment && (
+            <form onSubmit={handleAddComment} className="pt-2 flex items-center gap-2">
+              <input
+                type="text"
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                placeholder="Write an official comment…"
+                className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-blue-500 focus:outline-none transition-all min-h-[44px]"
+              />
+              <button
+                type="submit"
+                disabled={!commentInput.trim()}
+                className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all cursor-pointer min-h-[44px]"
+              >
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">Submit</span>
+              </button>
+            </form>
+          )}
         </section>
       </main>
 

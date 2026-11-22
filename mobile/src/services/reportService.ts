@@ -272,13 +272,13 @@ export async function toggleReportUpvote(
     if (upvoteSnap.exists()) {
       const newCount = Math.max(0, currentUpvotes - 1);
       transaction.delete(upvoteDocRef);
-      transaction.update(reportRef, { upvotes: newCount, updatedAt: serverTimestamp() });
+      transaction.update(reportRef, { upvotes: newCount });
       return { hasUpvoted: false, newCount };
     }
 
     const newCount = currentUpvotes + 1;
     transaction.set(upvoteDocRef, { userId, reportId, createdAt: serverTimestamp() });
-    transaction.update(reportRef, { upvotes: newCount, updatedAt: serverTimestamp() });
+    transaction.update(reportRef, { upvotes: newCount });
     return { hasUpvoted: true, newCount };
   });
 }
@@ -366,6 +366,7 @@ export async function addReportComment(
   await setDoc(newCommentRef, {
     id: newCommentRef.id,
     reportId,
+    authorUid: comment.authorUid,
     authorName: comment.authorName || 'Paete Resident',
     authorAvatar: comment.authorAvatar || null,
     authorRole: comment.authorRole || 'resident',

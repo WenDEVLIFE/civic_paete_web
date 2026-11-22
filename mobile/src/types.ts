@@ -85,7 +85,7 @@ export interface AddCommentInput {
   authorAvatar?: string;
   authorRole: AuthorRole;
   isOfficial?: boolean;
-  authorUid?: string;
+  authorUid: string;
 }
 
 export type VerificationStatus =

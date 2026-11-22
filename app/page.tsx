@@ -8,7 +8,6 @@ import {
   ReportCard,
   CommunityReport,
   ReportStatus,
-  ReportComment,
 } from "../components/reports/ReportCard";
 import {
   SubmitReportModal,
@@ -19,7 +18,6 @@ import {
   subscribeToReports,
   createReport,
   updateReportStatus,
-  addReportComment,
   toggleReportUpvote,
   getOrCreateClientVoterId,
 } from "@/lib/services/reportService";
@@ -258,21 +256,6 @@ export default function Home() {
       await updateReportStatus(id, newStatus, note);
     } catch (err) {
       console.warn("Failed to update status in Firestore:", err);
-    }
-  };
-
-  const handleAddComment = async (reportId: string, comment: ReportComment) => {
-    try {
-      await addReportComment(reportId, {
-        content: comment.content,
-        authorName: comment.authorName,
-        authorAvatar: comment.authorAvatar,
-        authorRole: comment.authorRole,
-        isOfficial: comment.isOfficial,
-        authorUid: currentUser?.uid,
-      });
-    } catch (err) {
-      console.warn("Failed to save comment to Firestore:", err);
     }
   };
 
@@ -521,7 +504,6 @@ export default function Home() {
                   report={report}
                   onUpvote={handleUpvote}
                   onStatusChange={handleStatusChange}
-                  onAddComment={handleAddComment}
                 />
               ))}
             </div>

@@ -36,6 +36,8 @@ import {
 } from '@/components/ui';
 import { CATEGORIES } from '@/constants';
 import { displayNameFor, useAuth } from '@/lib/auth';
+import { db } from '@/lib/firebase';
+import { useReportCommentPermission } from '@/lib/useReportCommentPermission';
 import {
   addReportComment,
   getOrCreateDeviceVoterId,
@@ -51,6 +53,7 @@ export default function ReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
   const { user } = useAuth();
+  const canComment = useReportCommentPermission(user, db);
 
   const [report, setReport] = useState<DetailedReport | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -107,15 +110,7 @@ export default function ReportDetailScreen() {
   };
 
   const handleComment = async () => {
-    if (!id || !commentText.trim()) return;
-
-    if (!user) {
-      Alert.alert('Sign in required', 'Sign in with Google to join this community thread.', [
-        { text: 'Not now', style: 'cancel' },
-        { text: 'Sign in', onPress: () => router.push('/sign-in') },
-      ]);
-      return;
-    }
+    if (!id || !user || !canComment || postingComment || !commentText.trim()) return;
 
     setPostingComment(true);
     try {
@@ -123,7 +118,8 @@ export default function ReportDetailScreen() {
         content: commentText,
         authorName: displayNameFor(user),
         authorAvatar: user.photoURL ?? undefined,
-        authorRole: 'resident',
+        authorRole: 'official',
+        isOfficial: true,
         authorUid: user.uid,
       });
       setCommentText('');
@@ -329,7 +325,7 @@ export default function ReportDetailScreen() {
                 fill={hasUpvoted ? theme.colors.primary : 'transparent'}
               />
               <AppText variant="bodyBold" color={theme.colors.primary}>
-                {`${hasUpvoted ? 'Upvoted' : 'Upvote'} · ${report.upvotes}`}
+                {`${hasUpvoted ? 'Liked' : 'Like'} · ${report.upvotes}`}
               </AppText>
             </Pressable>
 
@@ -343,7 +339,7 @@ export default function ReportDetailScreen() {
 
               {comments.length === 0 ? (
                 <AppText variant="caption" color={theme.colors.textSubtle}>
-                  No replies yet. Add context that helps the barangay act on this report.
+                  No comments yet.
                 </AppText>
               ) : (
                 <View style={styles.comments}>
@@ -385,41 +381,43 @@ export default function ReportDetailScreen() {
                 </View>
               )}
 
-              <View
-                style={[
-                  styles.composer,
-                  { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
-                ]}
-              >
-                <TextInput
-                  value={commentText}
-                  onChangeText={setCommentText}
-                  placeholder={user ? 'Add verified context…' : 'Sign in to reply to this thread'}
-                  placeholderTextColor={theme.colors.textSubtle}
-                  multiline
-                  style={[styles.composerInput, { color: theme.colors.text }]}
-                  accessibilityLabel="Write a comment"
-                />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Post comment"
-                  disabled={postingComment || !commentText.trim()}
-                  onPress={handleComment}
-                  style={({ pressed }) => [
-                    styles.sendButton,
-                    {
-                      backgroundColor:
-                        postingComment || !commentText.trim()
-                          ? theme.colors.surfaceSunken
-                          : pressed
-                            ? theme.colors.primaryPressed
-                            : theme.colors.primary,
-                    },
+              {canComment ? (
+                <View
+                  style={[
+                    styles.composer,
+                    { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
                   ]}
                 >
-                  <Send size={16} color={theme.colors.onPrimary} />
-                </Pressable>
-              </View>
+                  <TextInput
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    placeholder="Write an official comment…"
+                    placeholderTextColor={theme.colors.textSubtle}
+                    multiline
+                    style={[styles.composerInput, { color: theme.colors.text }]}
+                    accessibilityLabel="Write a comment"
+                  />
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Post comment"
+                    disabled={postingComment || !commentText.trim()}
+                    onPress={handleComment}
+                    style={({ pressed }) => [
+                      styles.sendButton,
+                      {
+                        backgroundColor:
+                          postingComment || !commentText.trim()
+                            ? theme.colors.surfaceSunken
+                            : pressed
+                              ? theme.colors.primaryPressed
+                              : theme.colors.primary,
+                      },
+                    ]}
+                  >
+                    <Send size={16} color={theme.colors.onPrimary} />
+                  </Pressable>
+                </View>
+              ) : null}
             </View>
 
             <PrimaryButton

@@ -17,20 +17,20 @@ service cloud.firestore {
     // Check if user has administrative or executive custom claims or Firestore role
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.role in ['admin', 'governor'] ||
-        request.auth.token.admin == true ||
+        request.auth.token.get('role', '') in ['admin', 'governor'] ||
+        request.auth.token.get('admin', false) == true ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'governor'])
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') in ['admin', 'governor'])
       );
     }
 
     // Check if user is an authorized municipal officer, engineer, or administrator
     function isStaff() {
       return isSignedIn() && (
-        request.auth.token.role in ['admin', 'governor', 'official', 'department_head'] ||
-        request.auth.token.admin == true ||
+        request.auth.token.get('role', '') in ['admin', 'governor', 'official', 'department_head'] ||
+        request.auth.token.get('admin', false) == true ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'governor', 'official', 'department_head'])
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') in ['admin', 'governor', 'official', 'department_head'])
       );
     }
 
@@ -43,13 +43,18 @@ service cloud.firestore {
       allow read: if true;
 
       // Community reports must originate from residents; Admins and Governors are restricted from filing reports
-      allow create: if !isAdmin();
+      allow create: if !isAdmin() && request.resource.data.get('comments', []) == [];
 
-      allow update: if isStaff() || (
+      allow update: if (
+        isStaff() && (
+          isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['comments'])
+        )
+      ) || (
         isSignedIn() &&
-        (resource.data.authorUid == request.auth.uid || resource.data.userId == request.auth.uid) &&
+        (resource.data.get('authorUid', '') == request.auth.uid || resource.data.get('userId', '') == request.auth.uid) &&
         !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'status',
+          'comments',
           'officialNotes',
           'officialActorName',
           'officialActorRole'
@@ -61,7 +66,7 @@ service cloud.firestore {
 
       allow delete: if isStaff() || (
         isSignedIn() &&
-        (resource.data.authorUid == request.auth.uid || resource.data.userId == request.auth.uid)
+        (resource.data.get('authorUid', '') == request.auth.uid || resource.data.get('userId', '') == request.auth.uid)
       );
 
       // 1.1 Atomic Upvotes Subcollection
@@ -73,13 +78,10 @@ service cloud.firestore {
       // 1.2 Threaded Comments Subcollection
       match /comments/{commentId} {
         allow read: if true;
-        // Residents can comment; only authorized officials can set isOfficial == true
-        allow create: if isSignedIn() && (
-          request.resource.data.isOfficial != true || isStaff()
-        );
-        allow update, delete: if isStaff() || (
-          isSignedIn() && resource.data.authorUid == request.auth.uid
-        );
+        allow create: if isAdmin() &&
+          request.resource.data.authorUid == request.auth.uid &&
+          request.resource.data.isOfficial == true;
+        allow update, delete: if isAdmin();
       }
     }
 
@@ -119,9 +121,15 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if true;
 
-      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isAdmin() || (
+        isOwner(userId) && request.resource.data.get('role', 'resident') == 'resident'
+      );
 
-      allow update: if isStaff() || (
+      allow update: if (
+        isStaff() && (
+          isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+        )
+      ) || (
         isOwner(userId) &&
         !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'role',

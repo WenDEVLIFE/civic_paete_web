@@ -35,7 +35,7 @@ export interface CreateReportInput {
   imageUrl?: string;
   isAnonymous?: boolean;
   anonymousAlias?: string;
-  authorUid?: string;
+  authorUid: string;
   authorName?: string;
   authorRealName?: string;
   authorEmail?: string;
@@ -644,7 +644,6 @@ export async function toggleReportUpvote(
       transaction.delete(upvoteDocRef);
       transaction.update(reportRef, {
         upvotes: newCount,
-        updatedAt: serverTimestamp(),
       });
       return { hasUpvoted: false, newCount };
     } else {
@@ -657,7 +656,6 @@ export async function toggleReportUpvote(
       });
       transaction.update(reportRef, {
         upvotes: newCount,
-        updatedAt: serverTimestamp(),
       });
       return { hasUpvoted: true, newCount };
     }
@@ -745,19 +743,7 @@ export function subscribeToReportComments(
               ? reportData.comments
               : [];
             if (legacyComments.length > 0) {
-              // Migrate legacy comments to subcollection
-              for (const comm of legacyComments) {
-                const newCommRef = doc(commentsCol);
-                await setDoc(newCommRef, {
-                  id: newCommRef.id,
-                  authorName: comm.authorName,
-                  authorAvatar: comm.authorAvatar || null,
-                  authorRole: comm.authorRole || "resident",
-                  content: comm.content,
-                  isOfficial: Boolean(comm.isOfficial),
-                  createdAt: serverTimestamp(),
-                });
-              }
+              callback(legacyComments);
               return;
             }
           }
@@ -795,7 +781,7 @@ export interface AddCommentInput {
   authorAvatar?: string;
   authorRole: "resident" | "official" | "governor";
   isOfficial?: boolean;
-  authorUid?: string;
+  authorUid: string;
 }
 
 /**
@@ -804,7 +790,7 @@ export interface AddCommentInput {
  */
 export async function addReportComment(
   reportId: string,
-  comment: ReportComment | AddCommentInput
+  comment: AddCommentInput
 ): Promise<string> {
   const commentsCol = collection(db, "reports", reportId, "comments");
   const newCommentRef = doc(commentsCol);
@@ -817,6 +803,7 @@ export async function addReportComment(
   const commentPayload = {
     id: newCommentRef.id,
     reportId,
+    authorUid: comment.authorUid,
     authorName: comment.authorName || "Paete Resident",
     authorAvatar: comment.authorAvatar || null,
     authorRole: comment.authorRole || "resident",
