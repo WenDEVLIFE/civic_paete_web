@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import { usePreferences } from '@/lib/preferences';
 import { ReportCard } from '@/components/ReportCard';
 import {
   AppText,
@@ -39,6 +40,7 @@ import type { CommunityReport, ReportFilters } from '@/types';
 const ALL = 'all';
 
 export default function FeedScreen() {
+  const { t } = usePreferences();
   const theme = useTheme();
   const { firebaseReady } = useAuth();
   const { panel } = useLocalSearchParams<{ panel?: string }>();
@@ -92,12 +94,12 @@ export default function FeedScreen() {
       try {
         await toggleReportUpvote(reportId, id);
       } catch (err) {
-        Alert.alert('Upvote failed', err instanceof Error ? err.message : 'Please try again.');
+        Alert.alert(t('Upvote failed'), t(err instanceof Error ? err.message : 'Please try again.'));
       } finally {
         setUpvotingId(null);
       }
     },
-    [voterId]
+    [voterId, t]
   );
 
   const openReport = useCallback((reportId: string) => {
@@ -109,31 +111,31 @@ export default function FeedScreen() {
   ) : !firebaseReady ? (
     <EmptyState
       icon={<ShieldCheck size={24} color={theme.colors.primary} />}
-      title="Backend not configured"
-      message={BLOCKED_MESSAGES.notConfigured}
+      title={t('Backend not configured')}
+      message={t(BLOCKED_MESSAGES.notConfigured)}
     />
   ) : error ? (
     <EmptyState
       icon={<ShieldCheck size={24} color={theme.colors.danger} />}
-      title="Community feed unavailable"
-      message={error.message}
-      actionLabel="I will check my connection"
+      title={t('Community feed unavailable')}
+      message={t(error.message)}
+      actionLabel={t('I will check my connection')}
       onAction={() => setError(null)}
     />
   ) : reports.length === 0 ? (
     <EmptyState
       icon={<ShieldCheck size={24} color={theme.colors.primary} />}
-      title="No community reports yet"
-      message="Be the first resident to log a concern for Paete municipal action."
-      actionLabel="File the first report"
+      title={t('No community reports yet')}
+      message={t('Be the first resident to log a concern for Paete municipal action.')}
+      actionLabel={t('File the first report')}
       onAction={() => router.push('/submit')}
     />
   ) : (
     <EmptyState
       icon={<Search size={24} color={theme.colors.primary} />}
-      title="No reports match these filters"
-      message="Try a different barangay, category, or search term."
-      actionLabel="Reset filters"
+      title={t('No reports match these filters')}
+      message={t('Try a different barangay, category, or search term.')}
+      actionLabel={t('Reset filters')}
       onAction={() =>
         setFilters({ barangay: ALL, category: ALL, status: ALL, search: '' })
       }
@@ -182,24 +184,25 @@ function FeedHeader({
   onChangeFilters: (next: ReportFilters) => void;
   total: number;
 }) {
+  const { t } = usePreferences();
   const theme = useTheme();
 
   return (
     <View style={[styles.column, styles.header]}>
       <View style={styles.countRow}>
         <View accessibilityRole="header">
-          <AppText variant="heading">Community reports</AppText>
+          <AppText variant="heading">{t('Community reports')}</AppText>
         </View>
         <AppText variant="caption" color={theme.colors.textMuted}>
-          {total} {total === 1 ? 'report' : 'reports'}
+          {t(total === 1 ? '{count} report' : '{count} reports', { count: total })}
         </AppText>
       </View>
       {panel === 'search' ? (
         <Field
-          label="Search"
-          accessibilityLabel="Search reports"
+          label={t('Search')}
+          accessibilityLabel={t('Search reports')}
           autoFocus
-          placeholder="Search reports, barangays, or concerns"
+          placeholder={t('Search reports, barangays, or concerns')}
           value={filters.search ?? ''}
           onChangeText={(search) => onChangeFilters({ ...filters, search })}
           returnKeyType="search"
@@ -209,9 +212,9 @@ function FeedHeader({
       {panel === 'filters' ? (
         <View style={styles.filters}>
           <ChipRow
-            label="Barangay"
+            label={t('Barangay')}
             options={[
-              { value: ALL, label: 'All Barangays' },
+              { value: ALL, label: t('All Barangays') },
               ...PAETE_BARANGAYS.map((barangay) => ({ value: barangay, label: barangay })),
             ]}
             selected={filters.barangay ?? ALL}
@@ -219,12 +222,12 @@ function FeedHeader({
           />
 
           <ChipRow
-            label="Category"
+            label={t('Category')}
             options={[
-              { value: ALL, label: 'All Categories' },
+              { value: ALL, label: t('All Categories') },
               ...CATEGORY_ORDER.map((category) => ({
                 value: category,
-                label: CATEGORIES[category].short,
+                label: t(CATEGORIES[category].short),
               })),
             ]}
             selected={filters.category ?? ALL}
@@ -237,12 +240,12 @@ function FeedHeader({
           />
 
           <ChipRow
-            label="Status"
+            label={t('Status')}
             options={[
-              { value: ALL, label: 'All Statuses' },
+              { value: ALL, label: t('All Statuses') },
               ...STATUS_ORDER.map((status) => ({
                 value: status,
-                label: STATUS_META[status].short,
+                label: t(STATUS_META[status].short),
               })),
             ]}
             selected={filters.status ?? ALL}

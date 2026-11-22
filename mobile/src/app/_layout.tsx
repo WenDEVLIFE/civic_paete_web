@@ -10,21 +10,20 @@ import {
   PlusJakartaSans_700Bold,
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
-import { themes } from '@/theme';
+import { PreferencesProvider } from '@/lib/preferences';
+import { useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // The splash screen may already be hidden during a Fast Refresh cycle.
 });
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
   const [fontsLoaded, fontError] = useFonts({
     Outfit_900Black,
     Outfit_700Bold,
@@ -39,7 +38,18 @@ export default function RootLayout() {
     return null;
   }
 
-  const palette = scheme === 'dark' ? themes.dark : themes.light;
+  return (
+    <PreferencesProvider>
+      <AppNavigation />
+    </PreferencesProvider>
+  );
+}
+
+function AppNavigation() {
+  const palette = useTheme();
+  const { scheme } = palette;
+  const pathname = usePathname();
+  const hasNavyHeader = pathname === '/' || pathname === '/profile';
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const navigationTheme = {
     ...base,
@@ -57,7 +67,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={navigationTheme}>
       <AuthProvider>
-        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={scheme === 'dark' || hasNavyHeader ? 'light' : 'dark'} />
         <SessionStack backgroundColor={palette.colors.canvas} />
       </AuthProvider>
     </ThemeProvider>

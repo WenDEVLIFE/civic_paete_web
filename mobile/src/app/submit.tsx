@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { usePreferences } from '@/lib/preferences';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import {
   AppText,
@@ -48,6 +49,7 @@ import type { ReportCategory } from '@/types';
 type PickedImage = { uri: string; size: number | null };
 
 export default function SubmitReportScreen() {
+  const { t } = usePreferences();
   const theme = useTheme();
   const {
     user,
@@ -72,7 +74,7 @@ export default function SubmitReportScreen() {
 
   const applyPickedAsset = (asset: ImagePicker.ImagePickerAsset) => {
     if (typeof asset.fileSize === 'number' && asset.fileSize > MAX_IMAGE_BYTES) {
-      Alert.alert('Photo too large', BLOCKED_MESSAGES.imageTooLarge);
+      Alert.alert(t('Photo too large'), t(BLOCKED_MESSAGES.imageTooLarge));
       return;
     }
     setImage({ uri: asset.uri, size: asset.fileSize ?? null });
@@ -82,8 +84,8 @@ export default function SubmitReportScreen() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
-        'Photo permission required',
-        'Allow photo access so you can attach evidence to your community report.'
+        t('Photo permission required'),
+        t('Allow photo access so you can attach evidence to your community report.')
       );
       return;
     }
@@ -101,8 +103,8 @@ export default function SubmitReportScreen() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
-        'Camera permission required',
-        'Allow camera access so you can photograph the concern you are reporting.'
+        t('Camera permission required'),
+        t('Allow camera access so you can photograph the concern you are reporting.')
       );
       return;
     }
@@ -117,10 +119,10 @@ export default function SubmitReportScreen() {
   };
 
   const choosePhoto = () => {
-    Alert.alert('Attach photo evidence', 'A photo is required for municipal verification.', [
-      { text: 'Take photo', onPress: () => void takePhoto() },
-      { text: 'Choose from library', onPress: () => void pickFromLibrary() },
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('Attach photo evidence'), t('A photo is required for municipal verification.'), [
+      { text: t('Take photo'), onPress: () => void takePhoto() },
+      { text: t('Choose from library'), onPress: () => void pickFromLibrary() },
+      { text: t('Cancel'), style: 'cancel' },
     ]);
   };
 
@@ -129,7 +131,7 @@ export default function SubmitReportScreen() {
     try {
       await signInWithGoogle();
     } catch (err) {
-      Alert.alert('Sign-in failed', err instanceof Error ? err.message : 'Please try again.');
+      Alert.alert(t('Sign-in failed'), t(err instanceof Error ? err.message : 'Please try again.'));
     } finally {
       setSigningIn(false);
     }
@@ -137,7 +139,7 @@ export default function SubmitReportScreen() {
 
   const handleSubmit = async () => {
     if (!user) {
-      Alert.alert('Sign in required', BLOCKED_MESSAGES.signInRequired);
+      Alert.alert(t('Sign in required'), t(BLOCKED_MESSAGES.signInRequired));
       return;
     }
     if (!title.trim()) {
@@ -195,11 +197,11 @@ export default function SubmitReportScreen() {
   return (
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: theme.colors.canvas }]}>
       <View style={styles.topBar}>
-        <AppText variant="heading">File a report</AppText>
+        <AppText variant="heading">{t('File a report')}</AppText>
         <View style={styles.flexSpacer} />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Close report form"
+          accessibilityLabel={t('Close report form')}
           onPress={() => router.back()}
           style={({ pressed }) => [
             styles.closeButton,
@@ -214,12 +216,12 @@ export default function SubmitReportScreen() {
       </View>
 
       {loading ? (
-        <LoadingState label="Checking your citizen account…" />
+        <LoadingState label={t('Checking your citizen account…')} />
       ) : !firebaseReady ? (
         <EmptyState
           icon={<ShieldAlert size={24} color={theme.colors.danger} />}
-          title="Backend not configured"
-          message={BLOCKED_MESSAGES.notConfigured}
+          title={t('Backend not configured')}
+          message={t(BLOCKED_MESSAGES.notConfigured)}
         />
       ) : !user ? (
         <ScrollView contentContainerStyle={styles.gateContent}>
@@ -232,26 +234,24 @@ export default function SubmitReportScreen() {
             <LogIn size={26} color={theme.colors.primary} />
           </View>
           <AppText variant="title" style={styles.center}>
-            Sign in to file a report
+            {t('Sign in to file a report')}
           </AppText>
           <AppText variant="body" color={theme.colors.textMuted} style={styles.center}>
-            Reports carry an accountable citizen identity so the barangay and Municipal Hall can
-            follow up with you. Anonymous mode keeps your name off the public feed while the
-            municipality still knows who filed it.
+            {t('Reports carry an accountable citizen identity so the barangay and Municipal Hall can follow up with you. Anonymous mode keeps your name off the public feed while the municipality still knows who filed it.')}
           </AppText>
           <PrimaryButton
-            label={signingIn ? 'Opening Google…' : 'Continue with Google'}
+            label={signingIn ? t('Opening Google…') : t('Continue with Google')}
             loading={signingIn}
             onPress={handleGoogleSignIn}
             style={styles.gateAction}
           />
           {!googleReady ? (
             <AppText variant="caption" color={theme.colors.danger} style={styles.center}>
-              {BLOCKED_MESSAGES.googleNotConfigured}
+              {t(BLOCKED_MESSAGES.googleNotConfigured)}
             </AppText>
           ) : (
             <AppText variant="caption" color={theme.colors.textSubtle} style={styles.center}>
-              Google Sign-In requires a development build (npx expo run:ios / npx expo run:android).
+              {t('Google Sign-In requires a development build (npx expo run:ios / npx expo run:android).')}
             </AppText>
           )}
         </ScrollView>
@@ -278,18 +278,18 @@ export default function SubmitReportScreen() {
             ]}
           >
             <AppText variant="label" color={theme.colors.status.pending.fg}>
-              {VERIFICATION_LABELS[verificationStatus]}
+              {t(VERIFICATION_LABELS[verificationStatus])}
             </AppText>
           </View>
           <AppText variant="title" style={styles.center}>
             {verificationStatus === 'pending'
-              ? 'Residency verification under review'
-              : 'Verified resident account required'}
+              ? t('Residency verification under review')
+              : t('Verified resident account required')}
           </AppText>
           <AppText variant="body" color={theme.colors.textMuted} style={styles.center}>
             {verificationStatus === 'pending'
-              ? 'Paete Municipal Hall is reviewing the documents you submitted. You will be able to post community concerns once your barangay residency is approved.'
-              : 'To keep reports trustworthy and prevent fake or automated submissions, only verified Paete residents can post community concerns.'}
+              ? t('Paete Municipal Hall is reviewing the documents you submitted. You will be able to post community concerns once your barangay residency is approved.')
+              : t('To keep reports trustworthy and prevent fake or automated submissions, only verified Paete residents can post community concerns.')}
           </AppText>
 
           <View
@@ -298,21 +298,19 @@ export default function SubmitReportScreen() {
               { backgroundColor: theme.colors.surface, borderColor: theme.colors.border },
             ]}
           >
-            <AppText variant="bodyBold">Why verification comes first</AppText>
+            <AppText variant="bodyBold">{t('Why verification comes first')}</AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              • Verified reports are endorsed to the correct Barangay Captain and Municipal
-              Engineering Office.
+              {t('• Verified reports are endorsed to the correct Barangay Captain and Municipal Engineering Office.')}
             </AppText>
             <AppText variant="caption" color={theme.colors.textMuted}>
-              • Anonymous mode stays available: your name is hidden publicly, but the
-              municipality can still reach you.
+              {t('• Anonymous mode stays available: your name is hidden publicly, but the municipality can still reach you.')}
             </AppText>
           </View>
 
           {verificationStatus !== 'pending' ? (
-            <PrimaryButton label="Verify residency" onPress={() => router.replace('/verification')} />
+            <PrimaryButton label={t('Verify residency')} onPress={() => router.replace('/verification')} />
           ) : null}
-          <SecondaryButton label="Back to community" onPress={() => router.replace('/')} />
+          <SecondaryButton label={t('Back to community')} onPress={() => router.replace('/')} />
         </ScrollView>
       ) : (
         <ScrollView
@@ -322,29 +320,40 @@ export default function SubmitReportScreen() {
         >
           <View style={styles.section}>
             <AppText variant="label" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-              1 · Concern
+              {t('1 · Concern')}
             </AppText>
             <Field
-              label="Title"
-              placeholder="e.g. Broken streetlight along Quinale road"
+              label={t('Title')}
+              placeholder={t('e.g. Broken streetlight along Quinale road')}
               value={title}
               onChangeText={setTitle}
               maxLength={120}
             />
             <Field
-              label="Description"
-              placeholder="Describe what you observed, how long it has been happening, and who it affects."
+              label={t('Description (required)')}
+              accessibilityLabel={t('Description (required)')}
+              placeholder={t('Describe what you observed, how long it has been happening, and who it affects.')}
               value={description}
-              onChangeText={setDescription}
+              onChangeText={(value) => {
+                setDescription(value);
+                if (value.trim() && formError === BLOCKED_MESSAGES.descriptionRequired) {
+                  setFormError(null);
+                }
+              }}
               multiline
               numberOfLines={5}
               style={styles.textArea}
             />
+            {formError === BLOCKED_MESSAGES.descriptionRequired ? (
+              <View accessibilityLiveRegion="polite">
+                <AppText variant="caption" color={theme.colors.danger}>{t(formError)}</AppText>
+              </View>
+            ) : null}
           </View>
 
           <View style={styles.section}>
             <AppText variant="label" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-              2 · Location
+              {t('2 · Location')}
             </AppText>
             <View style={styles.chipGrid}>
               {PAETE_BARANGAYS.map((option) => (
@@ -357,8 +366,8 @@ export default function SubmitReportScreen() {
               ))}
             </View>
             <Field
-              label="Landmark or street detail"
-              placeholder="Nearest landmark, street, or purok"
+              label={t('Landmark or street detail')}
+              placeholder={t('Nearest landmark, street, or purok')}
               value={locationDetail}
               onChangeText={setLocationDetail}
             />
@@ -366,7 +375,7 @@ export default function SubmitReportScreen() {
 
           <View style={styles.section}>
             <AppText variant="label" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-              3 · Category
+              {t('3 · Category')}
             </AppText>
             <View style={styles.chipGrid}>
               {CATEGORY_ORDER.map((option) => (
@@ -399,7 +408,7 @@ export default function SubmitReportScreen() {
                     color={category === option ? theme.colors.primary : theme.colors.textMuted}
                     style={styles.categoryOptionLabel}
                   >
-                    {CATEGORIES[option].label}
+                    {t(CATEGORIES[option].label)}
                   </AppText>
                 </Pressable>
               ))}
@@ -408,7 +417,7 @@ export default function SubmitReportScreen() {
 
           <View style={styles.section}>
             <AppText variant="label" color={theme.colors.textSubtle} style={styles.sectionLabel}>
-              4 · Photo evidence
+              {t('4 · Photo evidence')}
             </AppText>
             {image ? (
               <View style={styles.previewWrap}>
@@ -417,18 +426,18 @@ export default function SubmitReportScreen() {
                   style={styles.preview}
                   contentFit="cover"
                   transition={160}
-                  alt="Selected report photo"
-                  accessibilityLabel="Selected report photo"
+                  alt={t('Selected report photo')}
+                  accessibilityLabel={t('Selected report photo')}
                 />
                 <View style={styles.previewActions}>
                   <SecondaryButton
-                    label="Replace"
+                    label={t('Replace')}
                     onPress={choosePhoto}
                     icon={<Camera size={15} color={theme.colors.text} />}
                     style={styles.previewButton}
                   />
                   <SecondaryButton
-                    label="Remove"
+                    label={t('Remove')}
                     onPress={() => setImage(null)}
                     icon={<Trash2 size={15} color={theme.colors.text} />}
                     style={styles.previewButton}
@@ -436,7 +445,7 @@ export default function SubmitReportScreen() {
                 </View>
                 {image.size ? (
                   <AppText variant="caption" color={theme.colors.textSubtle}>
-                    {`${formatFileSize(image.size)} · compressed before upload`}
+                    {t('{size} · compressed before upload', { size: formatFileSize(image.size) })}
                   </AppText>
                 ) : null}
               </View>
@@ -453,9 +462,9 @@ export default function SubmitReportScreen() {
                 ]}
               >
                 <ImagePlus size={22} color={theme.colors.primary} />
-                <AppText variant="bodyBold">Attach a photo</AppText>
+                <AppText variant="bodyBold">{t('Attach a photo')}</AppText>
                 <AppText variant="caption" color={theme.colors.textSubtle} style={styles.center}>
-                  Camera or gallery · JPEG, PNG, or WEBP · up to 5 MB
+                  {t('Camera or gallery · JPEG, PNG, or WEBP · up to 5 MB')}
                 </AppText>
               </Pressable>
             )}
@@ -468,10 +477,9 @@ export default function SubmitReportScreen() {
             ]}
           >
             <View style={styles.anonymousCopy}>
-              <AppText variant="bodyBold">Post anonymously</AppText>
+              <AppText variant="bodyBold">{t('Post anonymously')}</AppText>
               <AppText variant="caption" color={theme.colors.textMuted}>
-                Your name is hidden on the public feed, but the municipality keeps your verified
-                identity for follow-up.
+                {t('Your name is hidden on the public feed, but the municipality keeps your verified identity for follow-up.')}
               </AppText>
             </View>
             <Switch
@@ -479,11 +487,11 @@ export default function SubmitReportScreen() {
               onValueChange={setAnonymous}
               trackColor={{ false: theme.colors.surfaceSunken, true: theme.colors.primary }}
               thumbColor={theme.colors.onPrimary}
-              accessibilityLabel="Post anonymously"
+              accessibilityLabel={t('Post anonymously')}
             />
           </View>
 
-          {formError ? (
+          {formError && formError !== BLOCKED_MESSAGES.descriptionRequired ? (
             <View
               style={[
                 styles.errorBox,
@@ -491,19 +499,18 @@ export default function SubmitReportScreen() {
               ]}
             >
               <AppText variant="caption" color={theme.colors.danger}>
-                {formError}
+                {t(formError)}
               </AppText>
             </View>
           ) : null}
 
           <PrimaryButton
-            label={submitting ? 'Submitting report…' : 'Submit for verification'}
+            label={submitting ? t('Submitting report…') : t('Submit for verification')}
             loading={submitting}
             onPress={handleSubmit}
           />
           <AppText variant="caption" color={theme.colors.textSubtle} style={styles.center}>
-            Your concern and photo are logged for official verification by Paete municipal
-            authorities.
+            {t('Your concern and photo are logged for official verification by Paete municipal authorities.')}
           </AppText>
         </ScrollView>
       )}

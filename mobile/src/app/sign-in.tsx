@@ -5,6 +5,8 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import civicLogo from '../../assets/images/logo.png';
+import { LanguageOptions } from '@/components/LanguageOptions';
+import { usePreferences } from '@/lib/preferences';
 import { AppText, PrimaryButton } from '@/components/ui';
 import { BLOCKED_MESSAGES } from '@/constants';
 import { useAuth } from '@/lib/auth';
@@ -29,6 +31,7 @@ const REASONS = [
 ];
 
 export default function SignInScreen() {
+  const { t } = usePreferences();
   const theme = useTheme();
   const { firebaseReady, googleReady, signInWithGoogle } = useAuth();
   const [signingIn, setSigningIn] = useState(false);
@@ -57,14 +60,13 @@ export default function SignInScreen() {
         />
 
         <AppText variant="title" style={styles.center}>
-          Sign in to Civic Paete
+          {t('Sign in to Civic Paete')}
         </AppText>
         <AppText variant="body" color={theme.colors.textMuted} style={styles.center}>
-          Sign in with Google to connect your Paete residency verification to your reports and
-          community replies.
+          {t('Sign in with Google to connect your Paete residency verification to your reports and community replies.')}
         </AppText>
         <PrimaryButton
-          label={signingIn ? 'Opening Google…' : 'Continue with Google'}
+          label={signingIn ? t('Opening Google…') : t('Continue with Google')}
           loading={signingIn}
           disabled={!googleReady || !firebaseReady}
           onPress={handleSignIn}
@@ -78,7 +80,7 @@ export default function SignInScreen() {
             ]}
           >
             <AppText variant="caption" color={theme.colors.danger}>
-              {firebaseReady ? BLOCKED_MESSAGES.googleNotConfigured : BLOCKED_MESSAGES.notConfigured}
+              {t(firebaseReady ? BLOCKED_MESSAGES.googleNotConfigured : BLOCKED_MESSAGES.notConfigured)}
             </AppText>
           </View>
         ) : null}
@@ -91,10 +93,12 @@ export default function SignInScreen() {
             ]}
           >
             <AppText variant="caption" color={theme.colors.danger}>
-              {error}
+              {t(error)}
             </AppText>
           </View>
         ) : null}
+
+        <LanguageOptions />
 
         <View style={styles.reasons}>
           {REASONS.map((reason) => {
@@ -116,9 +120,9 @@ export default function SignInScreen() {
                   <Icon size={16} color={theme.colors.primary} />
                 </View>
                 <View style={styles.reasonCopy}>
-                  <AppText variant="bodyBold">{reason.title}</AppText>
+                  <AppText variant="bodyBold">{t(reason.title)}</AppText>
                   <AppText variant="caption" color={theme.colors.textMuted}>
-                    {reason.body}
+                    {t(reason.body)}
                   </AppText>
                 </View>
               </View>

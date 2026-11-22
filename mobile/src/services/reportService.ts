@@ -183,6 +183,11 @@ export async function createReport(input: CreateReportInput): Promise<string> {
     throw new Error(BLOCKED_MESSAGES.anonymousBlocked);
   }
 
+  const description = input.description.trim();
+  if (!description) {
+    throw new Error(BLOCKED_MESSAGES.descriptionRequired);
+  }
+
   const database = requireDb();
   const newReportRef = doc(collection(database, 'reports'));
   const reportId = newReportRef.id;
@@ -207,7 +212,7 @@ export async function createReport(input: CreateReportInput): Promise<string> {
   await setDoc(newReportRef, {
     id: reportId,
     title: input.title,
-    description: input.description,
+    description,
     category: input.category,
     barangay: input.barangay,
     locationDetail: input.locationDetail || '',

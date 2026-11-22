@@ -11,12 +11,15 @@ import {
 } from 'lucide-react-native';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText, Card, Divider, PrimaryButton, SecondaryButton } from '@/components/ui';
+import { usePreferences } from '@/lib/preferences';
+import { LanguageOptions } from '@/components/LanguageOptions';
+import { AppText, Card, Chip, Divider, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { VERIFICATION_LABELS } from '@/constants';
 import { displayNameFor, useAuth } from '@/lib/auth';
 import { radius, spacing, useTheme } from '@/theme';
 
 export default function ProfileScreen() {
+  const { appearance, setAppearance, t } = usePreferences();
   const theme = useTheme();
   const { user, loading, verificationStatus, isVerifiedResident, signOut } = useAuth();
 
@@ -32,12 +35,12 @@ export default function ProfileScreen() {
     <ScrollView style={{ backgroundColor: theme.colors.canvas }} contentContainerStyle={styles.container}>
       <View style={styles.content}>
         <AppText variant="label" color={theme.colors.textSubtle} style={styles.eyebrow}>
-          Citizen account
+          {t('Citizen account')}
         </AppText>
 
         {loading ? (
           <AppText variant="body" color={theme.colors.textMuted}>
-            Checking your session…
+            {t('Checking your session…')}
           </AppText>
         ) : user ? (
           <>
@@ -49,8 +52,8 @@ export default function ProfileScreen() {
                     style={styles.avatar}
                     contentFit="cover"
                     transition={150}
-                    alt="Profile photo"
-                    accessibilityLabel="Profile photo"
+                    alt={t('Profile photo')}
+                    accessibilityLabel={t('Profile photo')}
                   />
                 ) : (
                   <View
@@ -70,7 +73,7 @@ export default function ProfileScreen() {
                   <View style={styles.emailRow}>
                     <MailCheck size={13} color={theme.colors.textSubtle} />
                     <AppText variant="caption" color={theme.colors.textMuted} numberOfLines={1}>
-                      {user.email ?? 'No email on file'}
+                      {user.email ?? t('No email on file')}
                     </AppText>
                   </View>
                 </View>
@@ -87,23 +90,23 @@ export default function ProfileScreen() {
                 >
                   <BadgeCheck size={12} color={statusTone.fg} />
                   <AppText variant="label" color={statusTone.fg} style={styles.statusLabel}>
-                    {VERIFICATION_LABELS[verificationStatus]}
+                    {t(VERIFICATION_LABELS[verificationStatus])}
                   </AppText>
                 </View>
               </View>
 
               <AppText variant="caption" color={theme.colors.textMuted}>
                 {isVerifiedResident
-                  ? 'You can file community reports for your barangay. Anonymous posts keep your name off the public feed.'
+                  ? t('You can file community reports for your barangay. Anonymous posts keep your name off the public feed.')
                   : verificationStatus === 'pending'
-                    ? 'Your request is under review. Check back here for updates.'
-                    : 'Verify your barangay residency to file community reports.'}
+                    ? t('Your request is under review. Check back here for updates.')
+                    : t('Verify your barangay residency to file community reports.')}
               </AppText>
             </Card>
 
             {!isVerifiedResident && verificationStatus !== 'pending' ? (
               <PrimaryButton
-                label={verificationStatus === 'rejected' ? 'Submit a new verification request' : 'Verify residency'}
+                label={verificationStatus === 'rejected' ? t('Submit a new verification request') : t('Verify residency')}
                 onPress={() => router.push('/verification')}
               />
             ) : null}
@@ -112,16 +115,29 @@ export default function ProfileScreen() {
               <View style={styles.infoRow}>
                 <ShieldCheck size={16} color={theme.colors.primary} />
                 <View style={styles.infoCopy}>
-                  <AppText variant="bodyBold">Verified resident posting</AppText>
+                  <AppText variant="bodyBold">{t('Verified resident posting')}</AppText>
                   <AppText variant="caption" color={theme.colors.textMuted}>
-                    Reports are attributed to the account that filed them, even in anonymous mode.
+                    {t('Reports are attributed to the account that filed them, even in anonymous mode.')}
                   </AppText>
                 </View>
               </View>
             </Card>
 
+            <Card style={styles.preferencesCard}>
+              <View style={styles.preferenceGroup}>
+                <AppText variant="bodyBold">{t('Appearance')}</AppText>
+                <View style={styles.preferenceOptions}>
+                  <Chip label={t('System')} active={appearance === 'system'} onPress={() => setAppearance('system')} />
+                  <Chip label={t('Light')} active={appearance === 'light'} onPress={() => setAppearance('light')} />
+                  <Chip label={t('Dark')} active={appearance === 'dark'} onPress={() => setAppearance('dark')} />
+                </View>
+              </View>
+              <Divider />
+              <LanguageOptions />
+            </Card>
+
             <SecondaryButton
-              label="Sign out"
+              label={t('Sign out')}
               onPress={() => void signOut()}
               icon={<LogOut size={16} color={theme.colors.text} />}
             />
@@ -163,6 +179,9 @@ const styles = StyleSheet.create({
   infoCard: { gap: spacing.md, padding: spacing.lg },
   infoRow: { flexDirection: 'row', gap: spacing.md },
   infoCopy: { flex: 1, gap: 2 },
+  preferencesCard: { gap: spacing.lg, padding: spacing.lg },
+  preferenceGroup: { gap: spacing.sm },
+  preferenceOptions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   aboutRow: {
     flexDirection: 'row',
     alignItems: 'center',

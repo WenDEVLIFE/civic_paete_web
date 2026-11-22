@@ -34,6 +34,11 @@ service cloud.firestore {
       );
     }
 
+    function hasReportDescription() {
+      let description = request.resource.data.get('description', '');
+      return description is string && description.matches('(?s).*[^\\s\\p{Z}\\x{000B}\\x{FEFF}].*');
+    }
+
     // ─── 1. Community Reports ────────────────────────────────────────────────
     // Anyone can read reports (public civic feed).
     // Authenticated residents can create reports.
@@ -43,26 +48,30 @@ service cloud.firestore {
       allow read: if true;
 
       // Community reports must originate from residents; Admins and Governors are restricted from filing reports
-      allow create: if !isAdmin() && request.resource.data.get('comments', []) == [];
+      allow create: if !isAdmin() && hasReportDescription() &&
+        request.resource.data.get('comments', []) == [];
 
       allow update: if (
-        isStaff() && (
-          isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['comments'])
-        )
-      ) || (
-        isSignedIn() &&
-        (resource.data.get('authorUid', '') == request.auth.uid || resource.data.get('userId', '') == request.auth.uid) &&
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-          'status',
-          'comments',
-          'officialNotes',
-          'officialActorName',
-          'officialActorRole'
-        ])
-      ) || (
-        // Allow public upvote counter increments
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes'])
-      );
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['description']) ||
+        hasReportDescription()
+      ) && ((
+          isStaff() && (
+            isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['comments'])
+          )
+        ) || (
+          isSignedIn() &&
+          (resource.data.get('authorUid', '') == request.auth.uid || resource.data.get('userId', '') == request.auth.uid) &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'status',
+            'comments',
+            'officialNotes',
+            'officialActorName',
+            'officialActorRole'
+          ])
+        ) || (
+          // Allow public upvote counter increments
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes'])
+        ));
 
       allow delete: if isStaff() || (
         isSignedIn() &&

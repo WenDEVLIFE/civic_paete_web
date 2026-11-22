@@ -25,6 +25,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { usePreferences } from '@/lib/preferences';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import {
   AppText,
@@ -50,6 +51,7 @@ import { radius, spacing, useTheme } from '@/theme';
 import type { DetailedReport, ReportComment } from '@/types';
 
 export default function ReportDetailScreen() {
+  const { t } = usePreferences();
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
   const { user } = useAuth();
@@ -103,7 +105,7 @@ export default function ReportDetailScreen() {
     try {
       await toggleReportUpvote(id, voter);
     } catch (err) {
-      Alert.alert('Upvote failed', err instanceof Error ? err.message : 'Please try again.');
+      Alert.alert(t('Upvote failed'), t(err instanceof Error ? err.message : 'Please try again.'));
     } finally {
       setUpvoting(false);
     }
@@ -125,8 +127,8 @@ export default function ReportDetailScreen() {
       setCommentText('');
     } catch (err) {
       Alert.alert(
-        'Comment not posted',
-        err instanceof Error ? err.message : 'Please try again.'
+        t('Comment not posted'),
+        t(err instanceof Error ? err.message : 'Please try again.')
       );
     } finally {
       setPostingComment(false);
@@ -143,7 +145,7 @@ export default function ReportDetailScreen() {
         <View style={styles.topBar}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('Go back')}
             onPress={() => router.back()}
             style={({ pressed }) => [
               styles.backButton,
@@ -156,18 +158,18 @@ export default function ReportDetailScreen() {
             <ArrowLeft size={18} color={theme.colors.text} />
           </Pressable>
           <AppText variant="label" color={theme.colors.textSubtle} style={styles.topBarLabel}>
-            Report detail
+            {t('Report detail')}
           </AppText>
         </View>
 
         {!loaded ? (
-          <LoadingState label="Loading report…" />
+          <LoadingState label={t('Loading report…')} />
         ) : error || !report ? (
           <EmptyState
             icon={<ShieldCheck size={24} color={theme.colors.danger} />}
-            title="Report unavailable"
-            message={error?.message ?? 'This report may have been removed by the municipality.'}
-            actionLabel="Back to community"
+            title={t('Report unavailable')}
+            message={t(error?.message ?? 'This report may have been removed by the municipality.')}
+            actionLabel={t('Back to community')}
             onAction={() => router.replace('/')}
           />
         ) : (
@@ -182,8 +184,8 @@ export default function ReportDetailScreen() {
                 style={styles.hero}
                 contentFit="cover"
                 transition={200}
-                alt={`Photo evidence for ${report.title}`}
-                accessibilityLabel={`Photo evidence for ${report.title}`}
+                alt={t('Photo evidence for {title}', { title: report.title })}
+                accessibilityLabel={t('Photo evidence for {title}', { title: report.title })}
               />
             ) : null}
 
@@ -192,7 +194,7 @@ export default function ReportDetailScreen() {
               <View style={[styles.categoryBadge, { borderColor: theme.colors.border }]}>
                 <CategoryIcon category={report.category} size={13} color={theme.colors.primary} />
                 <AppText variant="label" color={theme.colors.primary} style={styles.categoryLabel}>
-                  {CATEGORIES[report.category].short}
+                  {t(CATEGORIES[report.category].short)}
                 </AppText>
               </View>
               <View style={styles.flexSpacer} />
@@ -207,13 +209,13 @@ export default function ReportDetailScreen() {
               <UserRound size={14} color={theme.colors.textSubtle} />
               <AppText variant="caption" color={theme.colors.textMuted}>
                 {report.isAnonymous
-                  ? report.anonymousAlias || 'Protected Citizen'
-                  : report.authorName || report.authorRealName || 'Paete Resident'}
+                  ? report.anonymousAlias || t('Protected Citizen')
+                  : report.authorName || report.authorRealName || t('Paete Resident')}
               </AppText>
               {report.isAnonymous ? (
                 <View style={[styles.anonTag, { borderColor: theme.colors.border }]}>
                   <AppText variant="label" color={theme.colors.textSubtle} style={styles.anonTagText}>
-                    Anonymous
+                    {t('Anonymous')}
                   </AppText>
                 </View>
               ) : null}
@@ -231,7 +233,7 @@ export default function ReportDetailScreen() {
               <View style={styles.flex}>
                 <AppText variant="bodyBold">{`Barangay ${report.barangay}`}</AppText>
                 <AppText variant="caption" color={theme.colors.textMuted}>
-                  {report.locationDetails || 'Location detail not provided'}
+                  {report.locationDetails || t('Location detail not provided')}
                 </AppText>
               </View>
             </View>
@@ -244,7 +246,7 @@ export default function ReportDetailScreen() {
                 ]}
               >
                 <AppText variant="label" color={theme.colors.primary}>
-                  Municipal update
+                  {t('Municipal update')}
                 </AppText>
                 <AppText variant="body" color={theme.colors.textMuted}>
                   {report.officialNotes}
@@ -259,7 +261,7 @@ export default function ReportDetailScreen() {
 
             {report.timeline && report.timeline.length > 0 ? (
               <View style={styles.section}>
-                <AppText variant="heading">Status timeline</AppText>
+                <AppText variant="heading">{t('Status timeline')}</AppText>
                 <View style={styles.timeline}>
                   {report.timeline.map((event, index) => {
                     const Icon =
@@ -325,7 +327,7 @@ export default function ReportDetailScreen() {
                 fill={hasUpvoted ? theme.colors.primary : 'transparent'}
               />
               <AppText variant="bodyBold" color={theme.colors.primary}>
-                {`${hasUpvoted ? 'Liked' : 'Like'} · ${report.upvotes}`}
+                {`${hasUpvoted ? t('Liked') : t('Like')} · ${report.upvotes}`}
               </AppText>
             </Pressable>
 
@@ -334,12 +336,12 @@ export default function ReportDetailScreen() {
             <View style={styles.section}>
               <View style={styles.sectionTitleRow}>
                 <MessageSquare size={16} color={theme.colors.textMuted} />
-                <AppText variant="heading">{`Community thread (${comments.length})`}</AppText>
+                <AppText variant="heading">{t('Community thread ({count})', { count: comments.length })}</AppText>
               </View>
 
               {comments.length === 0 ? (
                 <AppText variant="caption" color={theme.colors.textSubtle}>
-                  No comments yet.
+                  {t('No comments yet.')}
                 </AppText>
               ) : (
                 <View style={styles.comments}>
@@ -364,13 +366,13 @@ export default function ReportDetailScreen() {
                           >
                             <ShieldCheck size={11} color={theme.colors.primary} />
                             <AppText variant="label" color={theme.colors.primary} style={styles.officialTagText}>
-                              Official
+                              {t('Official')}
                             </AppText>
                           </View>
                         ) : null}
                         <View style={styles.flexSpacer} />
                         <AppText variant="caption" color={theme.colors.textSubtle}>
-                          {comment.timestamp}
+                          {t(comment.timestamp)}
                         </AppText>
                       </View>
                       <AppText variant="body" color={theme.colors.textMuted}>
@@ -391,15 +393,15 @@ export default function ReportDetailScreen() {
                   <TextInput
                     value={commentText}
                     onChangeText={setCommentText}
-                    placeholder="Write an official comment…"
+                    placeholder={t('Write an official comment…')}
                     placeholderTextColor={theme.colors.textSubtle}
                     multiline
                     style={[styles.composerInput, { color: theme.colors.text }]}
-                    accessibilityLabel="Write a comment"
+                    accessibilityLabel={t('Write a comment')}
                   />
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Post comment"
+                    accessibilityLabel={t('Post comment')}
                     disabled={postingComment || !commentText.trim()}
                     onPress={handleComment}
                     style={({ pressed }) => [
@@ -410,7 +412,7 @@ export default function ReportDetailScreen() {
                             ? theme.colors.surfaceSunken
                             : pressed
                               ? theme.colors.primaryPressed
-                              : theme.colors.primary,
+                              : theme.colors.primaryFill,
                       },
                     ]}
                   >
@@ -421,7 +423,7 @@ export default function ReportDetailScreen() {
             </View>
 
             <PrimaryButton
-              label="Back to community"
+              label={t('Back to community')}
               onPress={() => router.replace('/')}
               style={styles.bottomAction}
             />

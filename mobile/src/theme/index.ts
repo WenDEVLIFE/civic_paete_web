@@ -1,5 +1,7 @@
 import { useColorScheme } from 'react-native';
 
+import { usePreferences } from '@/lib/preferences';
+
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -58,6 +60,7 @@ export type Theme = {
     primary: string;
     primaryPressed: string;
     onPrimary: string;
+    primaryFill: string;
     wave: string;
     glow: string;
     pattern: string;
@@ -80,12 +83,13 @@ const light: Theme = {
     borderStrong: '#B9C6D8',
     text: '#071126',
     textMuted: '#51607A',
-    textSubtle: '#7A879E',
+    textSubtle: '#596880',
     navy: '#0A1931',
     navySurface: '#112347',
     primary: '#2563EB',
     primaryPressed: '#1D4ED8',
     onPrimary: '#FFFFFF',
+    primaryFill: '#2563EB',
     wave: '#60A5FA',
     glow: 'rgba(37,99,235,0.12)',
     pattern: 'rgba(37,99,235,0.16)',
@@ -113,12 +117,13 @@ const dark: Theme = {
     borderStrong: 'rgba(147,197,253,0.32)',
     text: '#F1F5F9',
     textMuted: '#A8B6CE',
-    textSubtle: '#7C8BA6',
+    textSubtle: '#9AA9C0',
     navy: '#0A1931',
     navySurface: '#112347',
-    primary: '#3B82F6',
-    primaryPressed: '#2563EB',
+    primary: '#93C5FD',
+    primaryPressed: '#1D4ED8',
     onPrimary: '#FFFFFF',
+    primaryFill: '#2563EB',
     wave: '#60A5FA',
     glow: 'rgba(96,165,250,0.16)',
     pattern: 'rgba(96,165,250,0.20)',
@@ -136,8 +141,8 @@ const dark: Theme = {
 };
 
 export function useTheme(): Theme {
-  const scheme = useColorScheme();
+  const systemScheme = useColorScheme();
+  const { appearance } = usePreferences();
+  const scheme = appearance === 'system' ? systemScheme : appearance;
   return scheme === 'dark' ? dark : light;
 }
-
-export const themes = { light, dark };

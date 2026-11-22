@@ -6,10 +6,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import civicLogo from '../../../assets/images/logo.png';
+import { usePreferences } from '@/lib/preferences';
 import { AppText } from '@/components/ui';
 import { radius, spacing, useTheme } from '@/theme';
 
 export default function TabsLayout() {
+  const { t } = usePreferences();
   const { colors } = useTheme();
   const isCommunity = usePathname() === '/';
   const { panel } = useGlobalSearchParams<{ panel?: string }>();
@@ -30,15 +32,15 @@ export default function TabsLayout() {
           <AppText variant="heading" color={colors.onPrimary} style={styles.brand} numberOfLines={1}>
             Civic Paete
           </AppText>
-          <HeaderAction label="File a report" icon={Plus} onPress={() => router.push('/submit')} />
+          <HeaderAction label={t('File a report')} icon={Plus} onPress={() => router.push('/submit')} />
           <HeaderAction
-            label="Search reports"
+            label={t('Search reports')}
             icon={Search}
             active={isCommunity && panel === 'search'}
             onPress={() => togglePanel('search')}
           />
           <HeaderAction
-            label="Filter reports"
+            label={t('Filter reports')}
             icon={SlidersHorizontal}
             active={isCommunity && panel === 'filters'}
             onPress={() => togglePanel('filters')}
@@ -53,7 +55,7 @@ export default function TabsLayout() {
             style={[styles.tab, isCommunity && { backgroundColor: colors.glow }]}
           >
             <House size={18} color={isCommunity ? colors.primary : colors.textMuted} />
-            <AppText variant="subtitle" color={isCommunity ? colors.primary : colors.textMuted}>Community</AppText>
+            <AppText variant="subtitle" color={isCommunity ? colors.primary : colors.textMuted}>{t('Community')}</AppText>
           </TabTrigger>
           <TabTrigger
             name="account"
@@ -63,7 +65,7 @@ export default function TabsLayout() {
             style={[styles.tab, !isCommunity && { backgroundColor: colors.glow }]}
           >
             <UserRound size={18} color={!isCommunity ? colors.primary : colors.textMuted} />
-            <AppText variant="subtitle" color={!isCommunity ? colors.primary : colors.textMuted}>My Account</AppText>
+            <AppText variant="subtitle" color={!isCommunity ? colors.primary : colors.textMuted}>{t('My Account')}</AppText>
           </TabTrigger>
         </TabList>
         <TabSlot style={{ backgroundColor: colors.canvas }} />
@@ -94,7 +96,7 @@ function HeaderAction({
       style={({ pressed }) => [
         styles.action,
         {
-          backgroundColor: active ? colors.primary : colors.navySurface,
+          backgroundColor: active ? colors.primaryFill : colors.navySurface,
           opacity: pressed ? 0.7 : 1,
         },
       ]}

@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { usePreferences } from '@/lib/preferences';
 import { AppText, Card, Chip, Field, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { MAX_IMAGE_BYTES, PAETE_BARANGAYS } from '@/constants';
 import { useAuth } from '@/lib/auth';
@@ -37,6 +38,7 @@ function isEligibleBirthDate(value: string) {
 }
 
 export default function VerificationScreen() {
+  const { t } = usePreferences();
   const { colors } = useTheme();
   const { user, verificationStatus, isVerifiedResident } = useAuth();
   const [name, setName] = useState(user?.displayName ?? '');
@@ -121,39 +123,39 @@ export default function VerificationScreen() {
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.canvas }]}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <AppText variant="title">Barangay residency verification</AppText>
+        <AppText variant="title">{t('Barangay residency verification')}</AppText>
         {pending || isVerifiedResident ? (
           <>
             <AppText variant="body" color={colors.textMuted}>
               {isVerifiedResident
-                ? 'Your account is verified. You can file community reports.'
-                : 'Your request is under review. Check My Account for its status.'}
+                ? t('Your account is verified. You can file community reports.')
+                : t('Your request is under review. Check My Account for its status.')}
             </AppText>
-            <PrimaryButton label="View my account" onPress={() => router.dismissTo('/profile')} />
+            <PrimaryButton label={t('View my account')} onPress={() => router.dismissTo('/profile')} />
           </>
         ) : (
           <>
             <AppText variant="body" color={colors.textMuted}>
-              Submit proof of residency to unlock community reporting.
+              {t('Submit proof of residency to unlock community reporting.')}
             </AppText>
             <Card style={styles.section}>
-              <AppText variant="heading">Resident details</AppText>
-              <Field label="Full name" accessibilityLabel="Full name" value={name} onChangeText={setName} editable={!submitting} />
-              <Field label="Date of birth" accessibilityLabel="Date of birth" placeholder="YYYY-MM-DD" value={birthDate} onChangeText={setBirthDate} maxLength={10} editable={!submitting} />
-              <AppText variant="label">BARANGAY</AppText>
+              <AppText variant="heading">{t('Resident details')}</AppText>
+              <Field label={t('Full name')} accessibilityLabel={t('Full name')} value={name} onChangeText={setName} editable={!submitting} />
+              <Field label={t('Date of birth')} accessibilityLabel={t('Date of birth')} placeholder="YYYY-MM-DD" value={birthDate} onChangeText={setBirthDate} maxLength={10} editable={!submitting} />
+              <AppText variant="label">{t('BARANGAY')}</AppText>
               <View style={styles.chips}>
                 {PAETE_BARANGAYS.map((item) => (
                   <Chip key={item} label={item} active={barangay === item} onPress={() => !submitting && setBarangay(item)} />
                 ))}
               </View>
-              <Field label="Residential address" accessibilityLabel="Residential address" value={address} onChangeText={setAddress} editable={!submitting} />
+              <Field label={t('Residential address')} accessibilityLabel={t('Residential address')} value={address} onChangeText={setAddress} editable={!submitting} />
             </Card>
 
             <Card style={styles.section}>
-              <AppText variant="heading">Proof of residency</AppText>
+              <AppText variant="heading">{t('Proof of residency')}</AppText>
               <View style={styles.chips}>
-                <Chip label="Barangay certificate" active={method === 'certificate'} onPress={() => !submitting && setMethod('certificate')} />
-                <Chip label="Government ID" active={method === 'gov_id'} onPress={() => !submitting && setMethod('gov_id')} />
+                <Chip label={t('Barangay certificate')} active={method === 'certificate'} onPress={() => !submitting && setMethod('certificate')} />
+                <Chip label={t('Government ID')} active={method === 'gov_id'} onPress={() => !submitting && setMethod('gov_id')} />
               </View>
               {method === 'gov_id' ? (
                 <View style={styles.chips}>
@@ -162,15 +164,15 @@ export default function VerificationScreen() {
                   ))}
                 </View>
               ) : null}
-              <Field label="Document number" accessibilityLabel="Document number" value={documentNumber} onChangeText={setDocumentNumber} editable={!submitting} autoCapitalize="characters" />
+              <Field label={t('Document number')} accessibilityLabel={t('Document number')} value={documentNumber} onChangeText={setDocumentNumber} editable={!submitting} autoCapitalize="characters" />
               <SecondaryButton
-                label={picking ? 'Opening files…' : file ? 'Replace document' : 'Attach document'}
+                label={picking ? t('Opening files…') : file ? t('Replace document') : t('Attach document')}
                 disabled={submitting || picking}
                 onPress={chooseDocument}
                 icon={<FileUp size={17} color={colors.primary} />}
               />
               <AppText variant="caption" color={colors.textMuted}>
-                {file ? file.name : 'JPEG, PNG, WebP, or PDF up to 5 MB'}
+                {file ? file.name : t('JPEG, PNG, WebP, or PDF up to 5 MB')}
               </AppText>
             </Card>
 
@@ -181,17 +183,17 @@ export default function VerificationScreen() {
               disabled={submitting}
               style={[styles.consent, { borderColor: colors.border, backgroundColor: colors.surface }]}
             >
-              <View style={[styles.checkbox, { borderColor: colors.primary, backgroundColor: consent ? colors.primary : colors.surface }]}>
+              <View style={[styles.checkbox, { borderColor: colors.primary, backgroundColor: consent ? colors.primaryFill : colors.surface }]}>
                 {consent ? <Check size={15} color={colors.onPrimary} /> : null}
               </View>
               <AppText variant="caption" style={styles.consentText}>
-                I confirm that I am a Paete resident aged 15 or older, that the information and document I am submitting are accurate, and that the Paete Municipal Government may use them to verify my residency.
+                {t('I confirm that I am a Paete resident aged 15 or older, that the information and document I am submitting are accurate, and that the Paete Municipal Government may use them to verify my residency.')}
               </AppText>
             </Pressable>
 
-            {error ? <View accessibilityLiveRegion="polite"><AppText variant="caption" color={colors.danger}>{error}</AppText></View> : null}
-            <PrimaryButton label="Submit verification request" loading={submitting} disabled={picking} onPress={submit} />
-            <SecondaryButton label="Cancel" disabled={submitting} onPress={() => router.dismissTo('/profile')} />
+            {error ? <View accessibilityLiveRegion="polite"><AppText variant="caption" color={colors.danger}>{t(error)}</AppText></View> : null}
+            <PrimaryButton label={t('Submit verification request')} loading={submitting} disabled={picking} onPress={submit} />
+            <SecondaryButton label={t('Cancel')} disabled={submitting} onPress={() => router.dismissTo('/profile')} />
           </>
         )}
       </ScrollView>

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { usePreferences } from '@/lib/preferences';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { AppText, Card, StatusPill } from '@/components/ui';
 import { CATEGORIES } from '@/constants';
@@ -37,17 +38,18 @@ export function ReportCard({
   onUpvote?: () => void;
   upvoting?: boolean;
 }) {
+  const { t } = usePreferences();
   const theme = useTheme();
   const category = CATEGORIES[report.category];
   const authorLabel = report.isAnonymous
-    ? report.anonymousAlias || 'Protected Citizen'
-    : report.authorName || 'Paete Resident';
+    ? report.anonymousAlias || t('Protected Citizen')
+    : report.authorName || t('Paete Resident');
 
   return (
     <Card>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Open report: ${report.title}`}
+        accessibilityLabel={t('Open report: {title}', { title: report.title })}
         onPress={onPress}
         style={({ pressed }) => pressed && styles.pressed}
       >
@@ -65,7 +67,7 @@ export function ReportCard({
             <StatusPill status={report.status} />
           </View>
 
-          <AppText variant="label" color={theme.colors.primary}>{category.short}</AppText>
+          <AppText variant="label" color={theme.colors.primary}>{t(category.short)}</AppText>
           <AppText variant="heading" numberOfLines={2}>{report.title}</AppText>
           <AppText variant="body" color={theme.colors.textMuted} numberOfLines={3}>
             {report.description}
@@ -78,7 +80,7 @@ export function ReportCard({
             style={[styles.image, { backgroundColor: theme.colors.surfaceAlt }]}
             contentFit="cover"
             transition={180}
-            alt={`Photo evidence for ${report.title}`}
+            alt={t('Photo evidence for {title}', { title: report.title })}
           />
         ) : null}
       </Pressable>
@@ -100,7 +102,7 @@ export function ReportCard({
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Like ${report.title}, ${report.upvotes} likes`}
+          accessibilityLabel={t('Like {title}, {count} likes', { title: report.title, count: report.upvotes })}
           accessibilityState={{ busy: upvoting, disabled: upvoting || !onUpvote }}
           disabled={upvoting || !onUpvote}
           onPress={onUpvote}
@@ -108,18 +110,18 @@ export function ReportCard({
         >
           <ThumbsUp size={17} color={theme.colors.primary} />
           <AppText variant="caption" color={theme.colors.primary}>
-            {report.upvotes} {report.upvotes === 1 ? 'like' : 'likes'}
+            {t(report.upvotes === 1 ? '{count} like' : '{count} likes', { count: report.upvotes })}
           </AppText>
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Open thread for ${report.title}`}
+          accessibilityLabel={t('Open thread for {title}', { title: report.title })}
           onPress={onPress}
           style={({ pressed }) => [styles.action, pressed && styles.pressed]}
         >
           <MessageSquare size={17} color={theme.colors.textMuted} />
-          <AppText variant="caption" color={theme.colors.textMuted}>Open thread</AppText>
+          <AppText variant="caption" color={theme.colors.textMuted}>{t('Open thread')}</AppText>
         </Pressable>
       </View>
     </Card>

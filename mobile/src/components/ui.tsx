@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
 
 import { radius, spacing, typeScale, useTheme, type Theme } from '@/theme';
+import { usePreferences } from '@/lib/preferences';
 import { STATUS_META } from '@/constants';
 import type { ReportStatus } from '@/types';
 
@@ -174,7 +175,7 @@ export function PrimaryButton({
             ? theme.colors.surfaceSunken
             : pressed
               ? theme.colors.primaryPressed
-              : theme.colors.primary,
+              : theme.colors.primaryFill,
           opacity: isDisabled ? 0.75 : 1,
         },
         style,
@@ -248,7 +249,7 @@ export function Chip({
       style={({ pressed }) => [
         styles.chip,
         {
-          backgroundColor: active ? theme.colors.primary : theme.colors.surfaceAlt,
+          backgroundColor: active ? theme.colors.primaryFill : theme.colors.surfaceAlt,
           borderColor: active ? theme.colors.primary : theme.colors.border,
           opacity: pressed ? 0.85 : 1,
         },
@@ -300,6 +301,7 @@ export function Field({
 }
 
 export function StatusPill({ status }: { status: ReportStatus }) {
+  const { t } = usePreferences();
   const theme = useTheme();
   const palette = theme.colors.status[status];
   return (
@@ -311,7 +313,7 @@ export function StatusPill({ status }: { status: ReportStatus }) {
     >
       <View style={[styles.statusDot, { backgroundColor: palette.fg }]} />
       <AppText variant="label" color={palette.fg} style={styles.statusLabel}>
-        {STATUS_META[status].label}
+        {t(STATUS_META[status].label)}
       </AppText>
     </View>
   );
@@ -356,13 +358,14 @@ export function EmptyState({
   );
 }
 
-export function LoadingState({ label = 'Loading community reports…' }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { t } = usePreferences();
   const theme = useTheme();
   return (
     <View style={styles.loadingState}>
       <ActivityIndicator color={theme.colors.primary} />
       <AppText variant="caption" color={theme.colors.textMuted}>
-        {label}
+        {label ?? t('Loading community reports…')}
       </AppText>
     </View>
   );

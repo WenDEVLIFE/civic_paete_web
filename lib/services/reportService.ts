@@ -170,6 +170,11 @@ export async function createReport(data: CreateReportInput): Promise<string> {
     );
   }
 
+  const description = data.description.trim();
+  if (!description) {
+    throw new Error("Please describe the concern you are reporting.");
+  }
+
   const reportsCollection = collection(db, "reports");
   const newReportRef = doc(reportsCollection);
   const reportId = newReportRef.id;
@@ -198,7 +203,7 @@ export async function createReport(data: CreateReportInput): Promise<string> {
   const newDocData = {
     id: reportId,
     title: data.title,
-    description: data.description,
+    description,
     category: data.category,
     barangay: data.barangay,
     locationDetail: data.locationDetail || "",
