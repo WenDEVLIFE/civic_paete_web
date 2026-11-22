@@ -42,6 +42,12 @@ const VERIFICATION_VALUES: VerificationStatus[] = [
   'rejected',
 ];
 
+function isOfficialRole(role: unknown) {
+  return role === 'admin' || role === 'governor' || role === 'official' || role === 'department_head';
+}
+
+type OfficialRoleCheck = { user: FirebaseUser; isOfficial: boolean };
+
 function readVerificationStatus(value: unknown): VerificationStatus {
   return VERIFICATION_VALUES.includes(value as VerificationStatus)
     ? (value as VerificationStatus)
@@ -106,6 +112,7 @@ type AuthContextValue = {
   loading: boolean;
   verificationStatus: VerificationStatus;
   isVerifiedResident: boolean;
+  showResidencyVerification: boolean;
   googleReady: boolean;
   firebaseReady: boolean;
   signInWithGoogle: () => Promise<FirebaseUser | null>;
@@ -118,6 +125,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileStatus, setProfileStatus] = useState<VerificationStatus>('unverified');
+  const [profileRole, setProfileRole] = useState<OfficialRoleCheck | null>(null);
+  const [claimRole, setClaimRole] = useState<OfficialRoleCheck | null>(null);
+  const showResidencyVerification =
+    user !== null && profileRole?.user === user && !profileRole.isOfficial &&
+    claimRole?.user === user && !claimRole.isOfficial;
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const verificationStatus = pendingUserId && pendingUserId === user?.uid &&
     (profileStatus === 'unverified' || profileStatus === 'rejected') ? 'pending' : profileStatus;
@@ -162,10 +174,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return onSnapshot(
       doc(db, 'users', user.uid),
       (snapshot) => {
-        setProfileStatus(readVerificationStatus(snapshot.data()?.verificationStatus));
+        const profile = snapshot.data();
+        const status = readVerificationStatus(profile?.verificationStatus);
+        setProfileStatus(status);
+        setProfileRole({ user, isOfficial: isOfficialRole(profile?.role) || status === 'municipal_officer' });
       },
       () => setProfileStatus('unverified')
     );
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+
+    void user.getIdTokenResult().then(({ claims }) => {
+      if (active) setClaimRole({ user, isOfficial: claims.admin === true || isOfficialRole(claims.role) });
+    }).catch((error) => {
+      console.warn('Could not read the signed-in account role:', error);
+    });
+
+    return () => { active = false; };
   }, [user]);
 
   useEffect(() => {
@@ -221,6 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       verificationStatus,
+      showResidencyVerification,
       isVerifiedResident:
         verificationStatus === 'barangay_verified' ||
         verificationStatus === 'community_leader' ||
@@ -230,7 +259,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signOut,
     }),
-    [user, loading, verificationStatus, signInWithGoogle, signOut]
+    [user, loading, verificationStatus, showResidencyVerification, signInWithGoogle, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -17,7 +17,7 @@ const appearanceOptions = ['system', 'light', 'dark'] as const;
 export default function ProfileScreen() {
   const { appearance, setAppearance, language, setLanguage, t } = usePreferences();
   const { colors } = useTheme();
-  const { user, loading, verificationStatus, isVerifiedResident, signOut } = useAuth();
+  const { user, loading, verificationStatus, isVerifiedResident, showResidencyVerification, signOut } = useAuth();
   const [openSetting, setOpenSetting] = useState<'appearance' | 'language' | null>(null);
 
   const canVerify = !isVerifiedResident && verificationStatus !== 'pending';
@@ -55,15 +55,17 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={[styles.group, { borderColor: colors.border }]}>
-            <AccountRow
-              icon={ShieldCheck}
-              label={t(canVerify ? 'Verify residency' : 'Barangay residency verification')}
-              detail={t(VERIFICATION_LABELS[verificationStatus])}
-              detailColor={verificationColor}
-              onPress={canVerify ? () => router.push('/verification') : undefined}
-            />
-          </View>
+          {showResidencyVerification && (
+            <View style={[styles.group, { borderColor: colors.border }]}>
+              <AccountRow
+                icon={ShieldCheck}
+                label={t(canVerify ? 'Verify residency' : 'Barangay residency verification')}
+                detail={t(VERIFICATION_LABELS[verificationStatus])}
+                detailColor={verificationColor}
+                onPress={canVerify ? () => router.push('/verification') : undefined}
+              />
+            </View>
+          )}
 
           <View style={[styles.group, { borderColor: colors.border }]}>
             <AccountRow
