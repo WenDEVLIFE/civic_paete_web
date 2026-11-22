@@ -49,7 +49,7 @@ function AppNavigation() {
   const palette = useTheme();
   const { scheme } = palette;
   const pathname = usePathname();
-  const hasNavyHeader = pathname === '/' || pathname === '/profile';
+  const hasNavyHeader = ['/', '/profile', '/my-reports', '/updates'].includes(pathname);
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const navigationTheme = {
     ...base,

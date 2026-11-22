@@ -62,7 +62,9 @@ function mapReport(id: string, data: DocumentData): CommunityReport {
     officialActorRole: typeof data.officialActorRole === 'string' ? data.officialActorRole : undefined,
     isAnonymous: Boolean(data.isAnonymous),
     anonymousAlias: typeof data.anonymousAlias === 'string' ? data.anonymousAlias : undefined,
-    authorUid: typeof data.authorUid === 'string' ? data.authorUid : undefined,
+    authorUid: typeof data.authorUid === 'string' && data.authorUid
+      ? data.authorUid
+      : typeof data.userId === 'string' ? data.userId : undefined,
     authorRealName: typeof data.authorRealName === 'string' ? data.authorRealName : undefined,
     authorEmail: typeof data.authorEmail === 'string' ? data.authorEmail : undefined,
     authorVerificationStatus:
