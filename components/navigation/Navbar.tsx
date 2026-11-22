@@ -115,7 +115,6 @@ export function Navbar() {
           {
             uid: loggedUser.uid,
             name: loggedUser.displayName || "Paete Resident",
-            email: loggedUser.email || "",
             photoURL: loggedUser.photoURL || "",
             role: existingData?.role || "resident",
             authProvider: "google",

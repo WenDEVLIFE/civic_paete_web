@@ -21,7 +21,6 @@ interface BarangayVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId?: string;
-  userEmail?: string;
   userName?: string;
   onVerificationSubmitted?: (data: {
     barangay: string;
@@ -56,7 +55,6 @@ export function BarangayVerificationModal({
   isOpen,
   onClose,
   userId,
-  userEmail,
   userName,
   onVerificationSubmitted,
 }: BarangayVerificationModalProps) {
@@ -161,12 +159,10 @@ export function BarangayVerificationModal({
 
     try {
       const docType = method === "gov_id" ? idType : "Barangay Residency Certificate";
-      const effectiveEmail = userEmail || auth.currentUser?.email || "";
 
       await submitVerificationRequest({
         userId: effectiveUserId,
         applicantName: fullName.trim(),
-        email: effectiveEmail,
         barangay,
         address: address.trim(),
         birthDate,

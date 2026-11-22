@@ -607,7 +607,6 @@ export function UserProfileModal({
           isOpen={isVerificationModalOpen}
           onClose={() => setIsVerificationModalOpen(false)}
           userId={user.uid}
-          userEmail={user.email || ""}
           userName={user.displayName || ""}
           onVerificationSubmitted={() => {
             setVerificationStatus("pending");
