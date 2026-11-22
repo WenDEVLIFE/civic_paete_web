@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Camera,
   ImagePlus,
+  ListChecks,
   LogIn,
   ShieldAlert,
   Trash2,
@@ -329,10 +330,29 @@ export default function SubmitReportScreen() {
               onChangeText={setTitle}
               maxLength={120}
             />
+            <View style={[styles.descriptionGuide, { backgroundColor: theme.colors.surfaceAlt }]}>
+              <View style={styles.guideHeading}>
+                <ListChecks size={16} color={theme.colors.primary} />
+                <AppText variant="bodyBold">{t('What to include')}</AppText>
+              </View>
+              {[
+                'What happened and who or what is affected.',
+                'Where it happened, including the nearest landmark.',
+                'When you noticed it and whether it is still happening.',
+                'Any immediate danger, such as exposed wires or a blocked road.',
+              ].map((item) => (
+                <View key={item} style={styles.guideItem}>
+                  <AppText variant="caption" color={theme.colors.primary}>•</AppText>
+                  <AppText variant="caption" color={theme.colors.textMuted} style={styles.guideText}>
+                    {t(item)}
+                  </AppText>
+                </View>
+              ))}
+            </View>
             <Field
               label={t('Description (required)')}
               accessibilityLabel={t('Description (required)')}
-              placeholder={t('Describe what you observed, how long it has been happening, and who it affects.')}
+              placeholder={t('Example: The streetlight beside the Quinale barangay hall has been out for three nights, leaving the crossing dark.')}
               value={description}
               onChangeText={(value) => {
                 setDescription(value);
@@ -570,6 +590,10 @@ const styles = StyleSheet.create({
   form: { paddingHorizontal: spacing.lg, paddingBottom: 120, gap: spacing.xl },
   section: { gap: spacing.md },
   sectionLabel: { textTransform: 'uppercase' },
+  descriptionGuide: { gap: spacing.xs, padding: spacing.md, borderRadius: radius.md },
+  guideHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  guideItem: { flexDirection: 'row', gap: spacing.sm },
+  guideText: { flex: 1 },
   textArea: { minHeight: 112, textAlignVertical: 'top' },
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   categoryOption: {

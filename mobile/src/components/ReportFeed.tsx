@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { ClipboardList, Megaphone, Search, ShieldCheck } from 'lucide-react-native';
+import { ClipboardList, MapPin, Megaphone, Search, ShieldCheck } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  FlatList,
+  SectionList,
   ScrollView,
   StyleSheet,
   View,
@@ -97,6 +97,18 @@ export function ReportFeed({ section = 'community', panel }: {
     return filterReports(reports, filters);
   }, [reports, filters, section, uid]);
 
+  const barangaySections = useMemo(() => {
+    const groups = new Map<string, CommunityReport[]>();
+    for (const report of visibleReports) {
+      const group = groups.get(report.barangay);
+      if (group) group.push(report);
+      else groups.set(report.barangay, [report]);
+    }
+
+    return Array.from(groups, ([barangay, data]) => ({ key: barangay, barangay, data }))
+      .sort((a, b) => a.barangay.localeCompare(b.barangay));
+  }, [visibleReports]);
+
   const heading = section === 'mine' ? t('My Reports') : section === 'updates'
     ? t('Municipal updates') : t('Community reports');
 
@@ -179,8 +191,15 @@ export function ReportFeed({ section = 'community', panel }: {
         onChangeFilters={setFilters}
         total={visibleReports.length}
       />
-      <FlatList
-        data={visibleReports}
+      <SectionList
+        sections={barangaySections}
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section: group }) => (
+          <View accessibilityRole="header" style={styles.barangayHeading}>
+            <MapPin size={16} color={theme.colors.primary} />
+            <AppText variant="heading">{t(group.barangay)}</AppText>
+          </View>
+        )}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -196,6 +215,7 @@ export function ReportFeed({ section = 'community', panel }: {
             />
           </Reveal>
         )}
+        SectionSeparatorComponent={() => <View style={styles.sectionSpacer} />}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
@@ -335,6 +355,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   listContent: { flexGrow: 1, paddingBottom: spacing.xl },
+  barangayHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingTop: spacing.md },
+  sectionSpacer: { height: spacing.sm },
   separator: { height: spacing.md },
   header: { gap: spacing.md, paddingVertical: spacing.md },
   filters: { gap: spacing.md },

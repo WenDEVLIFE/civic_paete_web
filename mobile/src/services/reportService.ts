@@ -14,7 +14,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 
-import { ANONYMOUS_ALIAS, BLOCKED_MESSAGES } from '@/constants';
+import { ANONYMOUS_ALIAS, BLOCKED_MESSAGES, PAETE_BARANGAYS } from '@/constants';
 import { formatCommentTimestamp, formatLongDate } from '@/lib/format';
 import { requireDb } from '@/lib/firebase';
 import { uploadReportImage } from '@/storage/uploadReportImage';
@@ -43,13 +43,20 @@ function readStatus(value: unknown): ReportStatus {
   return STATUS_VALUES.includes(value as string) ? (value as ReportStatus) : 'pending';
 }
 
+function readBarangay(value: unknown): string {
+  if (typeof value !== 'string') return 'Unassigned';
+  const name = value.trim().replace(/^barangay\s+/i, '').replace(/\s+/g, ' ');
+  return PAETE_BARANGAYS.find((barangay) => barangay.toLowerCase() === name.toLowerCase())
+    ?? (name || 'Unassigned');
+}
+
 function mapReport(id: string, data: DocumentData): CommunityReport {
   return {
     id,
     title: typeof data.title === 'string' ? data.title : 'Untitled report',
     description: typeof data.description === 'string' ? data.description : '',
     category: readCategory(data.category),
-    barangay: typeof data.barangay === 'string' ? data.barangay : 'Unassigned',
+    barangay: readBarangay(data.barangay),
     status: readStatus(data.status),
     date: typeof data.date === 'string' ? data.date : formatLongDate(),
     upvotes: typeof data.upvotes === 'number' ? data.upvotes : 0,
