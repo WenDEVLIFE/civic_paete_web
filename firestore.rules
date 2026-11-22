@@ -39,6 +39,13 @@ service cloud.firestore {
       return description is string && description.matches('(?s).*[^\\s\\p{Z}\\x{000B}\\x{FEFF}].*');
     }
 
+    function validReportProjectChange() {
+      let projectId = request.resource.data.get('projectId', null);
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['projectId']) ||
+        projectId == null || (projectId is string &&
+          exists(/databases/$(database)/documents/transparency_projects/$(projectId)));
+    }
+
     // ─── 1. Community Reports ────────────────────────────────────────────────
     // Anyone can read reports (public civic feed).
     // Authenticated residents can create reports.
@@ -48,14 +55,16 @@ service cloud.firestore {
       allow read: if true;
 
       // Community reports must originate from residents; Admins and Governors are restricted from filing reports
-      allow create: if !isAdmin() && hasReportDescription() &&
+      allow create: if isSignedIn() && !isAdmin() && hasReportDescription() &&
+        request.resource.data.get('authorUid', '') == request.auth.uid &&
+        !request.resource.data.keys().hasAny(['authorEmail', 'email', 'projectId']) &&
         request.resource.data.get('comments', []) == [];
 
-      allow update: if (
+      allow update: if !request.resource.data.diff(resource.data).affectedKeys().hasAny(['authorEmail', 'email']) && (
         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['description']) ||
         hasReportDescription()
       ) && ((
-          isStaff() && (
+          isStaff() && validReportProjectChange() && (
             isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['comments'])
           )
         ) || (
@@ -63,6 +72,10 @@ service cloud.firestore {
           (resource.data.get('authorUid', '') == request.auth.uid || resource.data.get('userId', '') == request.auth.uid) &&
           !request.resource.data.diff(resource.data).affectedKeys().hasAny([
             'status',
+            'authorUid',
+            'userId',
+            'projectId',
+            'timeline',
             'comments',
             'officialNotes',
             'officialActorName',
@@ -80,8 +93,11 @@ service cloud.firestore {
 
       // 1.1 Atomic Upvotes Subcollection
       match /upvotes/{userId} {
-        allow read: if true;
-        allow write, delete: if true;
+        allow get: if !userId.matches('.*@.*');
+        allow list: if false;
+        allow create, update: if !userId.matches('.*@.*') &&
+          request.resource.data.get('userId', '') == userId;
+        allow delete: if !userId.matches('.*@.*');
       }
 
       // 1.2 Threaded Comments Subcollection
@@ -103,11 +119,11 @@ service cloud.firestore {
         isSignedIn() && resource.data.userId == request.auth.uid
       );
 
-      allow create: if isSignedIn() && (
+      allow create: if isSignedIn() && !request.resource.data.keys().hasAny(['email']) && (
         request.resource.data.userId == request.auth.uid || isStaff()
       );
 
-      allow update: if isStaff() || (
+      allow update: if !request.resource.data.diff(resource.data).affectedKeys().hasAny(['email']) && (isStaff() || (
         isSignedIn() &&
         resource.data.userId == request.auth.uid &&
         resource.data.status == 'pending' &&
@@ -117,7 +133,7 @@ service cloud.firestore {
           'reviewedAt',
           'rejectionReason'
         ])
-      );
+      ));
 
       allow delete: if isStaff() || (
         isSignedIn() && resource.data.userId == request.auth.uid
@@ -130,11 +146,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if true;
 
-      allow create: if isAdmin() || (
-        isOwner(userId) && request.resource.data.get('role', 'resident') == 'resident'
-      );
+      allow create: if !request.resource.data.keys().hasAny(['email']) && (isAdmin() || (
+        isOwner(userId) && request.resource.data.get('role', 'resident') == 'resident' &&
+        request.resource.data.get('verificationStatus', 'unverified') in ['unverified', 'pending']
+      ));
 
-      allow update: if (
+      allow update: if !request.resource.data.diff(resource.data).affectedKeys().hasAny(['email']) && ((
         isStaff() && (
           isAdmin() || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
         )
@@ -144,9 +161,27 @@ service cloud.firestore {
           'role',
           'verificationStatus'
         ])
-      );
+      ));
 
       allow delete: if isStaff() || isOwner(userId);
+
+      match /notifications/{notificationId} {
+        function matchesReportAuthor() {
+          let report = getAfter(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data;
+          return report.get('authorUid', report.get('userId', '')) == userId &&
+            request.resource.data.get('projectId', null) == report.get('projectId', null);
+        }
+
+        allow read: if isOwner(userId);
+        allow create: if isStaff() && matchesReportAuthor() &&
+          request.resource.data.keys().hasOnly([
+            'reportId', 'reportTitle', 'projectId', 'kind', 'status', 'officerNotes', 'actorName', 'read', 'createdAt'
+          ]) && request.resource.data.kind in ['status', 'comment'] &&
+          (request.resource.data.kind != 'comment' || isAdmin()) &&
+          request.resource.data.read == false && request.resource.data.createdAt == request.time;
+        allow update: if isOwner(userId) && request.resource.data.read == true &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      }
     }
 
     // ─── 4. Government Audit Trail (Append-Only) ──────────────────────────────
@@ -155,7 +190,7 @@ service cloud.firestore {
     // Updates and deletions are STRICTLY FORBIDDEN to ensure an immutable audit record.
     match /audit_logs/{logId} {
       allow read: if true;
-      allow create: if isSignedIn() || isStaff();
+      allow create: if isSignedIn() && !request.resource.data.keys().hasAny(['actorEmail', 'email']);
       allow update, delete: if false; // IMMUTABLE
     }
 

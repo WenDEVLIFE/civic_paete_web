@@ -18,7 +18,6 @@ import {
   Sparkles,
   Users,
   Building2,
-  Mail,
   ShieldCheck,
   UserCheck,
   Menu,
@@ -35,7 +34,7 @@ import {
 } from "lucide-react";
 import { auth, db } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDocs, setDoc, serverTimestamp } from "firebase/firestore";
 import { AdminSidebar, AdminTab } from "@/components/admin/AdminSidebar";
 import { VerificationBadge, VerificationStatus } from "@/components/profile/VerificationBadge";
 import {
@@ -60,7 +59,6 @@ interface VerificationRequest {
   id: string;
   userId: string;
   applicantName: string;
-  email: string;
   barangay: string;
   address: string;
   method: "certificate" | "gov_id";
@@ -229,7 +227,6 @@ export default function AdminDashboardPage() {
           id: r.id,
           userId: r.userId,
           applicantName: r.applicantName,
-          email: r.email,
           barangay: r.barangay,
           address: r.address,
           method: r.method,
@@ -259,6 +256,22 @@ export default function AdminDashboardPage() {
   const [barangayFilter, setBarangayFilter] = useState<string>("all");
   const [selectedReport, setSelectedReport] = useState<AdminReport | null>(null);
   const [noteInput, setNoteInput] = useState("");
+  const [projectInput, setProjectInput] = useState("");
+  const [projects, setProjects] = useState<{ id: string; title: string }[] | null>(null);
+  const [projectLoadFailed, setProjectLoadFailed] = useState(false);
+  const dispositionOpen = Boolean(selectedReport);
+
+  useEffect(() => {
+    if (!dispositionOpen) return;
+    let active = true;
+    void getDocs(collection(db, "transparency_projects")).then((snapshot) => {
+      if (!active) return;
+      setProjects(snapshot.docs.map((project) => ({ id: project.id, title: project.data().title || project.id }))
+        .sort((a, b) => a.title.localeCompare(b.title)));
+      setProjectLoadFailed(false);
+    }).catch(() => { if (active) setProjectLoadFailed(true); });
+    return () => { active = false; };
+  }, [dispositionOpen]);
 
   // Users filter state
   const [userRoleFilter, setUserRoleFilter] = useState<string>("all");
@@ -284,7 +297,7 @@ export default function AdminDashboardPage() {
     // 2. Promote the user's verificationStatus in the users state
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === req.userId || u.email === req.email
+        u.id === req.userId
           ? { ...u, verificationStatus: targetLevel }
           : u
       )
@@ -294,7 +307,7 @@ export default function AdminDashboardPage() {
     await reviewVerificationRequest(req.id, "approved", {
       reviewerName: currentUser?.name || "Municipal Administrator",
       reviewerRole: currentUser?.office || "Municipal Official",
-      reviewerEmail: currentUser?.email,
+
       targetStatus: targetLevel,
     });
   };
@@ -308,7 +321,7 @@ export default function AdminDashboardPage() {
     await reviewVerificationRequest(req.id, "rejected", {
       reviewerName: currentUser?.name || "Municipal Administrator",
       reviewerRole: currentUser?.office || "Municipal Official",
-      reviewerEmail: currentUser?.email,
+
       rejectionReason: "Requirement document discrepancy noted.",
     });
   };
@@ -331,26 +344,6 @@ export default function AdminDashboardPage() {
     );
   };
 
-  const handleSaveNote = async () => {
-    if (!selectedReport) return;
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === selectedReport.id ? { ...r, officialNotes: noteInput } : r
-      )
-    );
-
-    // Persist official note to Firestore and record immutable government audit log
-    await updateReportStatus(
-      selectedReport.id,
-      selectedReport.status,
-      noteInput,
-      currentUser?.name || "Municipal Official",
-      currentUser?.office || "Municipal Official"
-    );
-
-    setSelectedReport(null);
-  };
-
   // Report Deletion state & handler
   const [reportToDelete, setReportToDelete] = useState<AdminReport | null>(null);
   const [actionFeedbackToast, setActionFeedbackToast] = useState<{
@@ -358,13 +351,35 @@ export default function AdminDashboardPage() {
     type: "success" | "error";
   } | null>(null);
 
+  const [savingDisposition, setSavingDisposition] = useState(false);
+
+  async function saveDisposition(resolve = false) {
+    if (!selectedReport || savingDisposition) return;
+    setSavingDisposition(true);
+    const status = resolve ? "resolved" : selectedReport.status;
+    const note = resolve ? noteInput || "Resolved and inspected by a municipal official." : noteInput;
+    try {
+      await updateReportStatus(
+        selectedReport.id, status, note,
+        currentUser?.name || "Municipal Official", currentUser?.office || "Municipal Official",
+        projectInput === (selectedReport.projectId || "") ? undefined : projectInput || null
+      );
+      setSelectedReport(null);
+    } catch (error) {
+      console.warn("Could not save official disposition:", error);
+      setActionFeedbackToast({ type: "error", message: "The disposition could not be saved. Please try again." });
+    } finally {
+      setSavingDisposition(false);
+    }
+  }
+
   const handleConfirmDeleteReport = async (reportId: string, reason: string) => {
     try {
       await deleteReport(reportId, {
         deletedBy: {
           name: currentUser?.name || "Municipal Administrator",
           role: currentUser?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
-          email: currentUser?.email,
+
         },
         reason,
       });
@@ -410,7 +425,7 @@ export default function AdminDashboardPage() {
             currentUser?.role === "governor"
               ? "Provincial Governor of Laguna"
               : "Municipal Mayor / Executive Office",
-          email: currentUser?.email,
+
         },
         directiveDetails.trim(),
         directiveScope
@@ -438,7 +453,6 @@ export default function AdminDashboardPage() {
     const matchesRole = userRoleFilter === "all" || u.role === userRoleFilter;
     const matchesSearch =
       u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-      u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
       u.barangayOrOffice.toLowerCase().includes(userSearch.toLowerCase());
     return matchesRole && matchesSearch;
   });
@@ -861,6 +875,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => {
                               setSelectedReport(item);
+                              setProjectInput(item.projectId || "");
                               setNoteInput(item.officialNotes || "");
                             }}
                             className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium shrink-0 cursor-pointer min-h-[36px]"
@@ -975,6 +990,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => {
                               setSelectedReport(rep);
+                              setProjectInput(rep.projectId || "");
                               setNoteInput(
                                 rep.officialNotes ||
                                   "Office of the Provincial Governor: Prioritize remediation and notify Provincial Engineering."
@@ -1145,11 +1161,6 @@ export default function AdminDashboardPage() {
                                   <span>Real Name:</span>
                                   <span className="text-white font-bold">{report.authorRealName || report.authorName || "Paete Resident"}</span>
                                 </div>
-                                {report.authorEmail && (
-                                  <div className="text-[11px] text-slate-400 font-mono">
-                                    {report.authorEmail}
-                                  </div>
-                                )}
                               </div>
                             ) : (
                               <div className="space-y-0.5">
@@ -1161,11 +1172,6 @@ export default function AdminDashboardPage() {
                                     </span>
                                   )}
                                 </div>
-                                {report.authorEmail && (
-                                  <div className="text-[11px] text-slate-400 font-mono">
-                                    {report.authorEmail}
-                                  </div>
-                                )}
                               </div>
                             )}
                           </td>
@@ -1228,6 +1234,7 @@ export default function AdminDashboardPage() {
                                 type="button"
                                 onClick={() => {
                                   setSelectedReport(report);
+                                  setProjectInput(report.projectId || "");
                                   setNoteInput(report.officialNotes || "");
                                 }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-blue-600/20 hover:text-blue-300 border border-white/10 hover:border-blue-500/30 text-xs font-medium text-slate-200 transition-all min-h-[36px] cursor-pointer"
@@ -1345,7 +1352,7 @@ export default function AdminDashboardPage() {
                       <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Search accounts by name, email, or department..."
+                        placeholder="Search accounts by name or department..."
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 text-xs sm:text-sm focus:border-blue-500 focus:outline-none min-h-[44px]"
@@ -1389,10 +1396,6 @@ export default function AdminDashboardPage() {
                             <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                               <td className="px-5 py-3.5">
                                 <div className="font-bold text-white font-heading">{user.name}</div>
-                                <div className="text-slate-400 text-xs flex items-center gap-1 font-mono">
-                                  <Mail className="w-3 h-3 text-slate-500" />
-                                  <span>{user.email}</span>
-                                </div>
                               </td>
 
                               <td className="px-5 py-3.5 whitespace-nowrap">
@@ -1474,7 +1477,6 @@ export default function AdminDashboardPage() {
                             <tr key={req.id} className="hover:bg-white/[0.02] transition-colors">
                               <td className="px-5 py-4">
                                 <div className="font-bold text-white font-heading">{req.applicantName}</div>
-                                <div className="text-slate-400 text-xs font-mono">{req.email}</div>
                               </td>
 
                               <td className="px-5 py-4">
@@ -1659,27 +1661,28 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
+                <div>
+                  <label htmlFor="disposition-project" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Related public works project
+                  </label>
+                  <select id="disposition-project" value={projectInput} disabled={!projects || projectLoadFailed || savingDisposition}
+                    onChange={(event) => setProjectInput(event.target.value)}
+                    className="w-full rounded-xl bg-[#112347] border border-white/15 p-3 text-white text-sm">
+                    <option value="">No linked project</option>
+                    {projectInput && !projects?.some((project) => project.id === projectInput) && (
+                      <option value={projectInput}>Current linked project</option>
+                    )}
+                    {projects?.map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}
+                  </select>
+                  {projectLoadFailed && <p className="mt-1.5 text-xs text-slate-400">Project registry unavailable.</p>}
+                </div>
+
                 <div className="flex items-center justify-between gap-3 pt-2">
                   {selectedReport.status !== "resolved" ? (
                     <button
                       type="button"
-                      onClick={async () => {
-                        await updateReportStatus(
-                          selectedReport.id,
-                          "resolved",
-                          noteInput || "Resolved and inspected by Municipal/Provincial official.",
-                          currentUser?.name || "Municipal Official",
-                          currentUser?.office || "Municipal Official"
-                        );
-                        setReports((prev) =>
-                          prev.map((r) =>
-                            r.id === selectedReport.id
-                              ? { ...r, status: "resolved", officialNotes: noteInput || r.officialNotes }
-                              : r
-                          )
-                        );
-                        setSelectedReport(null);
-                      }}
+                      disabled={savingDisposition}
+                      onClick={() => void saveDisposition(true)}
                       className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-md shadow-emerald-950/40 cursor-pointer min-h-[44px] flex items-center gap-1.5 font-heading"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -1712,7 +1715,8 @@ export default function AdminDashboardPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={handleSaveNote}
+                      disabled={savingDisposition}
+                      onClick={() => void saveDisposition()}
                       className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-semibold text-white shadow-sm cursor-pointer min-h-[44px] font-heading"
                     >
                       Save Official Note

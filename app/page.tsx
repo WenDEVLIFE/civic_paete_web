@@ -272,8 +272,7 @@ export default function Home() {
       return;
     }
 
-    const authorRealName = newReportData.authorRealName || currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident";
-    const authorEmail = newReportData.authorEmail || currentUser.email || undefined;
+    const authorRealName = newReportData.authorRealName || currentUser.displayName || "Paete Resident";
     const authorVerificationStatus = newReportData.authorVerificationStatus || "unverified";
 
     let authorName: string | undefined = undefined;
@@ -289,7 +288,7 @@ export default function Home() {
       await createReport({
         title: newReportData.title,
         description: newReportData.description,
-        category: newReportData.category as any,
+        category: newReportData.category,
         barangay: newReportData.barangay,
         locationDetail: newReportData.locationDetail,
         imageFile: newReportData.imageFile,
@@ -299,7 +298,6 @@ export default function Home() {
         authorUid: currentUser.uid,
         authorName,
         authorRealName,
-        authorEmail,
         authorVerificationStatus,
         authorAvatar,
         authorRole,
