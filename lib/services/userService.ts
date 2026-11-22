@@ -10,7 +10,6 @@ import { VerificationStatus } from "@/lib/services/verificationService";
 export interface CivicUser {
   id: string;
   name: string;
-  email: string;
   role: "resident" | "official";
   barangayOrOffice: string;
   reportsCount: number;
@@ -57,7 +56,6 @@ export function subscribeToUsers(
         return {
           id: docSnap.id,
           name: data.displayName || data.name || "Civic Citizen",
-          email: data.email || "",
           role: data.role === "official" ? "official" : "resident",
           barangayOrOffice: data.barangay ? `Brgy. ${data.barangay}` : data.barangayOrOffice || "Paete Resident",
           reportsCount: typeof data.reportsCount === "number" ? data.reportsCount : 0,

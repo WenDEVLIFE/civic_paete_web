@@ -2,8 +2,6 @@ import {
   collection,
   doc,
   setDoc,
-  addDoc,
-  getDocs,
   query,
   orderBy,
   limit,
@@ -109,59 +107,6 @@ export async function requestNotificationPermissionAndSaveToken(
 }
 
 /**
- * 8.1 Dispatch automated notification when a report changes status (e.g. In Progress / Resolved)
- */
-export async function dispatchStatusChangeNotification(
-  reportId: string,
-  authorUid: string,
-  reportTitle: string,
-  newStatus: string,
-  officerNotes?: string
-): Promise<void> {
-  if (!authorUid) return;
-
-  try {
-    const notificationsCol = collection(db, "users", authorUid, "notifications");
-    const statusLabel = newStatus.replace(/_/g, " ").toUpperCase();
-
-    const title = `Report Update: ${statusLabel}`;
-    const body = officerNotes
-      ? `Your report "${reportTitle}" is now ${statusLabel}. Officer note: "${officerNotes}"`
-      : `Your report "${reportTitle}" has been transitioned to ${statusLabel}.`;
-
-    // 1. Write in-app notification document
-    await addDoc(notificationsCol, {
-      reportId,
-      title,
-      body,
-      status: newStatus,
-      officerNotes: officerNotes || null,
-      read: false,
-      createdAt: serverTimestamp(),
-    });
-
-    // 2. If browser notification permission is granted, display instant desktop alert
-    if (
-      typeof window !== "undefined" &&
-      "Notification" in window &&
-      Notification.permission === "granted"
-    ) {
-      try {
-        new Notification(title, {
-          body,
-          icon: "/logo.png",
-          tag: `report-${reportId}`,
-        });
-      } catch {
-        // Ignored if service worker handles it
-      }
-    }
-  } catch (error) {
-    console.warn("Notice: Notification dispatch could not complete:", error);
-  }
-}
-
-/**
  * Real-time listener for user notifications
  */
 export function subscribeToResidentNotifications(
@@ -180,8 +125,9 @@ export function subscribeToResidentNotifications(
         items.push({
           id: docSnap.id,
           reportId: data.reportId || undefined,
-          title: data.title || "Civic Paete Update",
-          body: data.body || "",
+          title: data.title || (data.kind === 'comment' ? 'Official response' : 'Report status updated'),
+          body: data.body || [data.reportTitle, data.status?.replace(/_/g, " "), data.officerNotes]
+            .filter(Boolean).join(" · "),
           status: data.status || undefined,
           officerNotes: data.officerNotes || undefined,
           read: Boolean(data.read),

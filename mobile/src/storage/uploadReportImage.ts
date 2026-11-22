@@ -51,7 +51,7 @@ export async function compressReportImage(
 /**
  * Uploads a community report photo to Firebase Storage after on-device compression.
  *
- * Bucket Path: `reports/{sanitizedBarangay}/{reportId}_{timestamp}.jpg`
+ * Bucket Path: `reports/{sanitizedBarangay}/{reportId}.jpg`
  */
 export async function uploadReportImage({
   uri,
@@ -68,7 +68,7 @@ export async function uploadReportImage({
   const blob = await readLocalBlob(compressedUri);
 
   const barangaySlug = slugifyBarangay(barangay);
-  const storagePath = `reports/${barangaySlug}/${reportId}_${Date.now()}.jpg`;
+  const storagePath = `reports/${barangaySlug}/${reportId}.jpg`;
   const storageRef = ref(requireStorage(), storagePath);
 
   await uploadBytes(storageRef, blob, {

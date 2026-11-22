@@ -1,3 +1,5 @@
+import NetInfo from '@react-native-community/netinfo';
+import { AppState, Platform } from 'react-native';
 import {
   Outfit_600SemiBold,
   Outfit_700Bold,
@@ -17,6 +19,7 @@ import { useEffect } from 'react';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { PreferencesProvider } from '@/lib/preferences';
+import { flushOutbox, subscribeToOutbox } from '@/services/reportOutbox';
 import { useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -49,7 +52,7 @@ function AppNavigation() {
   const palette = useTheme();
   const { scheme } = palette;
   const pathname = usePathname();
-  const hasNavyHeader = ['/', '/profile', '/my-reports', '/updates'].includes(pathname);
+  const hasNavyHeader = ['/', '/profile', '/my-reports', '/updates', '/notifications', '/recommendations'].includes(pathname);
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const navigationTheme = {
     ...base,
@@ -76,6 +79,25 @@ function AppNavigation() {
 
 function SessionStack({ backgroundColor }: { backgroundColor: string }) {
   const { user, loading } = useAuth();
+  const uid = user?.uid;
+
+  useEffect(() => {
+    if (!uid || Platform.OS === 'web') return;
+    const flush = () => {
+      if (AppState.currentState === 'active') void flushOutbox(uid).catch(console.warn);
+    };
+    const unsubscribeNetwork = NetInfo.addEventListener(flush);
+    const unsubscribeOutbox = subscribeToOutbox(flush);
+    const appState = AppState.addEventListener('change', flush);
+    const retry = setInterval(flush, 30_000);
+    flush();
+    return () => {
+      unsubscribeNetwork();
+      unsubscribeOutbox();
+      appState.remove();
+      clearInterval(retry);
+    };
+  }, [uid]);
 
   useEffect(() => {
     if (!loading) {

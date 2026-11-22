@@ -15,6 +15,7 @@ import {
   increment,
   runTransaction,
   deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
@@ -38,7 +39,6 @@ export interface CreateReportInput {
   authorUid: string;
   authorName?: string;
   authorRealName?: string;
-  authorEmail?: string;
   authorAvatar?: string;
   authorRole?: "resident" | "official" | "governor";
   authorVerificationStatus?: string;
@@ -215,7 +215,6 @@ export async function createReport(data: CreateReportInput): Promise<string> {
     anonymousAlias: data.isAnonymous ? data.anonymousAlias || "Protected Citizen" : null,
     authorUid: data.authorUid || null,
     authorRealName: data.authorRealName || data.authorName || "Paete Resident",
-    authorEmail: data.authorEmail || null,
     authorVerificationStatus: data.authorVerificationStatus || "unverified",
     authorName: data.isAnonymous ? null : (data.authorName || data.authorRealName || "Resident"),
     authorAvatar: data.isAnonymous ? null : (data.authorAvatar || null),
@@ -311,11 +310,11 @@ export function subscribeToReports(
           authorUid: data.authorUid || undefined,
           authorName: data.authorName || undefined,
           authorRealName: data.authorRealName || undefined,
-          authorEmail: data.authorEmail || undefined,
           authorVerificationStatus: data.authorVerificationStatus || undefined,
           authorAvatar: data.authorAvatar || undefined,
           authorRole: data.authorRole || "resident",
           officialNotes: data.officialNotes || undefined,
+          projectId: data.projectId || undefined,
           officialActorName: data.officialActorName || undefined,
           officialActorRole: data.officialActorRole || undefined,
           comments: Array.isArray(data.comments) ? data.comments : [],
@@ -381,11 +380,11 @@ export async function getReportById(reportId: string): Promise<DetailedReport | 
     authorUid: data.authorUid || undefined,
     authorName: data.authorName || undefined,
     authorRealName: data.authorRealName || undefined,
-    authorEmail: data.authorEmail || undefined,
     authorVerificationStatus: data.authorVerificationStatus || undefined,
     authorAvatar: data.authorAvatar || undefined,
     authorRole: data.authorRole || "resident",
     officialNotes: data.officialNotes || undefined,
+    projectId: data.projectId || undefined,
     officialActorName: data.officialActorName || undefined,
     officialActorRole: data.officialActorRole || undefined,
     comments: Array.isArray(data.comments) ? data.comments : [],
@@ -431,11 +430,11 @@ export function subscribeToReportById(
         authorUid: data.authorUid || undefined,
         authorName: data.authorName || undefined,
         authorRealName: data.authorRealName || undefined,
-        authorEmail: data.authorEmail || undefined,
         authorVerificationStatus: data.authorVerificationStatus || undefined,
         authorAvatar: data.authorAvatar || undefined,
         authorRole: data.authorRole || "resident",
         officialNotes: data.officialNotes || undefined,
+        projectId: data.projectId || undefined,
         officialActorName: data.officialActorName || undefined,
         officialActorRole: data.officialActorRole || undefined,
         comments: Array.isArray(data.comments) ? data.comments : [],
@@ -459,7 +458,8 @@ export async function updateReportStatus(
   status: ReportStatus,
   officerNotes?: string,
   officerName?: string,
-  officerRole?: string
+  officerRole?: string,
+  projectId?: string | null
 ): Promise<void> {
   const docRef = doc(db, "reports", reportId);
   const docSnap = await getDoc(docRef);
@@ -469,6 +469,7 @@ export async function updateReportStatus(
     updatedAt: serverTimestamp(),
   };
 
+  if (projectId !== undefined) updatePayload.projectId = projectId;
   if (officerNotes !== undefined) updatePayload.officialNotes = officerNotes;
   if (officerName !== undefined) updatePayload.officialActorName = officerName;
   if (officerRole !== undefined) updatePayload.officialActorRole = officerRole;
@@ -499,7 +500,24 @@ export async function updateReportStatus(
     updatePayload.timeline = [newTimelineItem, ...existingTimeline];
   }
 
-  await updateDoc(docRef, updatePayload);
+  const batch = writeBatch(db);
+  batch.update(docRef, updatePayload);
+  const report = docSnap.data();
+  const recipient = report?.authorUid || report?.userId;
+  if (recipient) {
+    batch.set(doc(collection(db, 'users', recipient, 'notifications')), {
+      kind: 'status',
+      projectId: projectId === undefined ? report?.projectId || null : projectId,
+      reportId,
+      reportTitle: report?.title || '',
+      status,
+      officerNotes: officerNotes || null,
+      actorName: officerName || null,
+      read: false,
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
 
   // 1. Trigger background official resolution metric recalculation on status changes
   import("@/lib/services/officialService")
@@ -529,27 +547,7 @@ export async function updateReportStatus(
     })
     .catch(() => {});
 
-  // 3. Dispatch automated push & in-app notification to the resident author
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    const authorUid = data.authorUid || data.userId;
-    const reportTitle = data.title || "Community Report";
-    if (authorUid) {
-      import("@/lib/services/notificationService")
-        .then(({ dispatchStatusChangeNotification }) => {
-          dispatchStatusChangeNotification(
-            reportId,
-            authorUid,
-            reportTitle,
-            status,
-            officerNotes
-          ).catch((err) =>
-            console.warn("Background notification dispatch notice:", err)
-          );
-        })
-        .catch(() => {});
-    }
-  }
+
 }
 
 /**
@@ -558,7 +556,7 @@ export async function updateReportStatus(
 export async function deleteReport(
   reportId: string,
   options?: {
-    deletedBy?: { name: string; role: string; email?: string };
+    deletedBy?: { name: string; role: string };
     reason?: string;
   }
 ): Promise<void> {
@@ -817,7 +815,24 @@ export async function addReportComment(
     createdAt: serverTimestamp(),
   };
 
-  await setDoc(newCommentRef, commentPayload);
+  const reportRef = doc(db, "reports", reportId);
+  const report = (await getDoc(reportRef)).data();
+  const recipient = report?.authorUid || report?.userId;
+  const batch = writeBatch(db);
+  batch.set(newCommentRef, commentPayload);
+  if (recipient) {
+    batch.set(doc(collection(db, 'users', recipient, 'notifications')), {
+      kind: 'comment',
+      projectId: report?.projectId || null,
+      reportId,
+      reportTitle: report?.title || '',
+      officerNotes: commentPayload.content,
+      actorName: commentPayload.authorName,
+      read: false,
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
 
   // Update parent report updatedAt
   try {

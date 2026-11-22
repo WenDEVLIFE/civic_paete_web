@@ -4,19 +4,20 @@ import {
   collection,
   doc,
   getDoc,
+  getDocFromServer,
   onSnapshot,
   orderBy,
   query,
   runTransaction,
   serverTimestamp,
-  setDoc,
+  writeBatch,
   type DocumentData,
   type Unsubscribe,
 } from 'firebase/firestore';
 
 import { ANONYMOUS_ALIAS, BLOCKED_MESSAGES, PAETE_BARANGAYS } from '@/constants';
 import { formatCommentTimestamp, formatLongDate } from '@/lib/format';
-import { requireDb } from '@/lib/firebase';
+import { requireAuth, requireDb } from '@/lib/firebase';
 import { uploadReportImage } from '@/storage/uploadReportImage';
 import type {
   AddCommentInput,
@@ -73,7 +74,6 @@ function mapReport(id: string, data: DocumentData): CommunityReport {
       ? data.authorUid
       : typeof data.userId === 'string' ? data.userId : undefined,
     authorRealName: typeof data.authorRealName === 'string' ? data.authorRealName : undefined,
-    authorEmail: typeof data.authorEmail === 'string' ? data.authorEmail : undefined,
     authorVerificationStatus:
       typeof data.authorVerificationStatus === 'string' ? data.authorVerificationStatus : undefined,
   };
@@ -184,8 +184,13 @@ export function subscribeToReportById(
   );
 }
 
-export async function createReport(input: CreateReportInput): Promise<string> {
-  if (!input.authorUid) {
+function canSubmitReport(profile: DocumentData | undefined): profile is DocumentData {
+  return Boolean(profile && (profile.role === 'resident' || profile.role == null) &&
+    (profile.verificationStatus === 'barangay_verified' || profile.verificationStatus === 'community_leader'));
+}
+
+export async function createReport(input: CreateReportInput, reportId: string): Promise<string> {
+  if (!input.authorUid || requireAuth().currentUser?.uid !== input.authorUid) {
     throw new Error(BLOCKED_MESSAGES.signInRequired);
   }
   if (input.authorRole === 'governor' || input.authorRole === 'official') {
@@ -197,9 +202,15 @@ export async function createReport(input: CreateReportInput): Promise<string> {
     throw new Error(BLOCKED_MESSAGES.descriptionRequired);
   }
 
+  const authorUid = input.authorUid;
   const database = requireDb();
-  const newReportRef = doc(collection(database, 'reports'));
-  const reportId = newReportRef.id;
+  const newReportRef = doc(database, 'reports', reportId);
+  const existing = await getDocFromServer(newReportRef);
+  if (existing.exists()) return reportId;
+
+  const profileRef = doc(database, 'users', authorUid);
+  const profile = (await getDocFromServer(profileRef)).data();
+  if (!canSubmitReport(profile)) throw new Error('Verified resident account required');
 
   let finalImageUrl: string | undefined;
   if (input.imageUri) {
@@ -211,14 +222,14 @@ export async function createReport(input: CreateReportInput): Promise<string> {
       });
     } catch (error) {
       console.warn('Report photo upload failed:', error);
-      throw new Error('Photo upload failed. Check your connection and try submitting again.');
+      throw error;
     }
   }
 
   const currentDateStr = formatLongDate();
   const isAnonymous = Boolean(input.isAnonymous);
 
-  await setDoc(newReportRef, {
+  const payload = {
     id: reportId,
     title: input.title,
     description,
@@ -233,7 +244,6 @@ export async function createReport(input: CreateReportInput): Promise<string> {
     anonymousAlias: isAnonymous ? input.anonymousAlias || ANONYMOUS_ALIAS : null,
     authorUid: input.authorUid,
     authorRealName: input.authorRealName || input.authorName || 'Paete Resident',
-    authorEmail: input.authorEmail || null,
     authorVerificationStatus: input.authorVerificationStatus || 'unverified',
     authorName: isAnonymous ? null : input.authorName || input.authorRealName || 'Resident',
     authorAvatar: isAnonymous ? null : input.authorAvatar || null,
@@ -260,6 +270,14 @@ export async function createReport(input: CreateReportInput): Promise<string> {
     ],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+  };
+
+  await runTransaction(database, async (transaction) => {
+    const report = await transaction.get(newReportRef);
+    if (report.exists()) return;
+    const latestProfile = (await transaction.get(profileRef)).data();
+    if (!canSubmitReport(latestProfile)) throw new Error('Verified resident account required');
+    transaction.set(newReportRef, { ...payload, authorVerificationStatus: latestProfile.verificationStatus });
   });
 
   return reportId;
@@ -377,7 +395,10 @@ export async function addReportComment(
   const newCommentRef = doc(collection(database, 'reports', reportId, 'comments'));
   const isAuthorizedOfficial = comment.authorRole === 'official' || comment.authorRole === 'governor';
 
-  await setDoc(newCommentRef, {
+  const report = (await getDocFromServer(doc(database, 'reports', reportId))).data();
+  const recipient = report?.authorUid || report?.userId;
+  const batch = writeBatch(database);
+  batch.set(newCommentRef, {
     id: newCommentRef.id,
     reportId,
     authorUid: comment.authorUid,
@@ -389,5 +410,18 @@ export async function addReportComment(
     createdAt: serverTimestamp(),
   });
 
+  if (recipient) {
+    batch.set(doc(collection(database, 'users', recipient, 'notifications')), {
+      kind: 'comment',
+      projectId: report?.projectId || null,
+      reportId,
+      reportTitle: report?.title || '',
+      officerNotes: comment.content.trim(),
+      actorName: comment.authorName || 'Paete Resident',
+      read: false,
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
   return newCommentRef.id;
 }

@@ -35,7 +35,6 @@ export interface CommunityReport {
   anonymousAlias?: string;
   authorUid?: string;
   authorRealName?: string;
-  authorEmail?: string;
   authorVerificationStatus?: string;
 }
 
@@ -73,7 +72,6 @@ export interface CreateReportInput {
   authorUid?: string;
   authorName?: string;
   authorRealName?: string;
-  authorEmail?: string;
   authorAvatar?: string;
   authorRole?: AuthorRole;
   authorVerificationStatus?: string;
@@ -99,7 +97,6 @@ export type VerificationStatus =
 export interface CivicUser {
   id: string;
   name: string;
-  email: string;
   role: 'resident' | 'official';
   barangayOrOffice: string;
   reportsCount: number;

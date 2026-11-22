@@ -28,7 +28,6 @@ export interface GovernmentAuditLog {
   timestamp: string;
   createdAt?: unknown;
   actorName: string;
-  actorEmail?: string;
   actorRole: string;
   action: AuditAction | string;
   reportId?: string;
@@ -126,7 +125,7 @@ export async function logStatusChange(
   reportId: string,
   oldStatus: string,
   newStatus: string,
-  actor: { name: string; role: string; email?: string },
+  actor: { name: string; role: string },
   barangay: string = "Paete",
   notes?: string
 ): Promise<string> {
@@ -139,7 +138,6 @@ export async function logStatusChange(
 
   return logAuditEvent({
     actorName: actor.name || "Municipal Official",
-    actorEmail: actor.email,
     actorRole: actor.role || "Municipal Government",
     action,
     reportId,
@@ -157,7 +155,7 @@ export async function logVerificationDecision(
   targetUserId: string,
   applicantName: string,
   decision: "approved" | "rejected" | "promoted",
-  actor: { name: string; role: string; email?: string },
+  actor: { name: string; role: string },
   barangay: string,
   reasonOrLevel?: string
 ): Promise<string> {
@@ -175,7 +173,6 @@ export async function logVerificationDecision(
 
   return logAuditEvent({
     actorName: actor.name || "Municipal Administrator",
-    actorEmail: actor.email,
     actorRole: actor.role || "Municipal Official",
     action,
     reportId: requestId,
@@ -192,7 +189,7 @@ export async function logVerificationDecision(
 export async function logEmergencyDirective(
   directiveTitle: string,
   directiveScope: string,
-  actor: { name: string; role: string; email?: string },
+  actor: { name: string; role: string },
   directiveDetails: string,
   barangay: string = "All Barangays"
 ): Promise<string> {
@@ -200,7 +197,6 @@ export async function logEmergencyDirective(
 
   return logAuditEvent({
     actorName: actor.name || "Hon. Rosario A. Fadul (Mayor)",
-    actorEmail: actor.email,
     actorRole: actor.role || "Executive Office",
     action: "EMERGENCY_DIRECTIVE",
     barangay,
@@ -215,7 +211,7 @@ export async function logEmergencyDirective(
 export async function logReportDeletion(
   reportId: string,
   reportTitle: string,
-  actor: { name: string; role: string; email?: string },
+  actor: { name: string; role: string },
   barangay: string = "Paete",
   reason?: string
 ): Promise<string> {
@@ -225,7 +221,6 @@ export async function logReportDeletion(
 
   return logAuditEvent({
     actorName: actor.name || "Municipal Administrator",
-    actorEmail: actor.email,
     actorRole: actor.role || "Municipal Government",
     action: "REPORT_DELETED",
     reportId,
@@ -286,7 +281,6 @@ export function subscribeToAuditLogs(
           id: docSnap.id,
           timestamp: formattedTime,
           actorName: data.actorName || "Municipal Official",
-          actorEmail: data.actorEmail || undefined,
           actorRole: data.actorRole || "Municipal Administration",
           action: (data.action as AuditAction) || "STATUS_CHANGE",
           reportId: data.reportId || undefined,
@@ -346,7 +340,6 @@ export async function getAuditLogs(maxRecords: number = 50): Promise<GovernmentA
         id: docSnap.id,
         timestamp: formattedTime,
         actorName: data.actorName || "Municipal Official",
-        actorEmail: data.actorEmail || undefined,
         actorRole: data.actorRole || "Municipal Administration",
         action: (data.action as AuditAction) || "STATUS_CHANGE",
         reportId: data.reportId || undefined,

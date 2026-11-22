@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import { PendingReports } from '@/components/PendingReports';
 import { usePreferences } from '@/lib/preferences';
 import { ReportCard } from '@/components/ReportCard';
 import {
@@ -204,6 +205,7 @@ export function ReportFeed({ section = 'community', panel }: {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.column, styles.listContent]}
+        ListHeaderComponent={section === 'mine' ? PendingReports : undefined}
         ListEmptyComponent={listEmpty}
         renderItem={({ item, index }) => (
           <Reveal index={index}>

@@ -23,6 +23,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { usePreferences } from '@/lib/preferences';
+import { DescriptionDictation } from '@/components/DescriptionDictation';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import {
   AppText,
@@ -43,7 +44,7 @@ import {
 } from '@/constants';
 import { displayNameFor, useAuth } from '@/lib/auth';
 import { formatFileSize } from '@/lib/format';
-import { createReport } from '@/services/reportService';
+import { queueReport } from '@/services/reportOutbox';
 import { radius, spacing, useTheme } from '@/theme';
 import type { ReportCategory } from '@/types';
 
@@ -167,7 +168,7 @@ export default function SubmitReportScreen() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const reportId = await createReport({
+      const reportId = await queueReport({
         title: title.trim(),
         description: description.trim(),
         category,
@@ -181,13 +182,16 @@ export default function SubmitReportScreen() {
         authorUid: user.uid,
         authorName: displayNameFor(user),
         authorRealName: user.displayName || displayNameFor(user),
-        authorEmail: user.email ?? undefined,
         authorAvatar: user.photoURL ?? undefined,
         authorRole: 'resident',
         authorVerificationStatus: verificationStatus,
       });
 
-      router.replace({ pathname: '/report/[id]', params: { id: reportId } });
+      if (reportId) {
+        router.replace({ pathname: '/report/[id]', params: { id: reportId } });
+      } else {
+        router.dismissTo('/my-reports');
+      }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Report could not be submitted.');
     } finally {
@@ -364,6 +368,10 @@ export default function SubmitReportScreen() {
               numberOfLines={5}
               style={styles.textArea}
             />
+            <DescriptionDictation onTranscript={(text) => {
+              setDescription((current) => [current.trimEnd(), text].filter(Boolean).join(' '));
+              if (formError === BLOCKED_MESSAGES.descriptionRequired) setFormError(null);
+            }} />
             {formError === BLOCKED_MESSAGES.descriptionRequired ? (
               <View accessibilityLiveRegion="polite">
                 <AppText variant="caption" color={theme.colors.danger}>{t(formError)}</AppText>

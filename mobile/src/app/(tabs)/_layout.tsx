@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useGlobalSearchParams, usePathname } from 'expo-router';
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
-import { ClipboardList, House, Megaphone, Plus, Search, SlidersHorizontal, UserRound } from 'lucide-react-native';
+import { Bell, ClipboardList, House, Lightbulb, Megaphone, Plus, Search, SlidersHorizontal, UserRound } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +14,8 @@ const destinations = [
   { name: 'community', href: '/', label: 'Community', icon: House },
   { name: 'my-reports', href: '/my-reports', label: 'My Reports', icon: ClipboardList },
   { name: 'updates', href: '/updates', label: 'Updates', icon: Megaphone },
+  { name: 'notifications', href: '/notifications', label: 'Notifications', icon: Bell },
+  { name: 'recommendations', href: '/recommendations', label: 'Recommendations', icon: Lightbulb },
   { name: 'account', href: '/profile', label: 'My Account', icon: UserRound },
 ] as const;
 

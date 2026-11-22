@@ -35,7 +35,6 @@ export interface SubmitReportData extends Omit<CommunityReport, "id" | "date" | 
   imageFile?: File | null;
   locationDetail?: string;
   authorRealName?: string;
-  authorEmail?: string;
   authorVerificationStatus?: string;
 }
 
@@ -163,7 +162,6 @@ export function SubmitReportModal({
           {
             uid: loggedUser.uid,
             name: loggedUser.displayName || "Paete Resident",
-            email: loggedUser.email || "",
             photoURL: loggedUser.photoURL || "",
             role: existingData?.role || "resident",
             authProvider: "google",
@@ -291,9 +289,8 @@ export function SubmitReportModal({
         imageUrl: previewUrl || undefined,
         isAnonymous,
         anonymousAlias: isAnonymous ? anonymousAlias : undefined,
-        authorName: isAnonymous ? undefined : (currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident"),
-        authorRealName: currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident",
-        authorEmail: currentUser.email || undefined,
+        authorName: isAnonymous ? undefined : (currentUser.displayName || "Paete Resident"),
+        authorRealName: currentUser.displayName || "Paete Resident",
         authorVerificationStatus: verificationStatus,
         authorAvatar: isAnonymous ? undefined : (currentUser.photoURL || undefined),
       });
@@ -538,7 +535,7 @@ export function SubmitReportModal({
               </h2>
               <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-slate-300">
                 <span>Filing report as:</span>
-                <strong className="text-white">{currentUser.displayName || currentUser.email?.split("@")[0] || "Paete Resident"}</strong>
+                <strong className="text-white">{currentUser.displayName || "Paete Resident"}</strong>
                 <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-heading">
                   <UserCheck className="w-3 h-3" />
                   <span>Barangay Verified</span>
@@ -868,7 +865,6 @@ export function SubmitReportModal({
             isOpen={isVerificationModalOpen}
             onClose={() => setIsVerificationModalOpen(false)}
             userId={currentUser.uid}
-            userEmail={currentUser.email || undefined}
             userName={currentUser.displayName || undefined}
           />
         )}

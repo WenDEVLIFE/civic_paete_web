@@ -60,6 +60,7 @@ export interface CommunityReport {
   authorAvatar?: string;
   authorRole?: "resident" | "official" | "governor";
   officialNotes?: string;
+  projectId?: string;
   officialActorName?: string;
   officialActorRole?: string;
   comments?: ReportComment[];
@@ -69,7 +70,6 @@ export interface CommunityReport {
   anonymousAlias?: string;
   authorUid?: string;
   authorRealName?: string;
-  authorEmail?: string;
   authorVerificationStatus?: string;
 }
 
@@ -147,7 +147,7 @@ export function ReportCard({
   // Subscribe to live user upvote state from subcollection
   useEffect(() => {
     const effectiveUserId =
-      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+      residentUser?.uid || auth.currentUser?.uid || getOrCreateClientVoterId();
     if (!effectiveUserId || !report.id) return;
 
     const unsubUpvote = subscribeToReportUpvoteStatus(
@@ -159,7 +159,7 @@ export function ReportCard({
     );
 
     return () => unsubUpvote();
-  }, [report.id, residentUser?.uid, officerSession?.email]);
+  }, [report.id, residentUser?.uid]);
 
   // Subscribe to live comments subcollection
   useEffect(() => {
@@ -180,7 +180,7 @@ export function ReportCard({
 
   const handleUpvoteClick = async () => {
     const effectiveUserId =
-      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+      residentUser?.uid || auth.currentUser?.uid || getOrCreateClientVoterId();
     const nextState = !isUpvoted;
     setIsUpvoted(nextState);
     setUpvotes((prev) => (nextState ? prev + 1 : Math.max(0, prev - 1)));
@@ -247,7 +247,7 @@ export function ReportCard({
       deletedBy: {
         name: officerSession?.name || "Municipal Administrator",
         role: officerSession?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
-        email: officerSession?.email,
+
       },
       reason,
     });

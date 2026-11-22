@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import Constants from 'expo-constants';
 import {
@@ -14,11 +15,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 
 import { auth, db, firebaseConfigured, requireAuth, requireDb } from '@/lib/firebase';
+import { bindDeviceAccount, getDeviceAccount } from '@/lib/deviceAccount';
 import { BLOCKED_MESSAGES } from '@/constants';
 import { userVerificationRequests } from '@/services/verificationService';
 import type { VerificationStatus } from '@/types';
@@ -89,15 +92,14 @@ async function ensureUserProfile(user: FirebaseUser): Promise<void> {
       uid: user.uid,
       displayName: user.displayName || existing?.displayName || 'Paete Resident',
       name: user.displayName || existing?.name || 'Paete Resident',
-      email: user.email || existing?.email || '',
       photoURL: user.photoURL || existing?.photoURL || null,
-      role: existing?.role || 'resident',
       authProvider: 'google',
-      verificationStatus: existing?.verificationStatus || 'unverified',
       lastLogin: serverTimestamp(),
       ...(existing
         ? {}
         : {
+            role: 'resident',
+            verificationStatus: 'unverified',
             createdAt: serverTimestamp(),
             registeredDate: new Date().toISOString(),
             reportsCount: 0,
@@ -123,6 +125,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const signInPending = useRef(false);
   const [loading, setLoading] = useState(true);
   const [profileStatus, setProfileStatus] = useState<VerificationStatus>('unverified');
   const [profileRole, setProfileRole] = useState<OfficialRoleCheck | null>(null);
@@ -149,21 +152,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!auth) {
+    const authInstance = auth;
+    if (!authInstance) {
       setLoading(false);
       return;
     }
-    return onAuthStateChanged(
-      auth,
-      (nextUser) => {
-        setUser(nextUser);
-        setLoading(false);
+    let active = true;
+    const unsubscribe = onAuthStateChanged(
+      authInstance,
+      async (nextUser) => {
+        if (signInPending.current && nextUser) return;
+        try {
+          if (nextUser) {
+            const googleId = nextUser.providerData.find(({ providerId }) => providerId === 'google.com')?.uid;
+            if (!googleId) throw new Error('A Google account is required.');
+            await bindDeviceAccount(googleId);
+          }
+          if (active && authInstance.currentUser === nextUser) setUser(nextUser);
+        } catch (error) {
+          console.warn('Could not restore the device account:', error);
+          if (authInstance.currentUser === nextUser) {
+            setUser(null);
+            await firebaseSignOut(authInstance).catch(console.warn);
+          }
+        } finally {
+          if (active) setLoading(false);
+        }
       },
       (error) => {
         console.warn('Auth state listener error:', error);
         setLoading(false);
       }
     );
+    return () => { active = false; unsubscribe(); };
   }, []);
 
   useEffect(() => {
@@ -171,16 +192,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfileStatus('unverified');
       return;
     }
-    return onSnapshot(
+    let active = true;
+    let loadedFromServer = false;
+    const statusKey = `civic-paete.verification.${user.uid}`;
+    void AsyncStorage.getItem(statusKey).then((saved) => {
+      if (active && !loadedFromServer) setProfileStatus(readVerificationStatus(saved));
+    }).catch(console.warn);
+    const unsubscribe = onSnapshot(
       doc(db, 'users', user.uid),
+      { includeMetadataChanges: true },
       (snapshot) => {
         const profile = snapshot.data();
         const status = readVerificationStatus(profile?.verificationStatus);
-        setProfileStatus(status);
+        if (!snapshot.metadata.fromCache) {
+          loadedFromServer = true;
+          setProfileStatus(status);
+          void AsyncStorage.setItem(statusKey, status).catch(console.warn);
+        }
         setProfileRole({ user, isOfficial: isOfficialRole(profile?.role) || status === 'municipal_officer' });
       },
-      () => setProfileStatus('unverified')
+      (error) => console.warn('Could not refresh verification status:', error)
     );
+    return () => { active = false; unsubscribe(); };
   }, [user]);
 
   useEffect(() => {
@@ -215,6 +248,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const authInstance = requireAuth();
+    if (signInPending.current) return null;
+    signInPending.current = true;
 
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -224,12 +259,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
+      const googleId = response.data.user.id;
+      const deviceAccount = await getDeviceAccount();
+      if (deviceAccount && deviceAccount !== googleId) {
+        await GoogleSignin.signOut();
+        throw new Error('This device is linked to another Google account. Sign in with that account.');
+      }
       const credential = GoogleAuthProvider.credential(response.data.idToken);
       const result = await signInWithCredential(authInstance, credential);
-      await ensureUserProfile(result.user);
+      try {
+        await bindDeviceAccount(googleId);
+      } catch (error) {
+        await firebaseSignOut(authInstance);
+        throw error;
+      }
+      setUser(result.user);
+      void ensureUserProfile(result.user).catch((error) => console.warn('Profile sync failed:', error));
       return result.user;
     } catch (error) {
       throw toFriendlyAuthError(error);
+    } finally {
+      signInPending.current = false;
     }
   }, []);
 
@@ -274,5 +324,5 @@ export function useAuth(): AuthContextValue {
 }
 
 export function displayNameFor(user: FirebaseUser | null): string {
-  return user?.displayName || user?.email?.split('@')[0] || 'Paete Resident';
+  return user?.displayName || 'Paete Resident';
 }

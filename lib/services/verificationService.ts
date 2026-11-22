@@ -28,7 +28,6 @@ export interface VerificationRequest {
   id: string;
   userId: string;
   applicantName: string;
-  email: string;
   barangay: string;
   address: string;
   birthDate: string;
@@ -48,7 +47,6 @@ export interface VerificationRequest {
 export interface SubmitVerificationInput {
   userId: string;
   applicantName: string;
-  email: string;
   barangay: string;
   address: string;
   birthDate: string;
@@ -91,7 +89,6 @@ export async function submitVerificationRequest(
     id: newRequestRef.id,
     userId: input.userId,
     applicantName: input.applicantName.trim(),
-    email: input.email.trim(),
     barangay: input.barangay,
     address: input.address.trim(),
     birthDate: input.birthDate,
@@ -116,7 +113,6 @@ export async function submitVerificationRequest(
       userDocRef,
       {
         uid: input.userId,
-        email: input.email.trim(),
         displayName: input.applicantName.trim(),
         barangay: input.barangay,
         verificationStatus: "pending",
@@ -237,7 +233,6 @@ export function subscribeToAllVerificationRequests(
           id: docSnap.id,
           userId: data.userId || "",
           applicantName: data.applicantName || "Resident",
-          email: data.email || "",
           barangay: data.barangay || "Paete",
           address: data.address || "",
           birthDate: data.birthDate || "",
@@ -274,7 +269,7 @@ export async function reviewVerificationRequest(
   options: {
     reviewerName: string;
     reviewerRole: string;
-    reviewerEmail?: string;
+
     targetStatus?: VerificationStatus;
     rejectionReason?: string;
   }
@@ -325,7 +320,7 @@ export async function reviewVerificationRequest(
         {
           name: options.reviewerName,
           role: options.reviewerRole,
-          email: options.reviewerEmail,
+
         },
         barangay,
         decision === "approved" ? finalStatus : options.rejectionReason

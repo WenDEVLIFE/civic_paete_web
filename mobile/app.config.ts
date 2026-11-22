@@ -104,6 +104,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   const plugins: ExpoConfig['plugins'] = [
     'expo-router',
+    'expo-secure-store',
+    ['expo-speech-recognition', {
+      microphonePermission: 'Allow Civic Paete to dictate the report description.',
+      speechRecognitionPermission: 'Allow Civic Paete to turn your speech into report text.',
+    }],
     [
       'expo-splash-screen',
       {
@@ -117,7 +122,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       {
         photosPermission:
           'Allow Civic Paete to attach a photo of the community concern you are reporting.',
-        microphonePermission: false,
       },
     ],
   ];

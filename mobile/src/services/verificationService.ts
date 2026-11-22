@@ -96,7 +96,6 @@ export async function submitVerificationRequest(input: VerificationInput) {
         id: requestRef.id,
         userId: user.uid,
         applicantName: input.applicantName.trim(),
-        email: user.email ?? '',
         barangay: input.barangay,
         address: input.address.trim(),
         birthDate: input.birthDate,
