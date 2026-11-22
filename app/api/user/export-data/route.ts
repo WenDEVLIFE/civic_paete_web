@@ -199,7 +199,7 @@ export async function GET(request: Request) {
       },
       userProfile: {
         uid,
-        email: verifiedUser.email || userProfileData.email || null,
+        email: verifiedUser.email || null,
         displayName: userProfileData.displayName || null,
         barangay: userProfileData.barangay || "Unspecified",
         verificationStatus: userProfileData.verificationStatus || "unverified",

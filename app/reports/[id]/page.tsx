@@ -284,7 +284,7 @@ export default function ReportDetailPage({
   // Subscribe to live user upvote state from subcollection
   useEffect(() => {
     const effectiveUserId =
-      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+      residentUser?.uid || auth.currentUser?.uid || getOrCreateClientVoterId();
     if (!effectiveUserId || !reportId) return;
 
     const unsubUpvote = subscribeToReportUpvoteStatus(
@@ -296,7 +296,7 @@ export default function ReportDetailPage({
     );
 
     return () => unsubUpvote();
-  }, [reportId, residentUser?.uid, officerSession?.email]);
+  }, [reportId, residentUser?.uid]);
 
   // Subscribe to live comments subcollection
   useEffect(() => {
@@ -317,7 +317,7 @@ export default function ReportDetailPage({
 
   const handleUpvote = async () => {
     const effectiveUserId =
-      residentUser?.uid || officerSession?.email || getOrCreateClientVoterId();
+      residentUser?.uid || auth.currentUser?.uid || getOrCreateClientVoterId();
     const nextState = !hasUpvoted;
     setHasUpvoted(nextState);
     setUpvotes((prev) => (nextState ? prev + 1 : Math.max(0, prev - 1)));
@@ -391,7 +391,7 @@ export default function ReportDetailPage({
       deletedBy: {
         name: officerSession?.name || "Municipal Administrator",
         role: officerSession?.role === "governor" ? "Provincial Governor" : "Municipal Administrator",
-        email: officerSession?.email,
+
       },
       reason,
     });

@@ -94,7 +94,6 @@ export async function POST() {
           {
             uid,
             name: acc.name,
-            email: acc.email,
             role: acc.role,
             office: acc.office,
             barangayOrOffice: acc.barangayOrOffice,
