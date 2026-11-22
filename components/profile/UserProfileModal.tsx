@@ -27,12 +27,14 @@ interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
+  showResidencyVerification: boolean;
 }
 
 export function UserProfileModal({
   isOpen,
   onClose,
   user,
+  showResidencyVerification,
 }: UserProfileModalProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"profile" | "activity" | "privacy">("profile");
@@ -243,7 +245,7 @@ export function UserProfileModal({
                   <h2 className="text-base sm:text-lg font-bold font-heading text-white">
                     {user.displayName || "Paete Resident"}
                   </h2>
-                  <VerificationBadge status={verificationStatus} size="sm" />
+                  {showResidencyVerification && <VerificationBadge status={verificationStatus} size="sm" />}
                 </div>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">{user.email}</p>
               </div>
@@ -271,7 +273,7 @@ export function UserProfileModal({
               }`}
             >
               <UserIcon className="w-3.5 h-3.5" />
-              <span>Identity & Verification</span>
+              <span>{showResidencyVerification ? "Identity & Verification" : "Identity"}</span>
             </button>
 
             <button
@@ -307,42 +309,44 @@ export function UserProfileModal({
             {activeTab === "profile" && (
               <div className="space-y-5">
                 {/* Verification Status Card */}
-                <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">
-                        Current Verification State
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <VerificationBadge status={verificationStatus} size="lg" />
+                {showResidencyVerification && (
+                  <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">
+                          Current Verification State
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <VerificationBadge status={verificationStatus} size="lg" />
+                        </div>
                       </div>
+
+                      {verificationStatus === "unverified" ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsVerificationModalOpen(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all cursor-pointer min-h-[44px] font-heading self-start sm:self-auto"
+                        >
+                          <BadgeCheck className="w-4 h-4" />
+                          <span>Request Barangay Verification</span>
+                        </button>
+                      ) : (
+                        <div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-heading">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Residency Authenticated</span>
+                        </div>
+                      )}
                     </div>
 
-                    {verificationStatus === "unverified" ? (
-                      <button
-                        type="button"
-                        onClick={() => setIsVerificationModalOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition-all cursor-pointer min-h-[44px] font-heading self-start sm:self-auto"
-                      >
-                        <BadgeCheck className="w-4 h-4" />
-                        <span>Request Barangay Verification</span>
-                      </button>
-                    ) : (
-                      <div className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 font-heading">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Residency Authenticated</span>
-                      </div>
-                    )}
+                    <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                      {verificationStatus === "unverified"
+                        ? "Unverified accounts cannot submit community reports. To unlock posting privileges, priority escalation, and official Barangay notifications, complete Barangay Residency verification."
+                        : verificationStatus === "pending"
+                        ? "Your Barangay Residency verification is currently pending review by municipal authorities. Once approved, you can post community concerns."
+                        : "Your account is authenticated with the Paete LGU Registry. Your submissions carry official verified weight and are prioritized by barangay marshals."}
+                    </p>
                   </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                    {verificationStatus === "unverified"
-                      ? "Unverified accounts cannot submit community reports. To unlock posting privileges, priority escalation, and official Barangay notifications, complete Barangay Residency verification."
-                      : verificationStatus === "pending"
-                      ? "Your Barangay Residency verification is currently pending review by municipal authorities. Once approved, you can post community concerns."
-                      : "Your account is authenticated with the Paete LGU Registry. Your submissions carry official verified weight and are prioritized by barangay marshals."}
-                  </p>
-                </div>
+                )}
 
                 {/* Account Details Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
@@ -598,16 +602,18 @@ export function UserProfileModal({
       </div>
 
       {/* Embedded Barangay Verification Modal */}
-      <BarangayVerificationModal
-        isOpen={isVerificationModalOpen}
-        onClose={() => setIsVerificationModalOpen(false)}
-        userId={user.uid}
-        userEmail={user.email || ""}
-        userName={user.displayName || ""}
-        onVerificationSubmitted={() => {
-          setVerificationStatus("pending");
-        }}
-      />
+      {showResidencyVerification && (
+        <BarangayVerificationModal
+          isOpen={isVerificationModalOpen}
+          onClose={() => setIsVerificationModalOpen(false)}
+          userId={user.uid}
+          userEmail={user.email || ""}
+          userName={user.displayName || ""}
+          onVerificationSubmitted={() => {
+            setVerificationStatus("pending");
+          }}
+        />
+      )}
     </>
   );
 }

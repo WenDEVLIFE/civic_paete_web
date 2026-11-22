@@ -22,6 +22,7 @@ import {
 import { auth, db, googleProvider } from "@/lib/firebase";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { useResidencyVerificationVisibility } from "@/lib/hooks/useResidencyVerificationVisibility";
 import { UserProfileModal } from "@/components/profile/UserProfileModal";
 import {
   subscribeToUserVerification,
@@ -31,6 +32,7 @@ import {
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const showResidencyVerification = useResidencyVerificationVisibility(user, db);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>("unverified");
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -290,7 +292,7 @@ export function Navbar() {
                         <span className="text-xs font-semibold text-white max-w-[120px] truncate">
                           {user.displayName || "Paete Resident"}
                         </span>
-                        {verificationStatus === "barangay_verified" || verificationStatus === "community_leader" ? (
+                        {showResidencyVerification && (verificationStatus === "barangay_verified" || verificationStatus === "community_leader" ? (
                           <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-heading">
                             <UserCheck className="w-2.5 h-2.5" />
                             <span>Verified Resident</span>
@@ -304,7 +306,7 @@ export function Navbar() {
                           <span className="text-[10px] text-slate-400 flex items-center gap-1 font-heading">
                             <span>Unverified</span>
                           </span>
-                        )}
+                        ))}
                       </div>
                     </button>
 
@@ -514,6 +516,7 @@ export function Navbar() {
           isOpen={isProfileModalOpen}
           onClose={() => setIsProfileModalOpen(false)}
           user={user}
+          showResidencyVerification={showResidencyVerification}
         />
       )}
     </>
